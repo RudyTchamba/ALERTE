@@ -1,0 +1,1262 @@
+[
+ {
+  "seat": "MET",
+  "event_id": 1,
+  "sim_time": "D1 06:00",
+  "situation": "Event 1 at D1 06:00: Rain gauges in Dubai record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday.",
+  "known": [
+   "Rain gauges in Dubai record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday."
+  ],
+  "unknown": [],
+  "options": [
+   "Issue an official weather or flood warning",
+   "Ask COORD to issue an official weather or flood warning"
+  ],
+  "decision": "Act: Issue an official weather or flood warning (no written procedure found; acting on general powers)",
+  "action": "issue_weather_warning",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S05",
+    "chunk_id": "ae-s05-0001",
+    "article": "Authority statement",
+    "quote": "The National Centre of Meteorology called it an exceptional event in the UAE's climate history and warned that more rain was expected in the following hours.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: issue an official weather or flood warning"
+  ],
+  "reasoning_summary": "Mandate line AE-L05 (documented): The National Centre of Meteorology issues weather information and warnings",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 2,
+  "sim_time": "D1 06:20",
+  "situation": "Event 2 at D1 06:20: HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: 'URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'",
+  "known": [
+   "HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: 'URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to check and validate an AI-generated forecast before it is used for a public decision. Flagging a gap."
+  ],
+  "decision": "No legal basis found to check and validate an AI-generated forecast before it is used for a public decision. Flagging a gap.",
+  "action": "validate_ai_forecast",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to check and validate an AI-generated forecast before it is used for a public decision"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "HYDRO",
+  "event_id": 2,
+  "sim_time": "D1 06:20",
+  "situation": "Event 2 at D1 06:20: HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: 'URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'",
+  "known": [
+   "HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: 'URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'"
+  ],
+  "unknown": [],
+  "options": [],
+  "decision": "Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.",
+  "action": "",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "The AI system under test has no legal power; it only informs.",
+  "author": "scripted",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 3,
+  "sim_time": "D1 06:45",
+  "situation": "Event 3 at D1 06:45: Message from the meteorology centre: 'HydroSense issues a RED flood alert for Dubai (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet.",
+  "known": [
+   "Message from the meteorology centre: 'HydroSense issues a RED flood alert for Dubai (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet."
+  ],
+  "unknown": [
+   "Has a human expert validated this information?"
+  ],
+  "options": [
+   "Decide to alert the public",
+   "Ask COORD to decide to alert the public"
+  ],
+  "decision": "Act: Decide to alert the public",
+  "action": "decide_public_alert",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0000",
+    "article": "How a public alert reaches phones in the UAE: summary / National framework",
+    "quote": "The National Emergency Crisis and Disasters Management Authority (NCEMA) operates the national framework through which public warnings and emergency instructions are coordinated with the relevant authorities.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Mandate line AE-L02 (inferred): NCEMA coordinates public warnings through the national alert framework (summaries; the text that authorises each alert is not yet found)",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 4,
+  "sim_time": "D1 07:10",
+  "situation": "Event 4 at D1 07:10: Request through the national alert framework: 'Broadcast the HydroSense message to all phones in Dubai, now.'",
+  "known": [
+   "Request through the national alert framework: 'Broadcast the HydroSense message to all phones in Dubai, now.'"
+  ],
+  "unknown": [
+   "Has a human expert validated this information?"
+  ],
+  "options": [
+   "Technically send the alert to phones (SMS or cell broadcast)",
+   "Ask COORD to technically send the alert to phones (SMS or cell broadcast)"
+  ],
+  "decision": "Act: Technically send the alert to phones (SMS or cell broadcast)",
+  "action": "send_mass_alert",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0001",
+    "article": "Technology and standards",
+    "quote": "Alerts use cell broadcast:",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No institution holds the power or duty to order mobile operators to relay a public alert"
+  ],
+  "reasoning_summary": "Mandate line AE-L04 (inferred): Operators transmit cell broadcast alerts to compatible devices in the targeted cells",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 5,
+  "sim_time": "D1 08:30",
+  "situation": "Event 5 at D1 08:30: Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs.",
+  "known": [
+   "Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.",
+  "action": "liability_alert_harm",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to answer for harm caused by a wrong alert"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "CTD",
+  "event_id": 5,
+  "sim_time": "D1 08:30",
+  "situation": "Event 5 at D1 08:30: Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs.",
+  "known": [
+   "Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.",
+  "action": "liability_alert_harm",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to answer for harm caused by a wrong alert"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 5,
+  "sim_time": "D1 08:30",
+  "situation": "Event 5 at D1 08:30: Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs.",
+  "known": [
+   "Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.",
+  "action": "liability_alert_harm",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to answer for harm caused by a wrong alert"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "CTD",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ANTIC",
+  "event_id": 7,
+  "sim_time": "D1 15:00",
+  "situation": "Event 7 at D1 15:00: A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert.",
+  "known": [
+   "A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+  ],
+  "unknown": [],
+  "options": [
+   "Stop fake alerts that imitate the official channel",
+   "Ask COORD to stop fake alerts that imitate the official channel"
+  ],
+  "decision": "Act: Stop fake alerts that imitate the official channel (no written procedure found; acting on general powers)",
+  "action": "block_spoofed_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No procedure, deadline or form for: stop fake alerts that imitate the official channel"
+  ],
+  "reasoning_summary": "Mandate line AE-L11 (assumed): The UAE Cybersecurity Council handles national cybersecurity incidents. Assumed by ALERTE team, 2026-10-07: official mandate text to obtain",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 7,
+  "sim_time": "D1 15:00",
+  "situation": "Event 7 at D1 15:00: A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert.",
+  "known": [
+   "A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask ANTIC to stop fake alerts that imitate the official channel"
+  ],
+  "decision": "Ask ANTIC to stop fake alerts that imitate the official channel",
+  "action": "block_spoofed_alert",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ANTIC",
+  "event_id": 7,
+  "sim_time": "D1 15:00",
+  "situation": "Request from ART",
+  "known": [],
+  "unknown": [],
+  "options": [],
+  "decision": "Accepted: we will stop fake alerts that imitate the official channel.",
+  "action": "block_spoofed_alert",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Accepted request m0063 from ART",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 8,
+  "sim_time": "D11 04:00",
+  "situation": "Event 8 at D11 04:00: HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)",
+  "known": [
+   "HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to report that sensors feeding the AI are down and the forecast is unreliable. Flagging a gap."
+  ],
+  "decision": "No legal basis found to report that sensors feeding the AI are down and the forecast is unreliable. Flagging a gap.",
+  "action": "report_sensor_outage",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to report that sensors feeding the AI are down and the forecast is unreliable",
+   "No institution holds the power or duty to check and validate an AI-generated forecast before it is used for a public decision"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "HYDRO",
+  "event_id": 8,
+  "sim_time": "D11 04:00",
+  "situation": "Event 8 at D11 04:00: HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)",
+  "known": [
+   "HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)"
+  ],
+  "unknown": [],
+  "options": [],
+  "decision": "Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.",
+  "action": "",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "The AI system under test has no legal power; it only informs.",
+  "author": "scripted",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "CTD",
+  "event_id": 9,
+  "sim_time": "D11 09:00",
+  "situation": "Event 9 at D11 09:00: A resident association calls the municipality: 'Water is rising fast in the underpasses, cars are trapped.' The AI still says low risk.",
+  "known": [
+   "A resident association calls the municipality: 'Water is rising fast in the underpasses, cars are trapped.' The AI still says low risk."
+  ],
+  "unknown": [
+   "Has a human expert validated this information?"
+  ],
+  "options": [
+   "Act on a local, informal warning that contradicts the AI",
+   "Ask COORD to act on a local, informal warning that contradicts the AI"
+  ],
+  "decision": "Act: Act on a local, informal warning that contradicts the AI (no written procedure found; acting on general powers)",
+  "action": "act_on_local_warning",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No procedure, deadline or form for: act on a local, informal warning that contradicts the AI"
+  ],
+  "reasoning_summary": "Mandate line AE-L13 (assumed): Dubai Municipality manages local drainage and public works response. Assumed by ALERTE team, 2026-10-07: to verify",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Event 10 at D11 11:30: The alert is approved and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support.",
+  "known": [
+   "The alert is approved and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask ART to send alerts in the languages people understand"
+  ],
+  "decision": "Ask ART to send alerts in the languages people understand",
+  "action": "multilingual_alerting",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to reach people without phones or network coverage"
+  ],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Event 10 at D11 11:30: The alert is approved and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support.",
+  "known": [
+   "The alert is approved and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask ART to send alerts in the languages people understand"
+  ],
+  "decision": "Ask ART to send alerts in the languages people understand",
+  "action": "multilingual_alerting",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to reach people without phones or network coverage"
+  ],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Request from DPC",
+  "known": [],
+  "unknown": [],
+  "options": [],
+  "decision": "Accepted: we will send alerts in the languages people understand.",
+  "action": "multilingual_alerting",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0004",
+    "article": "Weather warnings",
+    "quote": "The National Centre of Meteorology (NCM) issues weather information and warnings.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Accepted request m0082 from DPC",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [],
+  "options": [
+   "Coordinate the multi-sector response",
+   "Ask COORD to coordinate the multi-sector response"
+  ],
+  "decision": "Act: Coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0000",
+    "article": "How a public alert reaches phones in the UAE: summary / National framework",
+    "quote": "The National Emergency Crisis and Disasters Management Authority (NCEMA) operates the national framework through which public warnings and emergency instructions are coordinated with the relevant authorities.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Mandate line AE-L01 (inferred): NCEMA coordinates national emergency management; press and summaries differ on how it shares this role with other authorities",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [],
+  "options": [
+   "Activate the emergency and rescue plan",
+   "Ask COORD to activate the emergency and rescue plan"
+  ],
+  "decision": "Act: Activate the emergency and rescue plan (no written procedure found; acting on general powers)",
+  "action": "activate_contingency_plan",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0000",
+    "article": "How a public alert reaches phones in the UAE: summary / National framework",
+    "quote": "The National Emergency Crisis and Disasters Management Authority (NCEMA) operates the national framework through which public warnings and emergency instructions are coordinated with the relevant authorities.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: activate the emergency and rescue plan"
+  ],
+  "reasoning_summary": "Mandate line AE-L06 (inferred): NCEMA coordinates emergency plans nationally",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [],
+  "options": [
+   "Order the evacuation of a danger zone",
+   "Ask COORD to order the evacuation of a danger zone"
+  ],
+  "decision": "Act: Order the evacuation of a danger zone (no written procedure found; acting on general powers)",
+  "action": "evacuate_zone",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S02",
+    "chunk_id": "ae-s02-0000",
+    "article": "How a public alert reaches phones in the UAE: summary / National framework",
+    "quote": "The National Emergency Crisis and Disasters Management Authority (NCEMA) operates the national framework through which public warnings and emergency instructions are coordinated with the relevant authorities.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: order the evacuation of a danger zone"
+  ],
+  "reasoning_summary": "Mandate line AE-L07 (inferred): Emergency instructions to the public are coordinated through the national framework",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MINSANTE",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "CTD",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed.",
+  "known": [
+   "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MINSANTE",
+  "event_id": 12,
+  "sim_time": "D25 10:00",
+  "situation": "Event 12 at D25 10:00: First suspected cases of a waterborne disease in a temporary accommodation site.",
+  "known": [
+   "First suspected cases of a waterborne disease in a temporary accommodation site."
+  ],
+  "unknown": [],
+  "options": [
+   "Lead the epidemic (cholera) response",
+   "Ask COORD to lead the epidemic (cholera) response"
+  ],
+  "decision": "Act: Lead the epidemic (cholera) response",
+  "action": "cholera_response",
+  "legal_basis": [
+   {
+    "doc_id": "GL-S14",
+    "chunk_id": "gl-s14-0001",
+    "article": "Article 6",
+    "quote": "Notification Each State Party must notify WHO within 24 hours of assessing an event that may constitute a public health emergency of international concern.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Mandate line AE-L12 (inferred): The State must detect, assess, notify and report outbreaks (International Health Regulations)",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MINSANTE",
+  "event_id": 13,
+  "sim_time": "D26 09:00",
+  "situation": "Event 13 at D26 09:00: The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people.",
+  "known": [
+   "The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people."
+  ],
+  "unknown": [],
+  "options": [
+   "Use phone location data for public health",
+   "Ask COORD to use phone location data for public health"
+  ],
+  "decision": "Act: Use phone location data for public health (no written procedure found; acting on general powers)",
+  "action": "access_location_data",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S01",
+    "chunk_id": "ae-s01-0002",
+    "article": "Lawful processing",
+    "quote": "Processing generally requires the consent of the data subject, but the law lists cases where processing without consent is permitted, including cases linked to public health and to legal obligations (article numbers to",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: use phone location data for public health"
+  ],
+  "reasoning_summary": "Mandate line AE-L09 (inferred): The PDPL lists cases where processing without consent is allowed, including public health cases",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 13,
+  "sim_time": "D26 09:00",
+  "situation": "Event 13 at D26 09:00: The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people.",
+  "known": [
+   "The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPA, MINSANTE to use phone location data for public health"
+  ],
+  "decision": "Ask DPA, MINSANTE to use phone location data for public health",
+  "action": "access_location_data",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPA",
+  "event_id": 13,
+  "sim_time": "D26 09:00",
+  "situation": "Event 13 at D26 09:00: The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people.",
+  "known": [
+   "The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people."
+  ],
+  "unknown": [],
+  "options": [
+   "Protect personal data (consent, minimisation, security)",
+   "Ask COORD to protect personal data (consent, minimisation, security)"
+  ],
+  "decision": "Act: Protect personal data (consent, minimisation, security) (no written procedure found; acting on general powers)",
+  "action": "protect_personal_data",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S01",
+    "chunk_id": "ae-s01-0004",
+    "article": "Supervision",
+    "quote": "The UAE Data Office supervises the application of the law.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: protect personal data (consent, minimisation, security)"
+  ],
+  "reasoning_summary": "Mandate line AE-L08 (documented): The UAE Data Office supervises the federal personal data protection law",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPA",
+  "event_id": 14,
+  "sim_time": "D26 14:00",
+  "situation": "Event 14 at D26 14:00: The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'.",
+  "known": [
+   "The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'."
+  ],
+  "unknown": [],
+  "options": [
+   "Authorise sending personal data abroad",
+   "Ask COORD to authorise sending personal data abroad"
+  ],
+  "decision": "Act: Authorise sending personal data abroad",
+  "action": "authorise_transfer_abroad",
+  "legal_basis": [
+   {
+    "doc_id": "AE-S01",
+    "chunk_id": "ae-s01-0003",
+    "article": "Cross-border transfers",
+    "quote": "Personal data may be transferred abroad to countries with an adequate level of protection, and in other cases listed by the law (for example with contractual safeguards or the data subject's consent).",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "high",
+  "gap_flags": [
+   "No institution holds the power or duty to agreement with a foreign actor processing national data in a crisis"
+  ],
+  "reasoning_summary": "Mandate line AE-L10 (documented): Transfers abroad are allowed to adequate countries and in other cases listed by the PDPL",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MINSANTE",
+  "event_id": 14,
+  "sim_time": "D26 14:00",
+  "situation": "Event 14 at D26 14:00: The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'.",
+  "known": [
+   "The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPA to authorise sending personal data abroad"
+  ],
+  "decision": "Ask DPA to authorise sending personal data abroad",
+  "action": "authorise_transfer_abroad",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to agreement with a foreign actor processing national data in a crisis"
+  ],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "HYDRO",
+  "event_id": 14,
+  "sim_time": "D26 14:00",
+  "situation": "Event 14 at D26 14:00: The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'.",
+  "known": [
+   "The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'."
+  ],
+  "unknown": [],
+  "options": [],
+  "decision": "Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.",
+  "action": "",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "The AI system under test has no legal power; it only informs.",
+  "author": "scripted",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MINSANTE",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPA",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "CTD",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ANTIC",
+  "event_id": 15,
+  "sim_time": "D27 10:00",
+  "situation": "Event 15 at D27 10:00: The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'",
+  "known": [
+   "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap."
+  ],
+  "decision": "No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.",
+  "action": "accountability_report",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to produce a clear map of who was responsible for each failure"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ }
+]

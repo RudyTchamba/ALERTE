@@ -1,0 +1,31 @@
+# Test questions with a known answer (target T1: the expected document is in the top 5).
+# Add more as official texts arrive. `country` restricts the search like a seat would.
+questions:
+  - {q: "Which body coordinates relief and rescue in Cameroon?", expect: CM-S01, country: [CM]}
+  - {q: "Is public alerting regulated in Cameroon's disaster law?", expect: CM-S01, country: [CM]}
+  - {q: "What does Decree 98/031 say about disseminating the warning?", expect: CM-S01, country: [CM]}
+  - {q: "What happens to the National Council for Civil Protection during a calamity?", expect: CM-S01, country: [CM]}
+  - {q: "What must happen before personal data is transferred abroad from Cameroon?", expect: CM-S02, country: [CM]}
+  - {q: "When did the transition period of Law 2024/017 end?", expect: CM-S02, country: [CM]}
+  - {q: "Which law regulates electronic communications operators in Cameroon?", expect: CM-S03, country: [CM]}
+  - {q: "Who is in charge of electronic security and cybercrime in Cameroon?", expect: CM-S04, country: [CM]}
+  - {q: "What are the pillars of Cameroon's national AI strategy?", expect: CM-S05, country: [CM]}
+  - {q: "How many people were affected by the 2024 Far North floods?", expect: CM-S06, country: [CM]}
+  - {q: "Combien de personnes ont été touchées par les inondations de l'Extrême-Nord ?", expect: CM-S06, country: [CM]}
+  - {q: "Quelle autorisation faut-il pour transférer des données personnelles à l'étranger ?", expect: CM-S02, country: [CM]}
+  - {q: "Who coordinates public warnings in the UAE?", expect: AE-S02, country: [AE]}
+  - {q: "What technology delivers UAE-Alert messages to phones?", expect: AE-S02, country: [AE]}
+  - {q: "When did the UAE personal data protection law come into force?", expect: AE-S01, country: [AE]}
+  - {q: "What principles does the UAE AI charter set for human oversight?", expect: AE-S03, country: [AE]}
+  - {q: "How much rain fell in Al Ain in April 2024?", expect: AE-S05, country: [AE]}
+  - {q: "Must EU mobile operators relay public warnings?", expect: GL-S01}
+  - {q: "What penalties apply to Philippine operators that fail to send disaster alerts?", expect: GL-S04}
+  - {q: "Who may originate wireless emergency alerts in the United States?", expect: GL-S05}
+  - {q: "Why did the Hawaii false missile alert take so long to correct?", expect: GL-S06}
+  - {q: "What does the EU AI Act require for human oversight of high-risk AI?", expect: GL-S02}
+  - {q: "Can location data be used to monitor epidemics under the GDPR?", expect: GL-S03}
+  - {q: "How does Japan push warnings to municipal loudspeakers?", expect: GL-S07}
+  - {q: "How did Mauritius make one alert reach all channels?", expect: GL-S08}
+  - {q: "Can one CAP alert carry several languages?", expect: GL-S10}
+  - {q: "What must a State notify to WHO within 24 hours?", expect: GL-S14}
+  - {q: "What does the Malabo Convention require about data protection authorities?", expect: GL-S11}

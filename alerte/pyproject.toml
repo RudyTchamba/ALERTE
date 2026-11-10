@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alerte"
+version = "1.1.0"
+description = "ALERTE: crisis-drill simulator where AI agents play a country's institutions during an AI alerting failure, and surface gaps in the rules (ITU AI for Good Lab Hackathon, UAE 2026)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "ALERTE team" }]
+dependencies = [
+  "pydantic>=2.5",
+  "PyYAML>=6.0",
+  "numpy>=1.24",
+  "PyMuPDF>=1.24",
+  "streamlit>=1.40",
+  "markdown>=3.5",
+  "python-docx>=1.1",
+  "pytesseract>=0.3.10",
+  "opencv-python-headless>=4.8",
+  "Pillow>=10.0",
+  "python-pptx>=0.6.23",
+  "openpyxl>=3.1",
+  "xlrd>=2.0.1",
+  "rapidfuzz>=3.5",
+  "striprtf>=0.0.26",
+]
+
+[project.optional-dependencies]
+full = ["chromadb>=0.5", "fastembed>=0.3"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+alerte = "alerte.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["alerte*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,33 @@
+# Runs the ALERTE tests on Windows, macOS and Linux at every push (free for public repositories).
+name: ALERTE tests
+on:
+  push:
+    paths: ["alerte/**", ".github/workflows/alerte-ci.yml"]
+  pull_request:
+    paths: ["alerte/**"]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.12"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: alerte
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: alerte/requirements.txt
+      - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+      - run: python -m pip install -r requirements.txt
+      - run: python -m alerte ocr-setup
+      - run: python -m pytest
+      - run: python -m alerte ingest --itu no
+      - run: python -m alerte run ae-core
+      - run: python -m alerte run cm-core
+      - run: python -m alerte eval --scenarios ae-core cm-core

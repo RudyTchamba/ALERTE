@@ -1,0 +1,135 @@
+# Actions that a crisis can require. Each scenario event lists the actions it requires;
+# the gap finder checks who (if anyone) holds the power or duty to perform them.
+# category decides the gap type when nobody holds the action:
+#   alerting/coordination/health/data -> G1 (nobody in charge), liability -> G6,
+#   inclusion -> G7, ai_oversight -> G8, security -> G9, cross_border -> G10
+actions:
+  - code: issue_weather_warning
+    label: Issue an official weather or flood warning
+    label_fr: "émettre un avis officiel de météo ou de crue"
+    category: alerting
+    keywords: [weather warning, forecast, meteorology, risk information, flood warning]
+  - code: validate_ai_forecast
+    label: Check and validate an AI-generated forecast before it is used for a public decision
+    label_fr: "vérifier et valider une prévision produite par l'IA avant une décision publique"
+    category: ai_oversight
+    keywords: [validate, human oversight, AI forecast, automation bias, verification]
+  - code: decide_public_alert
+    label: Decide to alert the public
+    label_fr: "décider d'alerter la population"
+    category: alerting
+    keywords: [public warning, alert the population, disseminate the warning, emergency plan]
+  - code: compel_operator_alert
+    label: Order mobile operators to relay a public alert
+    label_fr: "ordonner aux opérateurs mobiles de relayer une alerte publique"
+    category: alerting
+    keywords: [operators relay public warnings, mobile operators, mandatory alerts, cell broadcast]
+  - code: send_mass_alert
+    label: Technically send the alert to phones (SMS or cell broadcast)
+    label_fr: "envoyer techniquement l'alerte aux téléphones (SMS ou diffusion cellulaire)"
+    category: alerting
+    keywords: [send SMS, cell broadcast, network, subscribers]
+  - code: correct_false_alert
+    label: Correct or cancel a false alert
+    label_fr: "corriger ou annuler une fausse alerte"
+    category: alerting
+    keywords: [false alert, correction, cancel, update message]
+  - code: liability_alert_harm
+    label: Answer for harm caused by a wrong alert
+    label_fr: "répondre des dommages causés par une alerte erronée"
+    category: liability
+    keywords: [liability, responsible, harm, compensation, good faith]
+  - code: block_spoofed_alert
+    label: Stop fake alerts that imitate the official channel
+    label_fr: "stopper les fausses alertes qui imitent le canal officiel"
+    category: security
+    keywords: [spoofing, fake alert, phishing, cybercrime, fraudulent link]
+  - code: report_sensor_outage
+    label: Report that sensors feeding the AI are down and the forecast is unreliable
+    label_fr: "signaler que les capteurs de l'IA sont en panne et la prévision peu fiable"
+    category: ai_oversight
+    keywords: [sensor outage, data quality, validity conditions, reliability]
+  - code: act_on_local_warning
+    label: Act on a local, informal warning that contradicts the AI
+    label_fr: "agir sur une alerte locale qui contredit l'IA"
+    category: coordination
+    keywords: [village chief, local warning, community report, field report]
+  - code: multilingual_alerting
+    label: Send alerts in the languages people understand
+    label_fr: "alerter dans les langues comprises par la population"
+    category: inclusion
+    keywords: [language, translation, multilingual, local languages]
+  - code: reach_unconnected
+    label: Reach people without phones or network coverage
+    label_fr: "atteindre les personnes sans téléphone ni couverture réseau"
+    category: inclusion
+    keywords: [coverage, unconnected, radio, sirens, loudspeakers, inclusion]
+  - code: activate_contingency_plan
+    label: Activate the emergency and rescue plan
+    label_fr: "activer le plan d'urgence et de secours"
+    category: coordination
+    keywords: [emergency plan, rescue plan, contingency plan, activation]
+  - code: evacuate_zone
+    label: Order the evacuation of a danger zone
+    label_fr: "ordonner l'évacuation d'une zone dangereuse"
+    category: coordination
+    keywords: [evacuation, danger zone, relocate]
+  - code: coordinate_response
+    label: Coordinate the multi-sector response
+    label_fr: "coordonner la réponse multisectorielle"
+    category: coordination
+    keywords: [coordinate relief, crisis committee, rescue operations]
+  - code: cholera_response
+    label: Lead the epidemic (cholera) response
+    label_fr: "piloter la riposte à l'épidémie (choléra)"
+    category: health
+    keywords: [cholera, epidemic, outbreak, notify, public health]
+  - code: access_location_data
+    label: Use phone location data for public health
+    label_fr: "utiliser les données de localisation téléphonique pour la santé publique"
+    category: data
+    keywords: [location data, mobile data, contact tracing, public health]
+    conflicts_with: [protect_personal_data]
+  - code: protect_personal_data
+    label: Protect personal data (consent, minimisation, security)
+    label_fr: "protéger les données personnelles"
+    category: data
+    keywords: [personal data, consent, privacy, data protection]
+  - code: authorise_transfer_abroad
+    label: Authorise sending personal data abroad
+    label_fr: "autoriser le transfert de données personnelles à l'étranger"
+    category: cross_border
+    keywords: [transfer abroad, prior authorisation, adequate protection, cross-border]
+  - code: cross_border_agreement
+    label: Agreement with a foreign actor processing national data in a crisis
+    label_fr: "conclure un accord avec un acteur étranger qui traite des données nationales"
+    category: cross_border
+    keywords: [foreign provider, cloud abroad, agreement, jurisdiction]
+  - code: public_communication_after_error
+    label: Explain publicly what went wrong after an error
+    label_fr: "expliquer publiquement l'erreur"
+    category: coordination
+    keywords: [public communication, press, accountability, trust]
+  - code: accountability_report
+    label: Produce a clear map of who was responsible for each failure
+    label_fr: "établir clairement qui était responsable de chaque défaillance"
+    category: coordination
+    keywords: [report, parliament, responsibility, accountability]
+  - code: set_alert_standard
+    label: Set the technical standard for public alert messages on phones
+    label_fr: "fixer la norme technique des messages d'alerte publique sur les téléphones"
+    category: alerting
+    keywords: [technical standard, handset specification, cell broadcast, message format, UAE-Alert]
+  - code: human_validate_ai_alert
+    label: Approve an AI-drafted alert through a human validation step before release
+    label_fr: "approuver par une validation humaine une alerte rédigée par l'IA avant sa diffusion"
+    category: ai_oversight
+    gap_type: G3
+    keywords: [human oversight, human approval, validation, AI-drafted alert, logging]
+  - code: authorise_automatic_ai_alert
+    label: Authorise automatic release of AI-drafted alerts without human validation
+    label_fr: "autoriser la diffusion automatique d'alertes rédigées par l'IA sans validation humaine"
+    category: ai_oversight
+    gap_type: G8
+    keywords: [automatic release, automated decision, human in the loop, AI vendor, deployer duties]
+

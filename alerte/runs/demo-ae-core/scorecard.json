@@ -1,0 +1,138 @@
+[
+ {
+  "dimension_id": 1,
+  "name": "Data/Model Marketplace",
+  "score": -1.0,
+  "evidence": [
+   "not assessed by this story"
+  ]
+ },
+ {
+  "dimension_id": 2,
+  "name": "Generated Content Marketplace",
+  "score": 0.7,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G8-14 AI unchecked: Authorise automatic release of AI-drafted alerts without human validation",
+   "G9-18 Channel unprotected: Stop fake alerts that imitate the official channel"
+  ]
+ },
+ {
+  "dimension_id": 3,
+  "name": "Cross-Domain Correlation Analysis",
+  "score": 2.8,
+  "evidence": [
+   "G2-02 Two in charge: Decide to alert the public",
+   "G2-07 Two in charge: Act on a local, informal warning that contradicts the AI",
+   "G2-11 Two in charge: Coordinate the multi-sector response"
+  ]
+ },
+ {
+  "dimension_id": 4,
+  "name": "Contextualization and Regional Impact",
+  "score": 3.0,
+  "evidence": [
+   "G7-09 People left out: Send alerts in the languages people understand",
+   "G7-10 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 5,
+  "name": "Level of Integration of AI in Workflows",
+  "score": 0.0,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G3-03 No procedure: Approve an AI-drafted alert through a human validation step before release",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G3-08 No procedure: Act on a local, informal warning that contradicts the AI",
+   "G3-12 No procedure: Activate the emergency and rescue plan",
+   "G3-13 No procedure: Order the evacuation of a danger zone",
+   "G8-14 AI unchecked: Authorise automatic release of AI-drafted alerts without human validation",
+   "G3-15 No procedure: Issue an official weather or flood warning"
+  ]
+ },
+ {
+  "dimension_id": 6,
+  "name": "Human Interface",
+  "score": 3.0,
+  "evidence": [
+   "G7-09 People left out: Send alerts in the languages people understand",
+   "G7-10 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 7,
+  "name": "Strategy Alignment",
+  "score": 0.0,
+  "evidence": [
+   "G2-02 Two in charge: Decide to alert the public",
+   "G3-03 No procedure: Approve an AI-drafted alert through a human validation step before release",
+   "G1-04 Nobody in charge: Order mobile operators to relay a public alert",
+   "G2-07 Two in charge: Act on a local, informal warning that contradicts the AI",
+   "G3-08 No procedure: Act on a local, informal warning that contradicts the AI",
+   "G2-11 Two in charge: Coordinate the multi-sector response",
+   "G3-12 No procedure: Activate the emergency and rescue plan",
+   "G3-13 No procedure: Order the evacuation of a danger zone",
+   "G3-15 No procedure: Issue an official weather or flood warning",
+   "G1-16 Nobody in charge: Correct or cancel a false alert",
+   "G1-17 Nobody in charge: Explain publicly what went wrong after an error"
+  ]
+ },
+ {
+  "dimension_id": 8,
+  "name": "Collaboration with AI",
+  "score": 1.2,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G8-14 AI unchecked: Authorise automatic release of AI-drafted alerts without human validation"
+  ]
+ },
+ {
+  "dimension_id": 9,
+  "name": "Impacts of Humans in AI Integration",
+  "score": 1.2,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G8-14 AI unchecked: Authorise automatic release of AI-drafted alerts without human validation"
+  ]
+ },
+ {
+  "dimension_id": 10,
+  "name": "AI & Policies",
+  "score": 0.5,
+  "evidence": [
+   "G1-04 Nobody in charge: Order mobile operators to relay a public alert",
+   "G6-05 Nobody answers for harm: Answer for harm caused by a wrong alert",
+   "G1-16 Nobody in charge: Correct or cancel a false alert",
+   "G1-17 Nobody in charge: Explain publicly what went wrong after an error"
+  ]
+ },
+ {
+  "dimension_id": 11,
+  "name": "AI for Inclusion",
+  "score": 3.0,
+  "evidence": [
+   "G7-09 People left out: Send alerts in the languages people understand",
+   "G7-10 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 12,
+  "name": "Granular Priorities",
+  "score": -1.0,
+  "evidence": [
+   "not assessed by this story"
+  ]
+ },
+ {
+  "dimension_id": 13,
+  "name": "Digital Infrastructure",
+  "score": 4.4,
+  "evidence": [
+   "G9-18 Channel unprotected: Stop fake alerts that imitate the official channel"
+  ]
+ }
+]

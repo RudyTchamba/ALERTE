@@ -1,0 +1,406 @@
+{
+ "id": "ae01",
+ "title": "Rising Waters, UAE twin",
+ "country": "AE",
+ "language": "en",
+ "fictional_notice": "Fictional exercise. Not a real alert. HydroSense and all numbers in the events are invented; places and institutions are real.",
+ "summary": "The same three acts as the Cameroon story, played with UAE institutions and laws: a false alarm in Dubai, a missed flood in Al Ain (inspired by the record rain of 16 April 2024), and the same health-data question. Used to compare how two legal systems handle the same AI failure.\n",
+ "ai_system": "HYDRO",
+ "roles_file": "roles/ae.yaml",
+ "events": [
+  {
+   "id": 1,
+   "sim_time": "D1 06:00",
+   "to": [
+    "MET"
+   ],
+   "sender": "SENSORS",
+   "text": {
+    "en": "Rain gauges in Dubai record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday."
+   },
+   "act": 1,
+   "required_actions": [
+    "issue_weather_warning"
+   ],
+   "expected_gaps": [
+    "G3"
+   ],
+   "failure_mode": "",
+   "severity": 2,
+   "public": false,
+   "realism_source": [
+    "AE-S05"
+   ]
+  },
+  {
+   "id": 2,
+   "sim_time": "D1 06:20",
+   "to": [
+    "MET",
+    "HYDRO"
+   ],
+   "sender": "HYDRO",
+   "text": {
+    "en": "HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: 'URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'"
+   },
+   "act": 1,
+   "required_actions": [
+    "validate_ai_forecast"
+   ],
+   "expected_gaps": [
+    "G8"
+   ],
+   "failure_mode": "false_alarm",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "SCN-01",
+    "GL-S06"
+   ]
+  },
+  {
+   "id": 3,
+   "sim_time": "D1 06:45",
+   "to": [
+    "DPC"
+   ],
+   "sender": "MET",
+   "text": {
+    "en": "Message from the meteorology centre: 'HydroSense issues a RED flood alert for Dubai (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet."
+   },
+   "act": 1,
+   "required_actions": [
+    "decide_public_alert"
+   ],
+   "expected_gaps": [],
+   "failure_mode": "over_trust",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S02"
+   ]
+  },
+  {
+   "id": 4,
+   "sim_time": "D1 07:10",
+   "to": [
+    "OPS"
+   ],
+   "sender": "DPC",
+   "text": {
+    "en": "Request through the national alert framework: 'Broadcast the HydroSense message to all phones in Dubai, now.'"
+   },
+   "act": 1,
+   "required_actions": [
+    "compel_operator_alert",
+    "send_mass_alert"
+   ],
+   "expected_gaps": [],
+   "failure_mode": "over_trust",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S02"
+   ]
+  },
+  {
+   "id": 5,
+   "sim_time": "D1 08:30",
+   "to": [
+    "DPC",
+    "CTD",
+    "ART"
+   ],
+   "sender": "MEDIA",
+   "text": {
+    "en": "Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs."
+   },
+   "act": 1,
+   "required_actions": [
+    "liability_alert_harm"
+   ],
+   "expected_gaps": [
+    "G6"
+   ],
+   "failure_mode": "false_alarm",
+   "severity": 3,
+   "public": true,
+   "realism_source": [
+    "GL-S06"
+   ]
+  },
+  {
+   "id": 6,
+   "sim_time": "D1 12:00",
+   "to": [
+    "MET",
+    "DPC",
+    "OPS",
+    "ART",
+    "CTD"
+   ],
+   "sender": "MEDIA",
+   "text": {
+    "en": "No flood. Journalists ask who sent the alert and why no correction was sent."
+   },
+   "act": 1,
+   "required_actions": [
+    "correct_false_alert",
+    "public_communication_after_error"
+   ],
+   "expected_gaps": [
+    "G1"
+   ],
+   "failure_mode": "false_alarm",
+   "severity": 2,
+   "public": true,
+   "realism_source": [
+    "GL-S06",
+    "GL-S10"
+   ]
+  },
+  {
+   "id": 7,
+   "sim_time": "D1 15:00",
+   "to": [
+    "ANTIC",
+    "ART"
+   ],
+   "sender": "OPS",
+   "text": {
+    "en": "A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+   },
+   "act": 1,
+   "required_actions": [
+    "block_spoofed_alert"
+   ],
+   "expected_gaps": [
+    "G9"
+   ],
+   "failure_mode": "spoofing",
+   "severity": 2,
+   "public": false,
+   "realism_source": []
+  },
+  {
+   "id": 8,
+   "sim_time": "D11 04:00",
+   "to": [
+    "MET",
+    "HYDRO"
+   ],
+   "sender": "HYDRO",
+   "text": {
+    "en": "HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)"
+   },
+   "act": 2,
+   "required_actions": [
+    "report_sensor_outage",
+    "validate_ai_forecast"
+   ],
+   "expected_gaps": [
+    "G8"
+   ],
+   "failure_mode": "missed_event",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "SCN-01",
+    "AE-S05"
+   ]
+  },
+  {
+   "id": 9,
+   "sim_time": "D11 09:00",
+   "to": [
+    "CTD"
+   ],
+   "sender": "FIELD",
+   "text": {
+    "en": "A resident association calls the municipality: 'Water is rising fast in the underpasses, cars are trapped.' The AI still says low risk."
+   },
+   "act": 2,
+   "required_actions": [
+    "act_on_local_warning"
+   ],
+   "expected_gaps": [
+    "G3"
+   ],
+   "failure_mode": "missed_event",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S05"
+   ]
+  },
+  {
+   "id": 10,
+   "sim_time": "D11 11:30",
+   "to": [
+    "DPC",
+    "OPS"
+   ],
+   "sender": "DPC",
+   "text": {
+    "en": "The alert is approved and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support."
+   },
+   "act": 2,
+   "required_actions": [
+    "multilingual_alerting",
+    "reach_unconnected"
+   ],
+   "expected_gaps": [
+    "G7"
+   ],
+   "failure_mode": "language_exclusion",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "GL-S08",
+    "GL-S09"
+   ]
+  },
+  {
+   "id": 11,
+   "sim_time": "D11 18:00",
+   "to": [
+    "MET",
+    "DPC",
+    "OPS",
+    "ART",
+    "MINSANTE",
+    "CTD"
+   ],
+   "sender": "FIELD",
+   "text": {
+    "en": "Several thousand residents are evacuated from flooded neighbourhoods in Al Ain; schools and clinics are closed."
+   },
+   "act": 2,
+   "required_actions": [
+    "coordinate_response",
+    "activate_contingency_plan",
+    "evacuate_zone"
+   ],
+   "expected_gaps": [
+    "G3"
+   ],
+   "failure_mode": "",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S05"
+   ]
+  },
+  {
+   "id": 12,
+   "sim_time": "D25 10:00",
+   "to": [
+    "MINSANTE"
+   ],
+   "sender": "FIELD",
+   "text": {
+    "en": "First suspected cases of a waterborne disease in a temporary accommodation site."
+   },
+   "act": 3,
+   "required_actions": [
+    "cholera_response"
+   ],
+   "expected_gaps": [],
+   "failure_mode": "",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "GL-S14"
+   ]
+  },
+  {
+   "id": 13,
+   "sim_time": "D26 09:00",
+   "to": [
+    "MINSANTE",
+    "OPS",
+    "DPA"
+   ],
+   "sender": "MINSANTE",
+   "text": {
+    "en": "The health authority asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people."
+   },
+   "act": 3,
+   "required_actions": [
+    "access_location_data",
+    "protect_personal_data"
+   ],
+   "expected_gaps": [
+    "G3",
+    "G5"
+   ],
+   "failure_mode": "privacy_breach",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S01",
+    "GL-S03"
+   ]
+  },
+  {
+   "id": 14,
+   "sim_time": "D26 14:00",
+   "to": [
+    "DPA",
+    "MINSANTE",
+    "HYDRO"
+   ],
+   "sender": "HYDRO",
+   "text": {
+    "en": "The HydroSense vendor offers to analyse the location data on its cloud servers outside the UAE, 'within 24 hours'."
+   },
+   "act": 3,
+   "required_actions": [
+    "authorise_transfer_abroad",
+    "cross_border_agreement"
+   ],
+   "expected_gaps": [
+    "G10"
+   ],
+   "failure_mode": "data_abroad",
+   "severity": 3,
+   "public": false,
+   "realism_source": [
+    "AE-S01",
+    "SCN-01"
+   ]
+  },
+  {
+   "id": 15,
+   "sim_time": "D27 10:00",
+   "to": [
+    "MET",
+    "DPC",
+    "OPS",
+    "ART",
+    "MINSANTE",
+    "DPA",
+    "CTD",
+    "ANTIC"
+   ],
+   "sender": "OVERSIGHT",
+   "text": {
+    "en": "The oversight body requests a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+   },
+   "act": 3,
+   "required_actions": [
+    "accountability_report"
+   ],
+   "expected_gaps": [
+    "G1"
+   ],
+   "failure_mode": "",
+   "severity": 2,
+   "public": true,
+   "realism_source": []
+  }
+ ],
+ "twin_of": "cm01",
+ "profile": "extended",
+ "gap_rules": []
+}
