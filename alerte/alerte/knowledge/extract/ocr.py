@@ -24,7 +24,18 @@ from alerte.knowledge.extract.quality import arabic_ratio, similarity
 
 log = logging.getLogger(__name__)
 
+# Pages are OCR'd in parallel, so each Tesseract process must use ONE thread. Without this, Tesseract's own multithreading
+# multiplies with the parallel pages, the machine is oversubscribed and pages hit the time limit. Override to experiment.
+os.environ.setdefault("OMP_THREAD_LIMIT", "1")
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
+OCR_TIMEOUT = int(os.environ.get("ALERTE_OCR_TIMEOUT", "150"))    # seconds for one Tesseract call
+MAX_SIDE = int(os.environ.get("ALERTE_OCR_MAX_SIDE", "3600"))    # longest image side given to Tesseract (A4 at 300 dpi is 3508)
+
+
+class OcrTimeout(RuntimeError):
+    """Tesseract did not finish in time on this image."""
+
 LANG_FOR = {"fr": "fra+eng", "en": "eng+fra", "ar": "ara+eng"}
 DEFAULT_LANGS = "fra+eng+ara"
 CONF_ACCEPT = float(os.environ.get("ALERTE_OCR_CONF_OK", "88"))      # below this a page is flagged for review
@@ -142,8 +153,8 @@ def scale_to_ocr_size(gray: np.ndarray) -> np.ndarray:
     if longest < 2200:
         f = min(3.0, 2600 / longest)
         return cv2.resize(gray, None, fx=f, fy=f, interpolation=cv2.INTER_CUBIC)
-    if longest > 5200:
-        f = 4600 / longest
+    if longest > MAX_SIDE * 1.1:
+        f = MAX_SIDE / longest
         return cv2.resize(gray, None, fx=f, fy=f, interpolation=cv2.INTER_AREA)
     return gray
 
@@ -256,12 +267,18 @@ def _is_noise(text: str, conf: float) -> bool:
     return alnum == 0 or (conf < 40 and alnum <= 3)
 
 
-def _tesseract(img: np.ndarray, langs: str, psm: int) -> OcrReading:
+def _tesseract(img: np.ndarray, langs: str, psm: int, timeout: int | None = None) -> OcrReading:
     import pytesseract
     from PIL import Image
     st = status()
     cfg = f"--oem 1 --psm {psm} -c preserve_interword_spaces=1"
-    d = pytesseract.image_to_data(Image.fromarray(img), lang=langs, config=cfg, output_type=pytesseract.Output.DICT, timeout=300)
+    try:
+        d = pytesseract.image_to_data(Image.fromarray(img), lang=langs, config=cfg, output_type=pytesseract.Output.DICT,
+                                      timeout=timeout or OCR_TIMEOUT)
+    except RuntimeError as e:
+        if "timeout" in str(e).lower():
+            raise OcrTimeout(f"Tesseract timed out after {timeout or OCR_TIMEOUT}s (psm {psm}, {img.shape[1]}x{img.shape[0]})") from e
+        raise
     words = []
     for i, t in enumerate(d["text"]):
         t = (t or "").strip()
@@ -299,8 +316,48 @@ def _rapidocr(img: np.ndarray) -> OcrReading:  # pragma: no cover - optional eng
     return OcrReading("\n".join(t for _, t, _ in lines), sum(confs) / len(confs) if confs else 0.0, lines, len(lines), "rapidocr")
 
 
+def _try(gray: np.ndarray, kind: str, psm: int, langs: str, timeout: int | None = None) -> OcrReading | None:
+    try:
+        return _tesseract(variant(gray, kind), langs, psm, timeout)
+    except OcrTimeout as e:
+        log.warning("%s", e)
+        return None
+
+
+def looks_sideways(gray: np.ndarray) -> bool:
+    """Do the lines of ink run vertically? Text lines make strong peaks in the row profile when upright and in the column profile
+    when the page was scanned sideways. Ruled tables can fool it, so a positive is only a reason to test the rotations."""
+    h, w = gray.shape[:2]
+    f = 700 / max(h, w)
+    small = cv2.resize(gray, None, fx=f, fy=f, interpolation=cv2.INTER_AREA) if f < 1 else gray
+    bw = cv2.threshold(small, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] > 0
+    if bw.sum() < 300:
+        return False
+    rows, cols = bw.sum(axis=1).astype(np.float64), bw.sum(axis=0).astype(np.float64)
+    return float(np.var(np.diff(cols))) > 1.6 * float(np.var(np.diff(rows)))
+
+
+def _orientation(gray: np.ndarray, langs: str, ks: tuple[int, ...] = (0, 1, 2, 3)) -> tuple[np.ndarray, OcrReading | None]:
+    """Sideways or upside-down page? Decide on small copies (fast), then the caller reads the right way up at full size."""
+    h, w = gray.shape[:2]
+    f = 1400 / max(h, w)
+    small = cv2.resize(gray, None, fx=f, fy=f, interpolation=cv2.INTER_AREA) if f < 1 else gray
+    best_k, best_score = 0, -1.0
+    for k in ks:
+        r = _try(np.rot90(small, k).copy(), "plain", 3, langs, 40)
+        if r is None:
+            continue
+        score = r.conf * min(r.words, 40) / 40
+        if score > best_score + (0 if k == 0 else 12):
+            best_k, best_score = k, score
+    return (np.rot90(gray, best_k).copy() if best_k else gray), None
+
+
 def read_image(gray: np.ndarray, langs: str, thorough: bool = False) -> OcrReading:
-    """Best reading of one clean page image, from several passes. Also returns how well the passes agree."""
+    """Best reading of one page image from up to three passes, with the agreement between passes.
+
+    Cheap on pages that are not text (graphics, photos): one pass, then stop and flag. A pass that times out is retried
+    smaller and in sparse-text mode instead of failing the page."""
     st = status()
     if not st.tesseract:
         if st.rapidocr:
@@ -308,27 +365,43 @@ def read_image(gray: np.ndarray, langs: str, thorough: bool = False) -> OcrReadi
             r.engine = "rapidocr (fallback)"
             return r
         raise RuntimeError("no OCR engine installed")
-    passes = [("clean", 3), ("binary", 6), ("plain", 4)]
-    best = _tesseract(variant(gray, passes[0][0]), langs, passes[0][1])
-    agreement = 1.0
-    # sideways or upside-down scans: try the other orientations when the first reading is poor
-    if best.conf < 60:
-        for ang in (90, 270, 180):
-            r = _tesseract(variant(np.rot90(gray, k={90: 3, 270: 1, 180: 2}[ang]).copy(), "clean"), langs, 3)
-            if r.score > best.score + 15:
-                best = r
-                gray = np.rot90(gray, k={90: 3, 270: 1, 180: 2}[ang]).copy()
+    # First pass on the plain greyscale page: fast, and it keeps light text on dark or busy backgrounds (brochures, slides) that
+    # the shadow-removal clean-up would erase. Clean-up and binarised passes then give second opinions on uncertain pages.
+    if looks_sideways(gray):                # lines of ink run vertically: test the two quarter turns against upright
+        turned, _ = _orientation(gray, langs, (0, 1, 3))
+        gray = turned
+    best = _try(gray, "plain", 3, langs)
+    if best is None:                       # too slow at this size or on this layout: smaller, sparse-text mode
+        h, w = gray.shape[:2]
+        f = 2400 / max(h, w)
+        small = cv2.resize(gray, None, fx=f, fy=f, interpolation=cv2.INTER_AREA) if f < 1 else gray
+        best = _try(small, "plain", 11, langs, 90)
+        if best is None:
+            raise OcrTimeout("Tesseract timed out on this page even in reduced mode")
+        best.engine += " [reduced after a timeout]"
+    if best.conf < 60 and best.words >= 6:          # poor first reading of something that looks like text: wrong way up?
+        turned, _ = _orientation(gray, langs)
+        if turned is not gray:
+            gray = turned
+            again = _try(gray, "plain", 3, langs)
+            if again is not None and again.score > best.score:
+                best = again
     runs = [best]
     if thorough or best.conf < 97:
-        for kind, psm in passes[1:]:
-            r = _tesseract(variant(gray, kind), langs, psm)
-            runs.append(r)
-            if not thorough and len(runs) >= 2 and r.conf >= best.conf:
-                break
+        second = _try(gray, "clean", 3, langs)
+        if second is not None:
+            runs.append(second)
+        top = max(runs, key=lambda r: r.score)
+        graphic = top.conf < 55 and top.words < 30
+        if thorough or (top.conf < 97 and not graphic):
+            third = _try(gray, "binary", 6, langs)
+            if third is not None:
+                runs.append(third)
+        if graphic and not thorough:
+            top.engine += " (not text-like: stopped after two passes)"
     runs.sort(key=lambda r: -r.score)
     best = runs[0]
-    if len(runs) > 1:
-        agreement = similarity(runs[0].text, runs[1].text)
+    agreement = similarity(runs[0].text, runs[1].text) if len(runs) > 1 else 1.0
     best.engine += f" (agreement {agreement:.3f} over {len(runs)} passes)"
     best.lines = list(best.lines)
     best.agreement = agreement  # type: ignore[attr-defined]

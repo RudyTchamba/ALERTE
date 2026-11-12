@@ -97,6 +97,23 @@ pipeline works end to end and protect against regressions (`tests/test_extractio
 100% on your files. Real laws are often photocopies with stamps, faint print, fax artefacts, small fonts and handwriting in the
 margins, where OCR makes errors. Those pages are exactly what the flags and the proofreading loop are for.
 
+## Speed, timeouts and what the console shows
+
+`ingest` prints one line per OCR'd page (`page 5/60: ocr 93% in 7s`). Design choices that keep long documents practical:
+
+- **One thread per Tesseract process** (`OMP_THREAD_LIMIT=1`), because several pages are read in parallel. Letting each Tesseract use all
+  cores while several run at once oversubscribes the machine and pages hit the time limit.
+- **Plain greyscale first.** The first pass keeps light text on dark or busy backgrounds (brochures, slides), which shadow-removal would
+  erase. Clean-up and binarised passes are second opinions on uncertain pages. Pages that are not text (graphics, photos) stop after two passes.
+- **A page with a good exact text layer is cross-checked by OCR only if pictures cover 85% or more of it** (a scan with an earlier OCR layer),
+  or if it is Arabic. A brochure with background pictures keeps its exact text without OCR.
+- **Sideways pages** are detected from the direction of the text lines, then confirmed with quick OCR on small copies.
+- **A timed-out call is retried** smaller and in sparse-text mode (`ALERTE_OCR_TIMEOUT`, `ALERTE_OCR_MAX_SIDE`). Only if that also fails is the
+  page flagged `OCR-FAILED`; for a page with an exact text layer the layer is kept.
+
+If you still see `Tesseract process timeout`, lower `ALERTE_OCR_WORKERS` (try 1 or 2), raise `ALERTE_OCR_TIMEOUT`, delete `index/extract_cache`, and run
+`python -m alerte extract <file> --no-text` on one failing page range to see the per-page report.
+
 ## Known limits
 
 - Handwriting is not read reliably. Stamps or signatures over text can corrupt the words beneath them.

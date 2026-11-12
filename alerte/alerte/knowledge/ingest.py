@@ -176,6 +176,8 @@ def build_index(include_itu: bool | None = None, embed_provider: str | None = No
     docs_dir = s.docs_dir
     out_dir = Path(index_dir or s.index_dir)
     say = progress or (lambda msg: log.info(msg))
+    from alerte.knowledge.extract import pdf as _pdf
+    _pdf.PROGRESS = say
     all_docs: list[DocumentMeta] = []
     chunks: list[Chunk] = []
     seen_files: set[str] = set()        # resolved paths already handled
@@ -258,6 +260,7 @@ def build_index(include_itu: bool | None = None, embed_provider: str | None = No
         info = {"provider": embedder.name, "model": embedder.model}
         rep.vectors = f"{embedder.name}/{embedder.model}"
     rep.chunks = len(chunks)
+    _pdf.PROGRESS = None
     KnowledgeStore.save(out_dir, chunks, all_docs, vectors, info)
     rep.seconds = time.time() - t0
     _write_reports(out_dir, rep)

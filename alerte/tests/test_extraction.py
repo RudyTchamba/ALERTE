@@ -221,3 +221,81 @@ def test_ingest_reads_scanned_files_in_any_folder(data_tree, corpus, tmp_path):
     row = next(r for r in rep.extraction if r["file"].endswith("scanned.pdf"))
     assert row["ocr_pages"] == 1 and row["mean_ocr_confidence"] > 85
     assert rep.ocr_pages >= 1
+
+
+# --------------------------------------------------------------------- speed and robustness on real-world layouts
+def _graphic_page(w=2700, h=1520):
+    import cv2
+    import numpy as np
+    rng = np.random.default_rng(1)
+    bg = cv2.GaussianBlur(rng.integers(0, 255, (h // 8, w // 8, 3), dtype=np.uint8), (0, 0), 3)
+    bg = (cv2.resize(bg, (w, h), interpolation=cv2.INTER_CUBIC) * 0.6 + 80).astype(np.uint8)
+    for _ in range(200):
+        cv2.circle(bg, (int(rng.integers(0, w)), int(rng.integers(0, h))), int(rng.integers(5, 40)),
+                   tuple(int(x) for x in rng.integers(0, 255, 3)), int(rng.integers(1, 5)))
+    cv2.putText(bg, "National Strategy for Artificial Intelligence 2031", (150, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+    return bg
+
+
+def test_tesseract_runs_one_thread_per_process():
+    import os
+    assert os.environ.get("OMP_THREAD_LIMIT") == "1"      # pages are read in parallel: no oversubscription
+
+
+@needs_ocr
+def test_light_text_on_a_busy_background_is_read_and_cheap(monkeypatch):
+    calls = []
+    real = ocr._tesseract
+    monkeypatch.setattr(ocr, "_tesseract", lambda img, langs, psm, timeout=None: (calls.append(psm), real(img, langs, psm, timeout))[1])
+    r = ocr.ocr_page_image(_graphic_page(), "eng+fra")
+    assert "National Strategy for Artificial Intelligence" in r.text, r.text[:200]
+    assert len(calls) <= 6, calls                              # a graphic page must not trigger many passes
+
+
+@needs_ocr
+def test_a_tesseract_timeout_is_retried_smaller_not_fatal(corpus, monkeypatch):
+    from PIL import Image
+    import numpy as np
+    real, state = ocr._tesseract, {"n": 0}
+
+    def flaky(img, langs, psm, timeout=None):
+        state["n"] += 1
+        if state["n"] == 1:
+            raise ocr.OcrTimeout("simulated timeout")
+        return real(img, langs, psm, timeout)
+    monkeypatch.setattr(ocr, "_tesseract", flaky)
+    img = np.array(Image.open(corpus["photo_sideways.png"].path).convert("RGB"))[:, :, ::-1].copy()
+    r = ocr.ocr_page_image(img, "fra+eng")
+    assert "opérateurs" in r.text or "alertes" in r.text, r.text
+    assert "reduced after a timeout" in r.engine or state["n"] > 1
+
+
+def test_trusted_text_layer_is_not_ocr_cross_checked_when_pictures_cover_only_part_of_the_page(tmp_path, monkeypatch):
+    import io
+    import pymupdf
+    from PIL import Image
+    p = tmp_path / "brochure.pdf"
+    doc = pymupdf.open()
+    page = doc.new_page()
+    buf = io.BytesIO()
+    Image.new("RGB", (600, 400), (30, 90, 160)).save(buf, format="PNG")
+    page.insert_image(pymupdf.Rect(0, 0, 595, 560), stream=buf.getvalue())            # about 66% of the page
+    for i in range(12):
+        page.insert_text((50, 580 + i * 14), "Les opérateurs doivent relayer les alertes publiques sans délai.", fontsize=9, fontname="helv")
+    doc.save(str(p))
+    doc.close()
+    monkeypatch.setattr(ocr, "_tesseract", lambda *a, **k: (_ for _ in ()).throw(AssertionError("OCR must not run on this page")))
+    r = extract_file(p, "fr", use_cache=False)
+    assert not r.failed and r.pages[0].method.startswith("text-layer") and "relayer les alertes" in r.text
+
+
+@needs_ocr
+def test_progress_is_reported_per_page(corpus):
+    from alerte.knowledge.extract import pdf
+    seen: list[str] = []
+    pdf.PROGRESS = seen.append
+    try:
+        extract_file(corpus["scan_fr.pdf"].path, "fr", use_cache=False)
+    finally:
+        pdf.PROGRESS = None
+    assert any("page 1/1" in m and "ocr" in m for m in seen), seen

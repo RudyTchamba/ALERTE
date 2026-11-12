@@ -27,6 +27,8 @@ log = logging.getLogger(__name__)
 DPI = int(os.environ.get("ALERTE_OCR_DPI", "300"))
 WORKERS = int(os.environ.get("ALERTE_OCR_WORKERS", str(max(1, min(4, (os.cpu_count() or 2) - 1)))))
 MIN_LAYER_CHARS = 80
+PROGRESS = None          # optional callable(str): ingestion sets it so long OCR runs show progress per page
+VERIFY_COVER = 0.85      # an exact text layer is cross-checked by OCR only when pictures cover this much of the page (a scan)
 
 
 def _pymupdf():
@@ -171,7 +173,7 @@ def _process_page(doc, i: int, language: str | None, thorough: bool) -> PageResu
     # a page with a short but real text layer (title page, signature page) keeps its exact characters
     need_ocr = (layer_chars == 0 or not trusted
                 or (layer_chars < MIN_LAYER_CHARS and (cover >= 0.6 or drawings > 30)))
-    verify = (not need_ocr) and (cover >= 0.6 or arabic)
+    verify = (not need_ocr) and (cover >= VERIFY_COVER or arabic)
 
     if need_ocr or verify:
         if not st.available:
@@ -180,11 +182,12 @@ def _process_page(doc, i: int, language: str | None, thorough: bool) -> PageResu
                                   ["NEEDS-OCR-ENGINE: this page is an image or its text layer is broken; install Tesseract (python -m alerte ocr-setup)"] + [f"text-layer-untrusted ({', '.join(why)})"] * bool(why))
             return PageResult(num, merge_layer(), "text-layer", None, None, len(tables), 0, ["not cross-checked: no OCR engine"] if arabic else [])
         try:
-            res = ocr.ocr_page_image(_render(page), langs, thorough)
+            # cross-checking an exact layer is cheap (150 dpi, as few passes as possible); reading a page that needs OCR is not
+            res = ocr.ocr_page_image(_render(page, dpi=150 if not need_ocr else DPI), langs, thorough)
         except Exception as e:
             log.warning("OCR failed on page %d of %s: %s", num, doc.name, e)
-            if layer_chars and not need_ocr:
-                return PageResult(num, merge_layer(), "text-layer", None, None, len(tables), 0, [f"cross-check failed: {e}"])
+            if layer_chars and not need_ocr:       # the exact layer is kept; only the extra check is missing
+                return PageResult(num, merge_layer(), "text-layer (OCR cross-check skipped: " + type(e).__name__ + ")", None, None, len(tables), 0, [])
             return PageResult(num, merge_layer() if layer_chars else "", "none", None, None, 0, 0, [f"OCR-FAILED: {e}"])
         if need_ocr:
             note = (f" (text layer ignored: {', '.join(why)})" if why else " (text layer too short for a page that is an image)") if layer_chars else ""
@@ -192,6 +195,11 @@ def _process_page(doc, i: int, language: str | None, thorough: bool) -> PageResu
         agree = similarity(layer_text + "\n" + "\n".join(table_text), res.text)
         if agree >= 0.90:
             return PageResult(num, merge_layer(), "text-layer (verified by OCR)", None, round(agree, 3), len(tables), 0, [])
+        try:                                          # they disagree: read again at full quality before choosing
+            res = ocr.ocr_page_image(_render(page), langs, thorough)
+            agree = similarity(layer_text + "\n" + "\n".join(table_text), res.text)
+        except Exception:
+            pass
         fl = [f"text-layer-and-OCR-disagree ({agree:.2f})"]
         if res.confidence >= ocr.CONF_ACCEPT and (agree < 0.75 or arabic):
             fl.append("used OCR reading")
@@ -242,7 +250,13 @@ def extract_pdf(path: Path, language: str | None = None, thorough: bool = False)
             if local.doc.needs_pass:
                 local.doc.authenticate("")
         try:
-            return _process_page(local.doc, i, language, thorough)
+            import time as _t
+            t0 = _t.time()
+            pr = _process_page(local.doc, i, language, thorough)
+            if PROGRESS and (pr.confidence is not None or pr.images_ocr or "OCR" in pr.method or _t.time() - t0 > 5):
+                PROGRESS(f"      page {i + 1}/{n}: {pr.method.split(' (')[0]}" + (f" {pr.confidence:.0f}%" if pr.confidence is not None else "")
+                         + f" in {_t.time() - t0:.0f}s" + (f"  FLAGS: {'; '.join(pr.flags)}" if pr.flags else ""))
+            return pr
         except Exception as e:
             log.exception("page %d of %s failed", i + 1, path.name)
             return PageResult(i + 1, "", "none", None, None, 0, 0, [f"PAGE-FAILED: {e}"])

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-EXTRACTOR_VERSION = "2.1"
+EXTRACTOR_VERSION = "2.2"
 
 
 @dataclass
