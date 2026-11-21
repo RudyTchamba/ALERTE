@@ -1,0 +1,32 @@
+@font-face { font-family: "AlerteSans"; src: url("fonts/NotoSans-Regular.ttf"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "AlerteSans"; src: url("fonts/NotoSans-Bold.ttf"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "AlerteSans"; src: url("fonts/NotoSans-Italic.ttf"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "AlerteArabic"; src: url("fonts/NotoSansArabic-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "AlerteArabic"; src: url("fonts/NotoSansArabic-Bold.ttf"); font-weight: 700; }
+
+@page { size: A4; margin: 20mm 17mm 22mm 17mm;
+  @top-right { content: string(runhead); font: 8pt "AlerteSans"; color: #555; }
+  @bottom-left { content: "Ledger #" string(headseq) " " string(headhash); font: 7pt "AlerteSans"; color: #555; }
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "AlerteSans"; color: #555; } }
+@page :first { @top-right { content: none; } margin-top: 28mm; }
+
+html { font-family: "AlerteSans", "AlerteArabic"; font-size: 9.5pt; line-height: 1.4; color: #111; }
+.runhead { string-set: runhead content(); position: absolute; width: 0; height: 0; overflow: hidden; }
+.headseq { string-set: headseq content(); display: block; height: 0; overflow: hidden; }
+.headhash { string-set: headhash content(); display: block; height: 0; overflow: hidden; }
+h1 { font-size: 22pt; margin: 8mm 0 4mm; color: #1f3a5f; }
+h2 { font-size: 13pt; color: #1f3a5f; border-bottom: 1px solid #1f3a5f; padding-bottom: 1mm; margin-top: 8mm; break-after: avoid; }
+h3 { font-size: 10.5pt; margin: 5mm 0 1mm; break-after: avoid; }
+.banner { background: #b00020; color: #fff; font-weight: 700; padding: 3mm 4mm; font-size: 14pt; text-align: center; margin-bottom: 5mm; }
+.warn { border: 1px solid #b00020; color: #b00020; padding: 2mm 3mm; font-weight: 700; margin: 3mm 0; }
+.cover { break-after: page; }
+dl.meta { display: grid; grid-template-columns: 38mm 1fr; gap: 1mm 4mm; }
+dl.meta dt { font-weight: 700; } dl.meta dd { margin: 0; word-break: break-all; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0; font-size: 8.5pt; }
+th { background: #1f3a5f; color: #fff; text-align: left; } th, td { padding: 1.2mm 1.6mm; border: 1px solid #bbb; vertical-align: top; }
+tr { break-inside: avoid; }
+.finding { break-inside: avoid-page; border-left: 3px solid #1f3a5f; padding-left: 3mm; margin: 3mm 0; }
+.tags span { display: inline-block; background: #e8edf3; padding: 0 2mm; margin-right: 1.5mm; border-radius: 2mm; font-size: 8pt; }
+.note { color: #444; font-style: italic; } .absence { color: #7a4b00; }
+code { font-size: 8pt; word-break: break-all; }
+.rtl { display: block; direction: rtl; text-align: right; font-family: "AlerteArabic", "AlerteSans"; unicode-bidi: embed; }

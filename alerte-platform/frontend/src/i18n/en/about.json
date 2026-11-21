@@ -1,0 +1,4 @@
+{
+  "title": "Architecture", "description": "How ALERTE's modules correspond to the components of ITU-T Y.3172 (high-level architectural framework for machine learning in future networks).",
+  "y3172": "Y.3172 component", "module": "ALERTE module", "screen": "Where to see it", "noteLabel": "Note", "note": "This is a conceptual mapping for the hackathon criterion on standards alignment; it is not a conformance claim."
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Scenarios", "description": "Build the story of an exercise: ordered events (injects), who receives them, what they demand, and the failures injected.",
+  "new": "New scenario", "empty": "No scenario yet", "emptyHint": "Create one, or import a YAML file.", "importYaml": "Import YAML", "imported": "Scenario imported ({{n}} warning(s))", "exportYaml": "Export YAML",
+  "scTitle": "Title", "injects": "Injects", "inject": "Inject", "template": "template", "clone": "Clone", "cloned": "Scenario cloned", "deleteConfirm": "Delete “{{title}}”? This is refused if an exercise uses it.",
+  "markReady": "Mark ready", "markDraft": "Back to draft", "addInject": "Add inject", "editInject": "Edit inject", "noInjects": "No inject yet", "noInjectsHint": "Add the first event of the scenario.",
+  "from": "From", "noRecipient": "no recipient", "fault": "Fault", "demand": "Demand", "moveUp": "Move “{{title}}” up", "moveDown": "Move “{{title}}” down", "deleteInject": "Delete inject “{{title}}”?",
+  "whoReceives": "Who receives what", "whoReceivesHint": "Information inequality is what the exercise observes: if everybody receives everything, no gap can emerge from it.",
+  "lint": "Live checks", "lintOk": "No blocking issue", "lintErrors": "Blocking issues", "error": "Error", "warning": "Warning", "noIssues": "No issue found.", "estimate": "Estimated model calls: up to {{max}} (cap {{cap}}).", "faultModes": "{{n}} distinct fault mode(s) used.",
+  "title_": "Title", "simTime": "Simulated time", "simTimeHint": "Free label, e.g. D1 07:10", "body": "Text", "sourceNote": "Source note", "recipients": "Recipients", "tags": "Tags", "moreTags": "More tags (comma-separated)",
+  "demands": "Demands", "demandsHint": "Actions this event requires. Those authored by you stay flagged as “scenario author” in reports.", "addDemand": "Add demand",
+  "systemOutput": "AI-system output (JSON)", "systemOutputHint": "For an AI system under test: its scripted output at this event.", "jsonInvalid": "Not valid JSON."
+}

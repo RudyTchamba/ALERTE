@@ -1,0 +1,24 @@
+{
+  "generic": "An unexpected error occurred.",
+  "network": { "unreachable": "The server cannot be reached. Check that the backend is running." },
+  "auth": { "missing_token": "No access token. Please sign in.", "invalid_token": "This token is invalid, expired or revoked." },
+  "workspace": {
+    "forbidden": "Your role does not allow this action.",
+    "bootstrap_disabled": "A workspace already exists. Creating another one requires the owner token."
+  },
+  "validation": { "failed": "Some fields are invalid." },
+  "kb": {
+    "not_ready": "This knowledge base has no published version yet.",
+    "export": { "restricted_documents": "Some documents are restricted or of unknown licence and cannot be exported in an open publication." },
+    "import": { "integrity_failed": "The archive failed its integrity check and was refused." }
+  },
+  "exercise": {
+    "invalid_transition": "This command is not allowed in the exercise's current state.",
+    "readiness_blocked": "Blocking readiness checks remain. Fix them before launching."
+  },
+  "decision": { "citation_failed": "One or more citations could not be verified." },
+  "seat": { "not_assigned": "This seat is not assigned to you.", "human_unnamed": "A named human is required for a human seat." },
+  "gap": { "review": { "reason_required": "A reason is required to dispute or reject a gap." } },
+  "budget": { "exhausted": "The model call budget is exhausted; the exercise was paused." },
+  "stream": { "invalid_token": "The stream token is invalid, expired or already used." }
+}

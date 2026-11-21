@@ -1,0 +1,109 @@
+{%- macro tag(label, value) -%}<span>{{ label }} : {{ value if value is not none else "—" }}</span>{%- endmacro -%}
+{%- macro finding(f) -%}
+<div class="finding">
+  <h3>{{ f.title|bidi }}</h3>
+  <p class="tags">{{ tag("Id", f.id) }}{{ tag("Code", f.code) }}{{ tag("Gravité", f.severity) }}{{ tag("Confiance", f.confidence) }}{{ tag("Preuve", f.evidence_basis) }}{{ tag("Statut", f.validation_status) }}{{ tag("Origine", f.origin) }}</p>
+  <p>{{ (f.description or "")|bidi }}</p>
+  {% if f.institutions %}<p><b>Institutions :</b> {{ f.institutions|join(", ") }}</p>{% endif %}
+  {% if f.consequence %}<p><b>Conséquence :</b> {{ f.consequence|bidi }}</p>{% endif %}
+  {% if f.absence_statement %}<p class="absence"><b>Absence :</b> {{ f.absence_statement }}</p>{% endif %}
+  {% for cav in f.caveats %}<p class="note">Réserve : {{ cav }}</p>{% endfor %}
+  {% for label, items in (("Sources", f.sources), ("Événements, messages, décisions", f.trace), ("Contre-preuves", f.counter_evidence)) %}{% if items %}
+  <p><b>{{ label }}</b></p><ul>{% for e in items %}<li>[{{ e.kind }}] {{ e.ref|tojson_short }} — « {{ (e.excerpt or "")|bidi }} »</li>{% endfor %}</ul>{% endif %}{% endfor %}
+</div>
+{%- endmacro -%}
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>{{ c.title }}</title>
+<meta name="author" content="ALERTE">
+<meta name="generator" content="ALERTE reports {{ c.generator_version }}">
+<meta name="dcterms.created" content="{{ c.cover.generated_at }}">
+<meta name="dcterms.modified" content="{{ c.cover.generated_at }}">
+<link rel="stylesheet" href="print.css">
+</head>
+<body>
+<span class="runhead">{{ c.title }} — v{{ c.cover.version_no }}{% if c.banner %} — {{ c.banner }}{% endif %}</span>
+<span class="headseq">{{ led.head_seq }}</span><span class="headhash">{{ (led.head_hash or "")[:16] }}</span>
+
+<section class="cover">
+{% if c.banner %}<div class="banner">{{ c.banner }}</div>{% endif %}
+<h1>{{ c.title|bidi }}</h1>
+<h2>0. Page de garde et intégrité</h2>
+<dl class="meta">
+<dt>Exercice</dt><dd>{{ c.cover.exercise.code }} — {{ c.cover.exercise.title|bidi }}</dd>
+<dt>Rapport / version</dt><dd>{{ c.cover.report_id }} · version {{ c.cover.version_no }}{% if c.cover.parent_version_no %} (précédente : {{ c.cover.parent_version_no }}){% endif %}</dd>
+<dt>Généré le</dt><dd>{{ c.cover.generated_at }}</dd>
+<dt>Confidentialité</dt><dd>{{ c.cover.confidentiality }}</dd>
+<dt>Mode IA</dt><dd>{{ c.cover.ai_mode }}{% if c.cover.ai_label %} — <b>{{ c.cover.ai_label }}</b>{% endif %}</dd>
+<dt>Hash du snapshot</dt><dd><code>{{ c.cover.snapshot_sha256 }}</code></dd>
+<dt>Tête du ledger</dt><dd>seq {{ led.head_seq }} · <code>{{ led.head_hash }}</code> ({{ led.events }} événements)</dd>
+<dt>Vérification du ledger</dt><dd>{% if ver.ok %}intact ({{ ver.checked }} entrées){% else %}<b>ÉCHEC</b> — première entrée altérée n° {{ ver.first_bad_seq }} : {{ ver.reason }}{% endif %}</dd>
+</dl>
+{% if not ver.ok %}<div class="warn">ALERTE INTÉGRITÉ : la vérification du ledger a échoué.</div>{% endif %}
+<p class="note">Document dérivé du JSON structuré du rapport ; il n'est jamais édité à la main.</p>
+</section>
+
+<h2>1. Résumé exécutif</h2>
+{% set s = c.executive_summary %}
+{% if not s.gaps_available %}<p class="warn">Service des lacunes indisponible : constats non évalués.</p>{% else %}
+<ul><li>Constats : <b>{{ s.findings_count }}</b> (gravité 3 : {{ s.findings_by_severity["3"] }} ; 2 : {{ s.findings_by_severity["2"] }} ; 1 : {{ s.findings_by_severity["1"] }})</li>
+<li>Hypothèses non confirmées : {{ s.hypotheses_count }} · lacunes rejetées (hors résumé) : {{ s.rejected_count }}</li>{% endif %}
+<li>Décisions enregistrées : {{ s.decisions_count }} · {{ s.citations_text }}</li></ul>
+{% if s.highlights %}<ul>{% for h in s.highlights %}<li>{{ h|bidi }}</li>{% endfor %}</ul>{% endif %}
+
+<h2>2. Contexte de l'exercice</h2>
+<p>Scénario : {{ c.context.scenario.code }} — {{ c.context.scenario.title|bidi }} ({{ c.context.scenario.injects }} injects, langue {{ c.context.scenario.language }}). Modèles : {{ c.context.models|join(", ") or "—" }}.</p>
+<table><tr><th>Siège</th><th>Institution</th><th>Pilotage</th></tr>{% for x in c.context.seats %}<tr><td>{{ x.code }}</td><td>{{ x.institution|bidi }}</td><td>{{ x.controller }}</td></tr>{% endfor %}</table>
+<p>Bases de connaissances : {% for k in c.context.knowledge_bases %}{{ k.code }} ({{ k.documents }} doc.){{ ", " if not loop.last }}{% else %}—{% endfor %}</p>
+
+<h2>3. Méthodologie</h2>
+<p>Règles : {{ c.methodology.rules|join(" ; ") }}.</p>
+<ul>{% for k, v in c.methodology.evidence_levels.items() %}<li><code>{{ k }}</code> : {{ v }}</li>{% endfor %}</ul>
+<p>{{ c.methodology.negative_search }}</p><p>{{ c.methodology.findings_vs_hypotheses }}</p><p class="note">{{ c.methodology.demand_derivation_note }}</p>
+{% if c.methodology.ai_notice %}<p class="warn">{{ c.methodology.ai_notice }}</p>{% endif %}
+
+<h2>4. Constats (observations)</h2>
+{% for f in c.findings %}{{ finding(f) }}{% else %}<p>Aucun constat.</p>{% endfor %}
+
+<h2>5. Hypothèses non confirmées (agents)</h2>
+<p class="note">Ces éléments ne sont pas des constats : aucune preuve indépendante d'un agent.</p>
+{% for f in c.hypotheses %}{{ finding(f) }}{% else %}<p>Aucune hypothèse.</p>{% endfor %}
+
+<h2>6. Références et précédents internationaux</h2>
+{% for r in c.references %}<h3>{{ r.gap_title|bidi }}</h3>{% if r.message %}<p class="warn">{{ r.message }}</p>{% endif %}
+<ul>{% for x in r.references %}<li>{{ x.jurisdiction }} — {{ x.instrument }} {{ x.article or "" }} : {{ x.summary }} {{ x.url or "" }}</li>{% endfor %}</ul>{% endfor %}
+
+<h2>7. Plan d'amélioration (recommandations, distinct des constats)</h2>
+<table><tr><th>Lacune</th><th>Recommandation</th><th>Propriétaire</th><th>Échéance</th><th>Statut</th><th>KPI</th></tr>
+{% for a in c.improvement_plan %}<tr><td>{{ a.gap_title|bidi }}</td><td>{{ a.recommendation|bidi }}</td><td>{{ a.owner }}</td><td>{{ a.due_date }}</td><td>{{ a.status }}</td><td>{{ a.kpi }}</td></tr>{% endfor %}</table>
+
+<h2>8. Validations et contestations humaines</h2>
+<p>Synthèse : {% for k, v in c.reviews.by_status.items() %}{{ k }} {{ v }}{{ ", " if not loop.last }}{% else %}aucune lacune{% endfor %}.</p>
+<table><tr><th>Lacune</th><th>Relecteur</th><th>Action</th><th>Statut</th><th>Réalité</th><th>Commentaire</th></tr>
+{% for h in c.reviews.history %}<tr><td>{{ h.gap_title|bidi }}</td><td>{{ h.reviewer }}</td><td>{{ h.action }}</td><td>{{ h.from_status }} → {{ h.to_status }}</td><td>{{ h.reality_label or "" }}</td><td>{{ (h.comment or "")|bidi }}</td></tr>{% endfor %}</table>
+
+<h2>9. Scorecard (13 dimensions ITU AI Readiness)</h2>
+{% if c.scorecard.status == "not_available" %}<p>Scorecard non disponible.</p>{% else %}
+<p>Score global : {{ "non évalué" if c.scorecard.overall_score is none else "%.2f"|format(c.scorecard.overall_score) }} ({{ c.scorecard.dimensions_assessed }}/{{ c.scorecard.dimensions_total }} dimensions évaluées). « non évalué » n'est pas 0.</p>
+<table><tr><th>N°</th><th>Dimension</th><th>Score (0–5)</th><th>État</th></tr>
+{% for d in c.scorecard.dimensions %}<tr><td>{{ d.number }}</td><td>{{ d.name }}</td><td>{{ "non évalué" if d.score is none else "%.2f"|format(d.score) }}</td><td>{{ d.status }}</td></tr>{% endfor %}</table>{% endif %}
+
+<h2>10. Métriques d'évaluation T1–T6</h2>
+<table><tr><th>Métrique</th><th>État</th><th>Valeur</th><th>Réussite</th><th>Détail</th></tr>
+{% for k, v in c.metrics.items() %}<tr><td>{{ k }}</td><td>{{ "calculée" if v.status == "computed" else "non calculé" }}</td><td>{{ "non calculé" if v.value is none else ("%.3f"|format(v.value) if v.value is float else v.value) }}</td><td>{{ "—" if v.passed is none else ("oui" if v.passed else "non") }}</td><td>{{ v.reason or v.note or "" }}</td></tr>{% endfor %}</table>
+{% if c.prior_analyses.links %}<h3>Analyses antérieures (origine : analyse antérieure)</h3><ul>{% for x in c.prior_analyses.links %}<li>{{ x.relation }} : lacune {{ x.gap_id }} ↔ « {{ x.finding_title|bidi }} » ({{ x.report_title }}, p. {{ x.source_page }})</li>{% endfor %}</ul>{% endif %}
+
+<h2>11. Limites de l'analyse</h2>
+<ul>{% for l in c.limits %}<li>{{ l }}</li>{% endfor %}</ul>
+
+<h2>Annexes</h2>
+<h3>A1. Index des preuves</h3>
+<ul>{% for e in c.annexes.evidence_index %}<li><code>{{ e.gap_id }}</code> [{{ e.kind }}/{{ e.role }}] {{ e.ref|tojson_short }}</li>{% endfor %}</ul>
+<h3>A2. Inventaire des bases de connaissances</h3>
+{% for kb in c.annexes.kb_inventory %}<p><b>{{ kb.code }}</b> {{ kb.name }}</p><ul>{% for d in kb.documents %}<li>{{ d.code }} — {{ d.title }} ({{ d.jurisdiction }}, licence {{ d.license }})</li>{% endfor %}</ul>{% endfor %}
+<h3>A3. Vérification du ledger</h3>
+<p>{{ "intact" if ver.ok else "ÉCHEC" }} — tête seq {{ led.head_seq }} <code>{{ led.head_hash }}</code></p>
+<h3>A4. Lacunes rejetées (hors résumé)</h3><ul>{% for g in c.annexes.rejected_gaps %}<li>{{ g.id }} {{ g.title|bidi }}</li>{% endfor %}</ul>
+</body></html>

@@ -1,0 +1,11 @@
+Grille « AI Readiness » (13 dimensions, 6 facteurs, métriques) — attribution
+
+`dimensions.json` est une copie contrôlée de `alerte/data/framework/dimensions.json` du projet ALERTE, lui-même issu du
+dépôt de référence cité par la page du hackathon ITU AI for Good (« CrashingGuru/ITUAIReadiness », licence MIT,
+Copyright (c) Vishnu Ram OV) et du rapport « AI Ready — Analysis Towards a Standardized Readiness Framework,
+Report 2.0 » de l'ITU (janvier 2026). Les libellés des 13 dimensions ont été relus (doc 03 §3.4) et correspondent à
+ceux du rapport (écarts de casse/orthographe).
+
+Le rapport ITU ne définit NI échelle de maturité NI formule de score : la grille de critères (un critère par métrique),
+l'échelle 0–5 et la dérivation du score sont conçues par l'équipe ALERTE et ne sont pas attribuables à l'ITU.
+Licence MIT du dépôt de référence : conservée pour toute donnée réutilisée (cf. docs/architecture/03 §3.6).

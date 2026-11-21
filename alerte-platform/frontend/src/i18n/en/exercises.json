@@ -1,0 +1,10 @@
+{
+  "title": "Exercises", "description": "Create an exercise from a scenario, assign seats to AI or humans, check readiness and launch.", "new": "New exercise", "prepare": "Prepare", "openRoom": "Open the room",
+  "cloneRun": "Clone & re-run", "cloneHint": "A new exercise with the same scenario and settings, linked to the original (counterfactual or stability test).",
+  "scenario": "Scenario", "aiMode": "Execution mode", "aiModeHint": "Only “Real model” proves that the AI works. Scripted and replay runs are labelled NO AI everywhere.",
+  "modes": { "ai": "Real model", "scripted": "Scripted (NO AI)", "cassette": "Cassette replay" }, "paces": { "manual": "Manual (step by step)", "auto": "Automatic", "auto_delay": "Automatic with delay" }, "pace": "Pace",
+  "budget": "Model call budget", "budgetHint": "Leave empty for the server default. The exercise pauses when it is exhausted.",
+  "seats": "Seats", "seatsHint": "One seat per institution. A human seat gets a personal link; the AI agent of the seat is only used for takeover.", "noSeats": "No seat yet.", "addSeat": "Add seat", "addFromScenario": "Add institutions of the scenario", "saveSeats": "Save seats",
+  "controller": "Played by", "ctrl": { "agent": "AI agent", "human": "Human", "scripted": "Scripted" }, "humanName": "Human name", "seatLink": "Seat link", "seatLinkFor": "Link for {{name}} (seat {{seat}})", "seatLinkHint": "Send it to the player. The token is after “#” and never reaches the server logs.",
+  "readiness": "Exercise readiness", "readyToLaunch": "Ready", "blocked": "{{n}} blocking issue(s)", "nWarnings": "{{n}} warning(s)", "blockingLabel": "Blocking", "recheck": "Re-check", "markReady": "Mark as ready", "markedReady": "Exercise marked ready", "launch": "Launch the exercise", "launchHint": "Mark the exercise ready first; launching freezes the configuration (snapshot)."
+}

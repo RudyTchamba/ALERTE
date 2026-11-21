@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest-timeout==2.4.0
+pytest==9.2.0
+ruff==0.17.6

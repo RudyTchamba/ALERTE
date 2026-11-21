@@ -1,0 +1,17 @@
+{
+  "home": "Accueil",
+  "studio": "Atelier d'exercice",
+  "room": "Salle de simulation",
+  "transverse": "Analyse",
+  "countries": "Pays et institutions",
+  "knowledge": "Bases de connaissances",
+  "agents": "Agents",
+  "access": "Accès aux connaissances",
+  "scenarios": "Scénarios",
+  "gaps": "Analyse des lacunes",
+  "reports": "Rapports",
+  "audit": "Audit et rejeu",
+  "evaluation": "Évaluation",
+  "architecture": "Architecture",
+  "logout": "Se déconnecter"
+}

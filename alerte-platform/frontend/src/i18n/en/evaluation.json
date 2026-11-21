@@ -1,0 +1,7 @@
+{
+  "title": "Evaluation & scorecard", "description": "Measured quality of an exercise (T1-T6) and the 13-dimension AI-readiness scorecard. A metric that cannot be computed is shown as “not computed”, never as zero.", "pick": "Choose an exercise to see its metrics.",
+  "metrics": "Metrics T1 to T6", "metric": "Metric", "threshold": "Target", "value": "Value", "source": "Source / detail", "met": "Target met", "notMet": "Target not met", "noVerdict": "No verdict", "run": "Compute", "rerun": "Recompute", "ran": "Metric computed",
+  "params": "Parameters for some metrics", "t1Kb": "T1: knowledge base tested", "t3Scenario": "T3: scenario (sealed fixtures)", "t5Clones": "T5: cloned exercise ids (comma-separated)",
+  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Criteria are answered from documents and the run, independently of the gap list. A dimension with no assessed criterion is “not assessed”: it is not a score of 0.", "llmJudge": "LLM assessment (P1)", "overall": "Overall {{score}} / 5 (assessed dimensions only)", "assessedN": "{{n}} of {{total}} dimensions assessed", "dimension": "Dimension", "score": "Score", "criteria": "Criteria", "criteriaN": "{{n}} criteria", "reviewedBy": "Reviewed by", "saveAnswers": "Save {{n}} answer(s)",
+  "answers": { "yes": "Yes", "partial": "Partial", "no": "No", "not_assessed": "Not assessed" }, "radarLabel": "Radar chart of the scorecard dimensions"
+}

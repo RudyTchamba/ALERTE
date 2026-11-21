@@ -1,0 +1,6 @@
+{
+  "title": "Workspace {{name}}", "description": "Exercises of this workspace and the state of the system.",
+  "system": "System status", "checking": "Checking…", "notReady": "Backend not ready", "unreachable": "Backend unreachable", "up": "up", "down": "down",
+  "quick": "Quick access", "exercises": "Exercises", "noExercises": "No exercise yet", "noExercisesHint": "Build a scenario, then create an exercise from it.",
+  "exTitle": "Title", "mode": "Mode", "started": "Started"
+}
