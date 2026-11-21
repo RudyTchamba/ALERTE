@@ -1,0 +1,7 @@
+{
+  "description": "The append-only ledger of the exercise: every event, its hash chain, and a replay of what each seat knew.",
+  "exportJsonl": "Export JSONL", "integrity": "Integrity of the ledger", "verify": "Verify the ledger", "intact": "Ledger intact ({{n}} entries checked)", "firstAltered": "First altered entry: #{{n}}", "notIntact": "Ledger NOT intact", "anchorMismatch": "head does not match anchor", "truncated": "truncated after the last anchor", "head": "Chain head",
+  "honest": "Any modification, or removal of the end of the log, is detectable from the last exported or published head. An administrator who controls the database, the anchor files and the signing key could rewrite the log: to guard against this, export the head outside the server. The ledger is tamper-evident, not tamper-proof.",
+  "replayDigest": "Replay digest", "events": "events", "anchors": "Anchors", "timeline": "Timeline", "type": "Type", "seat": "Seat", "contains": "Contains text", "actor": "Actor", "visibility": "Visibility", "summary": "Summary", "noEvents": "No event visible for your role.",
+  "replay": "Replay", "replayHint": "Rebuilds the state at any point of the ledger without calling any model: what each seat had decided and what the board showed.", "cursor": "Position in the ledger: {{seq}} of {{max}}", "stateAt": "state"
+}

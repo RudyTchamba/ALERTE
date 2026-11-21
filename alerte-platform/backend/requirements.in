@@ -1,0 +1,25 @@
+# Dépendances directes du backend (versions résolues et épinglées dans requirements.txt)
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+sqlalchemy
+alembic
+httpx
+python-multipart
+chromadb
+numpy
+pdfplumber
+pypdfium2
+pytesseract
+Pillow
+python-docx
+snowballstemmer
+networkx
+jinja2
+markdown
+weasyprint
+openpyxl
+cryptography
+pyyaml
+jsonschema

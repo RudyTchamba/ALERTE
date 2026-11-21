@@ -1,0 +1,24 @@
+[project]
+name = "alerte-platform-backend"
+version = "0.1.0"
+description = "ALERTE Platform — backend FastAPI (simulation d'exercices de crise multi-agents, détection de lacunes institutionnelles)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+timeout = 300
+markers = [
+    "model: nécessite un vrai serveur de modèles/embeddings (machine d'équipe ou Sandbox)",
+    "gpu: nécessite un GPU",
+    "ocr: nécessite Tesseract et ses langues",
+    "slow: test lent",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008", "E501"]

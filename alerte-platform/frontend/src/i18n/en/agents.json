@@ -1,0 +1,15 @@
+{
+  "title": "Agents", "description": "Define the AI agents that play institutions: mission, model, tools and limits. Their knowledge rights are set in Knowledge access.",
+  "new": "New agent", "edit": "Edit agent", "empty": "No agent yet", "emptyHint": "Create one agent per institution (and an AI-system / legal-adviser agent if needed).",
+  "roleKind": "Role", "roleKindHint": "AI system: its outputs are scripted by the scenario, never produced by a model.", "roleKinds": { "institution": "Institution", "ai_system": "AI system under test", "legal_adviser": "Legal adviser" },
+  "model": "Model profile", "noProfile": "no model profile", "tools": "Tools", "mission": "Mission", "instructions": "Instructions", "instructionsHint": "Free text: tone, constraints, language. Never mention expected gaps.",
+  "maxSteps": "Max steps per activation", "maxSearch": "Max searches", "maxLegal": "Max adviser calls per inject", "limitInvalid": "Invalid value.",
+  "promptPreview": "Prompt preview", "promptHint": "The system prompt assembled by the backend, without any secret. It never contains gaps or hints about gaps.", "mandatesIncluded": "{{n}} mandates", "grantedKbs": "{{n}} knowledge bases",
+  "clone": "Clone", "cloned": "Agent cloned",
+  "profiles": "Model profiles", "profilesHint": "Provider and model settings. The endpoint is referenced by name; no URL or key is entered or shown here.", "newProfile": "New model profile", "noProfiles": "No model profile",
+  "provider": "Provider", "modelName": "Model", "endpointRef": "Endpoint reference", "endpointRefHint": "Name of the server configuration, not a URL.", "temperature": "Temperature", "maxTokens": "Max tokens", "timeout": "Timeout (s)",
+  "connection": "Connection", "testConnection": "Test connection", "reachable": "reachable", "unreachable": "unreachable",
+  "accessTitle": "Knowledge access", "accessDescription": "Which agent may read which knowledge base. An agent can never retrieve text outside the bases ticked here.",
+  "matrixEmpty": "Nothing to map yet", "matrixEmptyHint": "Create at least one agent and one knowledge base.", "warning": "Warning", "noKbAgents": "Agents without any knowledge base: {{names}}.", "allHaveKb": "Every agent has at least one knowledge base",
+  "cellLabel": "{{agent}} may read {{kb}}", "granted": "{{agent}} can now read {{kb}}", "revoked": "{{agent}} can no longer read {{kb}}", "impact": "Impact", "readsN": "reads {{n}} base(s)", "impactView": "Who can read each knowledge base", "nobody": "nobody"
+}

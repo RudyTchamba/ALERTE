@@ -1,0 +1,19 @@
+import common from './fr/common.json'
+import nav from './fr/nav.json'
+import errors from './fr/errors.json'
+import access from './fr/access.json'
+import geo from './fr/geo.json'
+import kb from './fr/kb.json'
+import agents from './fr/agents.json'
+import scenarios from './fr/scenarios.json'
+import room from './fr/room.json'
+import gaps from './fr/gaps.json'
+import reports from './fr/reports.json'
+import audit from './fr/audit.json'
+import evaluation from './fr/evaluation.json'
+import about from './fr/about.json'
+import home from './fr/home.json'
+import exercises from './fr/exercises.json'
+
+// Traduction française complète (clés identiques à `en`) ; toute clé manquante retombe sur l'anglais.
+export default { common, nav, errors, access, geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, about, home, exercises }

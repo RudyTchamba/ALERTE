@@ -1,0 +1,18 @@
+{
+  "title": "Gap analysis", "description": "Institutional gaps found by the exercise, with the evidence chain that supports each one. Nothing here is final until a human has reviewed it.",
+  "compare": "Compare exercises", "backToList": "Back to the list", "exercise": "Exercise", "code": "Code", "categoryF": "Category", "severityF": "Severity", "statusF": "Review status", "basisF": "Evidence basis", "originF": "Origin", "includeStale": "Include gaps from superseded detections",
+  "empty": "No gap found", "emptyHint": "Run an exercise to completion, or relaunch detection.", "gapTitle": "Gap", "confidence": "Confidence", "stale": "superseded", "detail": "Gap detail",
+  "severity": { "3": "High", "2": "Medium", "1": "Low" },
+  "nature": { "label": "Nature", "hypothesis": "Hypothesis (agent)", "observed": "Observed signal", "rule": "Deduced from a rule", "imported": "From a prior report", "documented": "Supported by documents", "inferred": "Inferred (not documented)", "validated": "Validated", "disputed": "Disputed", "rejected": "Rejected", "toReview": "To review" },
+  "cause": "Cause", "registry": "Registry", "consequence": "Consequence", "action": "Action", "openAudit": "Open the audit trail of the exercise",
+  "evidenceChain": "Evidence chain", "noEvidence": "No evidence recorded.", "agentOrigin": "from an agent", "openTrace": "Open decision trace", "openInLedger": "Open in the ledger", "openRegistry": "Open the mandate registry",
+  "chain": { "mandate": "Mandate", "chunk": "Text (page / article / excerpt)", "event": "Scenario event", "message": "Board message", "decision": "Decision", "coordinator_signal": "Coordination signal", "negative_search": "Negative search" },
+  "role": { "supports": "supports", "counter": "counter-evidence", "context": "context" },
+  "negativeSearch": "Negative search and documentary coverage", "noNegative": "No negative search for this gap.", "corpusCoverage": "Corpus coverage", "queries": "Queries", "missingDocs": "Expected documents missing",
+  "references": "International references and precedents", "noRefs": "No reference associated.", "accept": "Accept", "rejectRef": "Reject", "suggestions": "Suggestions", "associate": "Associate",
+  "improvement": "Improvement plan", "improvementHint": "Recommendations are kept apart from findings (they are a plan, not an observation).", "owner": "Owner", "due": "Due date", "addAction": "Add action",
+  "review": "Human review", "reviewAction": "Decision", "reality": "Does the gap reflect reality?", "realityHint": "Feeds metric T4 (not invented gaps).", "reason": "Reason", "reasonRequired": "A reason is required to dispute or reject.", "submitReview": "Record review", "reviewSaved": "Review recorded", "history": "Review history", "noReviews": "Not reviewed yet.",
+  "actions": { "confirm": "Confirm", "dispute": "Dispute", "reject": "Reject", "comment": "Comment only", "reopen": "Reopen" },
+  "realityLabels": { "real": "Real", "partially_real": "Partially real", "not_real": "Not real" },
+  "compareHint": "Compares gaps by fingerprint: new, persistent and resolved between two exercises (e.g. before and after adding a text to the corpus).", "exerciseA": "Exercise A", "exerciseB": "Exercise B", "newGaps": "New", "persistent": "Persistent", "resolved": "Resolved", "severityChanged": "severity changed", "statusChanged": "status changed"
+}

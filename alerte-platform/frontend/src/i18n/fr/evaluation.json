@@ -1,0 +1,7 @@
+{
+  "title": "Évaluation et scorecard", "description": "Qualité mesurée d'un exercice (T1-T6) et scorecard AI Readiness en 13 dimensions. Une mesure qui ne peut pas être calculée est affichée « non calculée », jamais comme zéro.", "pick": "Choisissez un exercice pour voir ses mesures.",
+  "metrics": "Mesures T1 à T6", "metric": "Mesure", "threshold": "Cible", "value": "Valeur", "source": "Source / détail", "met": "Cible atteinte", "notMet": "Cible non atteinte", "noVerdict": "Pas de verdict", "run": "Calculer", "rerun": "Recalculer", "ran": "Mesure calculée",
+  "params": "Paramètres de certaines mesures", "t1Kb": "T1 : base de connaissances testée", "t3Scenario": "T3 : scénario (fixtures scellées)", "t5Clones": "T5 : identifiants d'exercices clonés (séparés par des virgules)",
+  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Les critères sont renseignés à partir des documents et du déroulé, indépendamment de la liste des lacunes. Une dimension sans critère évalué est « non évaluée » : ce n'est pas un score de 0.", "llmJudge": "Évaluation par LLM (P1)", "overall": "Global {{score}} / 5 (dimensions évaluées uniquement)", "assessedN": "{{n}} dimensions évaluées sur {{total}}", "dimension": "Dimension", "score": "Score", "criteria": "Critères", "criteriaN": "{{n}} critères", "reviewedBy": "Relu par", "saveAnswers": "Enregistrer {{n}} réponse(s)",
+  "answers": { "yes": "Oui", "partial": "Partiel", "no": "Non", "not_assessed": "Non évalué" }, "radarLabel": "Diagramme radar des dimensions du scorecard"
+}

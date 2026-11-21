@@ -1,0 +1,12 @@
+{
+  "title": "Scénarios", "description": "Construisez l'histoire d'un exercice : événements ordonnés (injects), qui les reçoit, ce qu'ils exigent et les pannes injectées.",
+  "new": "Nouveau scénario", "empty": "Aucun scénario", "emptyHint": "Créez-en un, ou importez un fichier YAML.", "importYaml": "Importer un YAML", "imported": "Scénario importé ({{n}} avertissement(s))", "exportYaml": "Exporter en YAML",
+  "scTitle": "Titre", "injects": "Injects", "inject": "Inject", "template": "modèle", "clone": "Cloner", "cloned": "Scénario cloné", "deleteConfirm": "Supprimer « {{title}} » ? Refusé si un exercice l'utilise.",
+  "markReady": "Marquer prêt", "markDraft": "Revenir en brouillon", "addInject": "Ajouter un inject", "editInject": "Modifier l'inject", "noInjects": "Aucun inject", "noInjectsHint": "Ajoutez le premier événement du scénario.",
+  "from": "De", "noRecipient": "aucun destinataire", "fault": "Panne", "demand": "Exigence", "moveUp": "Monter « {{title}} »", "moveDown": "Descendre « {{title}} »", "deleteInject": "Supprimer l'inject « {{title}} » ?",
+  "whoReceives": "Qui reçoit quoi", "whoReceivesHint": "L'inégalité d'information est ce que l'exercice observe : si tout le monde reçoit tout, aucune lacune ne peut en émerger.",
+  "lint": "Contrôles en direct", "lintOk": "Aucun problème bloquant", "lintErrors": "Problèmes bloquants", "error": "Erreur", "warning": "Attention", "noIssues": "Aucun problème trouvé.", "estimate": "Appels au modèle estimés : jusqu'à {{max}} (plafond {{cap}}).", "faultModes": "{{n}} mode(s) de panne distinct(s) utilisé(s).",
+  "title_": "Titre", "simTime": "Temps simulé", "simTimeHint": "Libellé libre, p. ex. J1 07:10", "body": "Texte", "sourceNote": "Note de source", "recipients": "Destinataires", "tags": "Étiquettes", "moreTags": "Autres étiquettes (séparées par des virgules)",
+  "demands": "Exigences", "demandsHint": "Actions que cet événement exige. Celles que vous rédigez restent signalées « auteur du scénario » dans les rapports.", "addDemand": "Ajouter une exigence",
+  "systemOutput": "Sortie du système d'IA (JSON)", "systemOutputHint": "Pour un système d'IA testé : sa sortie scénarisée à cet événement.", "jsonInvalid": "JSON invalide."
+}

@@ -1,0 +1,32 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+# Node
+node_modules/
+dist/
+.vite/
+# Données et secrets d'exécution
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+.env.*
+!.env.example
+# Éditeurs / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+# Artefacts de build / temporaires
+*.log
+tmp/
+.tmp/

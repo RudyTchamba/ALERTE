@@ -1,0 +1,4 @@
+{
+  "title": "Architecture", "description": "Correspondance entre les modules d'ALERTE et les composants de l'UIT-T Y.3172 (cadre architectural de haut niveau pour l'apprentissage automatique dans les réseaux futurs).",
+  "y3172": "Composant Y.3172", "module": "Module ALERTE", "screen": "Où le voir", "noteLabel": "Note", "note": "Il s'agit d'une correspondance conceptuelle pour le critère du hackathon sur l'alignement aux normes ; ce n'est pas une déclaration de conformité."
+}
