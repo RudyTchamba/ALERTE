@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from ..core.errors import NotFound
 from .common import NON_ACTIVATABLE_ROLES, optional_svc
 from .models import Exercise, Seat
+from .snapshot import effective_profile
 
 BLOCKING, WARNING, INFO = "blocking", "warning", "info"
 DEFAULT_MAX_STEPS = 4
@@ -59,7 +60,7 @@ def compute_readiness(ctx: Any, session: Session, ex: Exercise, seats: list[Seat
         a = snaps.get(s.agent_id or "")
         if not a:
             continue
-        prof = a.get("model_profile") or {}
+        prof = effective_profile(ctx, ex, a.get("model_profile")) or {}
         if ex.ai_mode == "ai":
             if not prof.get("provider") or not prof.get("model"):
                 _chk(out, BLOCKING, "agent.no_model_profile", "profil de modèle invalide", s.code)

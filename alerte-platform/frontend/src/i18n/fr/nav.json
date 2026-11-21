@@ -1,17 +1,25 @@
 {
+  "main": "Navigation principale",
+  "menu": "Menu",
   "home": "Accueil",
   "studio": "Atelier d'exercice",
   "room": "Salle de simulation",
   "transverse": "Analyse",
+  "settings": "Espace de travail",
   "countries": "Pays et institutions",
   "knowledge": "Bases de connaissances",
   "agents": "Agents",
   "access": "Accès aux connaissances",
   "scenarios": "Scénarios",
+  "exercises": "Exercices",
+  "room_live": "Salle de simulation",
   "gaps": "Analyse des lacunes",
   "reports": "Rapports",
   "audit": "Audit et rejeu",
   "evaluation": "Évaluation",
   "architecture": "Architecture",
-  "logout": "Se déconnecter"
+  "tokens": "Jetons d'accès",
+  "logout": "Se déconnecter",
+  "workspace": "Espace",
+  "role": "Rôle"
 }

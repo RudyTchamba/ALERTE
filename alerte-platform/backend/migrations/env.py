@@ -21,6 +21,7 @@ def include_object(obj, name, type_, reflected, compare_to):  # noqa: ANN001, AN
 
 if not config.get_main_option("sqlalchemy.url"):
     config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
+    get_settings().ensure_dirs()  # `alembic upgrade head` seul doit marcher sur une installation vierge
 
 
 def run_migrations_offline() -> None:

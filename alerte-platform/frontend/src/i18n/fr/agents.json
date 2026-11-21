@@ -1,0 +1,15 @@
+{
+  "title": "Agents", "description": "Définissez les agents IA qui jouent les institutions : mission, modèle, outils et limites. Leurs droits d'accès aux connaissances se règlent dans « Accès aux connaissances ».",
+  "new": "Nouvel agent", "edit": "Modifier l'agent", "empty": "Aucun agent", "emptyHint": "Créez un agent par institution (et un agent système d'IA / conseiller juridique si besoin).",
+  "roleKind": "Rôle", "roleKindHint": "Système d'IA : ses sorties sont scénarisées par le scénario, jamais produites par un modèle.", "roleKinds": { "institution": "Institution", "ai_system": "Système d'IA testé", "legal_adviser": "Conseiller juridique" },
+  "model": "Profil de modèle", "noProfile": "aucun profil de modèle", "tools": "Outils", "mission": "Mission", "instructions": "Instructions", "instructionsHint": "Texte libre : ton, contraintes, langue. Ne mentionnez jamais les lacunes attendues.",
+  "maxSteps": "Étapes max par activation", "maxSearch": "Recherches max", "maxLegal": "Appels max au conseiller par inject", "limitInvalid": "Valeur invalide.",
+  "promptPreview": "Aperçu du prompt", "promptHint": "Le prompt système assemblé par le backend, sans aucun secret. Il ne contient jamais de lacunes ni d'indices sur les lacunes.", "mandatesIncluded": "{{n}} mandats", "grantedKbs": "{{n}} bases de connaissances",
+  "clone": "Cloner", "cloned": "Agent cloné",
+  "profiles": "Profils de modèle", "profilesHint": "Paramètres du fournisseur et du modèle. Le point d'accès est référencé par son nom ; aucune URL ni clé n'est saisie ou affichée ici.", "newProfile": "Nouveau profil de modèle", "noProfiles": "Aucun profil de modèle",
+  "provider": "Fournisseur", "modelName": "Modèle", "endpointRef": "Référence du point d'accès", "endpointRefHint": "Nom de la configuration du serveur, pas une URL.", "temperature": "Température", "maxTokens": "Jetons max", "timeout": "Délai (s)",
+  "connection": "Connexion", "testConnection": "Tester la connexion", "reachable": "joignable", "unreachable": "injoignable",
+  "accessTitle": "Accès aux connaissances", "accessDescription": "Quel agent peut lire quelle base de connaissances. Un agent ne peut jamais récupérer de texte hors des bases cochées ici.",
+  "matrixEmpty": "Rien à associer pour l'instant", "matrixEmptyHint": "Créez au moins un agent et une base de connaissances.", "warning": "Attention", "noKbAgents": "Agents sans aucune base de connaissances : {{names}}.", "allHaveKb": "Chaque agent a au moins une base de connaissances",
+  "cellLabel": "{{agent}} peut lire {{kb}}", "granted": "{{agent}} peut désormais lire {{kb}}", "revoked": "{{agent}} ne peut plus lire {{kb}}", "impact": "Impact", "readsN": "lit {{n}} base(s)", "impactView": "Qui peut lire chaque base de connaissances", "nobody": "personne"
+}

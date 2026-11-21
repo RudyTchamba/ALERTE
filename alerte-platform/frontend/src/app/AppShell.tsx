@@ -4,17 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { Menu, LogOut, Info } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { LANGS, setLanguage, type Lang } from '@/i18n'
-import { Button, Select } from '@/components/ui'
+import { Button, LogoMark, Select } from '@/components/ui'
 import { useAuth } from './auth'
 import { useTheme, type Theme } from './theme'
 
 export function FictionalBanner() {
   const { t } = useTranslation()
   return (
-    <div role="note" className="flex items-center justify-center gap-2 bg-[var(--banner)] px-3 py-1.5 text-center text-sm font-bold text-[var(--bg)]">
+    <aside aria-label={t('common.fictionalBanner')} className="flex items-center justify-center gap-2 bg-[var(--banner)] px-3 py-1.5 text-center text-sm font-bold text-[var(--bg)]">
       <Info className="h-4 w-4 shrink-0" aria-hidden />
       {t('common.fictionalBanner')}
-    </div>
+    </aside>
   )
 }
 
@@ -52,7 +52,10 @@ export function AppShell() {
         <Button className="lg:hidden" aria-expanded={open} aria-controls="main-nav" aria-label={t('nav.menu')} onClick={() => setOpen((o) => !o)}>
           <Menu className="h-4 w-4" aria-hidden />
         </Button>
-        <span className="text-lg font-extrabold tracking-wide">{t('common.appName')}</span>
+        <span className="flex items-center gap-2 text-lg font-extrabold tracking-wide">
+          <LogoMark />
+          {t('common.appName')}
+        </span>
         <span className="hidden text-sm text-muted md:inline">{t('common.tagline')}</span>
         <div className="ml-auto flex flex-wrap items-center gap-2 text-sm">
           {workspace && <span><span className="text-muted">{t('nav.workspace')}:</span> <strong>{workspace.name}</strong>{role && <span className="text-muted"> · {role}</span>}</span>}

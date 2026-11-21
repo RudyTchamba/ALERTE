@@ -6,7 +6,7 @@ import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
 import type { Gap, GapDetail, GapEvidence, Institution, IntlReference } from '@/api/types'
 import type { Exercise, GapCompare, RefSuggestion } from '@/api/loose'
-import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast, Mono } from '@/components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast, useEnumLabel, Mono } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { fmtDateTime, fmtPct } from '@/lib/format'
 import { natureTags } from './nature'
@@ -25,6 +25,7 @@ export const SeverityBadge = ({ s }: { s: number }) => {
 export function GapsPage() {
   const { gapId } = useParams()
   const { t } = useTranslation()
+  const enumLabel = useEnumLabel()
   const [f, setF] = useState({ exercise: '', institution: '', code: '', severity: '', status: '', basis: '', origin: '', category: '', include_stale: false })
   const [tab, setTab] = useState<'list' | 'compare'>('list')
   const exs = useApiQuery<Exercise[]>(keys.exercises(), '/exercises')
@@ -37,7 +38,7 @@ export function GapsPage() {
     <>
       <PageHeader title={t('gaps.title')} description={t('gaps.description')} actions={<Button onClick={() => setTab(tab === 'list' ? 'compare' : 'list')}>{tab === 'list' ? t('gaps.compare') : t('gaps.backToList')}</Button>} />
       {tab === 'compare' ? <Compare exercises={exs.data ?? []} /> : (
-        <div className={gapId ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]' : ''}>
+        <div className={gapId ? 'grid grid-cols-1 gap-4 [&>*]:min-w-0 xl:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]' : ''}>
           <div>
             <Card className="mb-3">
               <h2 className="sr-only">{t('common.filter')}</h2>
@@ -62,7 +63,7 @@ export function GapsPage() {
                       <Td className="font-mono">{g.code}</Td>
                       <Td><Link to={`/gaps/${g.id}`} aria-current={g.id === gapId ? 'true' : undefined} className="font-medium">{g.title}</Link>{!g.is_current && <> <Badge tone="neutral">{t('gaps.stale')}</Badge></>}</Td>
                       <Td><SeverityBadge s={g.severity} /></Td><Td><NatureBadges g={g} /></Td>
-                      <Td className="text-xs">{(g.institution_ids as string[]).map(iname).join(', ') || '—'}</Td><Td>{g.confidence}</Td>
+                      <Td className="text-xs">{(g.institution_ids as string[]).map(iname).join(', ') || '—'}</Td><Td>{enumLabel(g.confidence)}</Td>
                     </Tr>
                   ))}</TBody>
                 </Table>
@@ -172,6 +173,7 @@ function GapPanel({ gapId, institutions }: { gapId: string; institutions: Instit
 
 function GapView({ g, institutions }: { g: GapDetail; institutions: Institution[] }) {
   const { t } = useTranslation()
+  const enumLabel = useEnumLabel()
   const toast = useToast()
   const iname = (id: string) => institutions.find((i) => i.id === id)?.code ?? id.slice(-6)
   const [action, setAction] = useState('confirm')
@@ -193,7 +195,7 @@ function GapView({ g, institutions }: { g: GapDetail; institutions: Institution[
       <Card>
         <p className="mb-1 flex flex-wrap items-center gap-2"><Mono>{g.code}</Mono><SeverityBadge s={g.severity} /><StatusBadge status={g.validation_status} /></p>
         <h2 className="text-lg font-bold">{g.title}</h2>
-        <p className="my-2 flex flex-wrap items-center gap-2 text-sm"><NatureBadges g={g} /><Badge tone="neutral">{t('gaps.confidence')}: {g.confidence}</Badge><Badge tone="neutral">{t('gaps.cause')}: {g.cause}</Badge>{g.registry_state && <Badge tone={g.registry_state === 'reviewed_complete' ? 'ok' : 'warn'}>{t('gaps.registry')}: {g.registry_state.replaceAll('_', ' ')}</Badge>}</p>
+        <p className="my-2 flex flex-wrap items-center gap-2 text-sm"><NatureBadges g={g} /><Badge tone="neutral">{t('gaps.confidence')}: {enumLabel(g.confidence)}</Badge><Badge tone="neutral">{t('gaps.cause')}: {enumLabel(g.cause)}</Badge>{g.registry_state && <Badge tone={g.registry_state === 'reviewed_complete' ? 'ok' : 'warn'}>{t('gaps.registry')}: {enumLabel(g.registry_state)}</Badge>}</p>
         <p className="whitespace-pre-wrap text-sm">{g.description}</p>
         {g.consequence && <p className="mt-2 text-sm"><strong>{t('gaps.consequence')}:</strong> {g.consequence}</p>}
         <p className="mt-2 text-xs text-muted">{t('geo.institutions')}: {(g.institution_ids as string[]).map(iname).join(', ') || '—'} · {t('gaps.action')}: {g.action_code ?? '—'} {g.demand_derivation && <>· {t('geo.derivation')}: {g.demand_derivation}</>}</p>

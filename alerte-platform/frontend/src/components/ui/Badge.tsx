@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, Circle, Info, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 
 export type Tone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral'
@@ -43,7 +44,13 @@ const STATUS_TONE: Record<string, Tone> = {
   // misc
   present: 'ok', missing: 'danger', active: 'ok', revoked: 'danger',
 }
+/** Libellé traduit d'une valeur énumérée du backend (statut, gravité, cause…) ; valeur inconnue : texte brut lisible. */
+export function useEnumLabel() {
+  const { t } = useTranslation()
+  return (v: string | null | undefined) => (v ? t(`common.enums.${v}`, { defaultValue: v.replaceAll('_', ' ') }) : '—')
+}
 export function StatusBadge({ status, label }: { status: string | null | undefined; label?: string }) {
   const s = status ?? 'unknown'
-  return <Badge tone={STATUS_TONE[s] ?? 'neutral'}>{label ?? s.replaceAll('_', ' ')}</Badge>
+  const enumLabel = useEnumLabel()
+  return <Badge tone={STATUS_TONE[s] ?? 'neutral'}>{label ?? enumLabel(s)}</Badge>
 }

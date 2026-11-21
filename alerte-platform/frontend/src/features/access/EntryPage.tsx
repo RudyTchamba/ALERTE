@@ -8,7 +8,7 @@ import { api, ApiError, fieldErrors } from '@/api/client'
 import type { WorkspaceCreated } from '@/api/types'
 import { useAuth } from '@/app/auth'
 import { FictionalBanner } from '@/app/AppShell'
-import { Button, Card, Field, Input, OneTimeSecret } from '@/components/ui'
+import { Button, Card, Field, Input, LogoMark, OneTimeSecret } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 
 const createSchema = z.object({
@@ -59,7 +59,7 @@ export function EntryPage() {
     <div className="min-h-screen">
       <FictionalBanner />
       <main id="main" className="mx-auto max-w-4xl p-4 lg:p-8">
-        <h1 className="mb-1 text-3xl font-extrabold">{t('common.appName')}</h1>
+        <h1 className="mb-1 flex items-center gap-3 text-3xl font-extrabold"><LogoMark className="h-9 w-9" />{t('common.appName')}</h1>
         <p className="mb-6 text-muted">{t('common.tagline')}</p>
         {params.get('expired') && <p role="alert" className="mb-4 rounded-md border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}
 

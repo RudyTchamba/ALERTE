@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn'
 /** Scrollable, captioned table. `caption` is announced to screen readers; headers use scope. */
 export function Table({ caption, children, className }: { caption: string; children: ReactNode; className?: string }) {
   return (
-    <div className={cn('overflow-x-auto rounded-md border border-line', className)} tabIndex={0} role="region" aria-label={caption}>
+    <div className={cn('relative overflow-x-auto rounded-md border border-line', className)} tabIndex={0} role="region" aria-label={caption}>
       <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         {children}

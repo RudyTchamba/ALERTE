@@ -12,6 +12,37 @@ export function exercisePath(e: Pick<Exercise, 'id' | 'state'>): string {
   return ['running', 'paused', 'interrupted', 'completed', 'stopped', 'archived'].includes(e.state) ? `/room/${e.id}` : `/studio/exercises/${e.id}`
 }
 
+function SetupChecklist() {
+  const { t } = useTranslation()
+  const insts = useApiQuery<unknown[]>(keys.institutions(undefined, false), '/institutions')
+  const kbs = useApiQuery<unknown[]>(keys.kbs(false), '/knowledge-bases')
+  const agents = useApiQuery<unknown[]>(keys.agents(false), '/agents')
+  const scenarios = useApiQuery<unknown[]>(keys.scenarios, '/scenarios')
+  const exercises = useApiQuery<unknown[]>(keys.exercises(), '/exercises')
+  const steps = [
+    { to: '/studio/countries', k: 'institutions', q: insts }, { to: '/studio/knowledge', k: 'knowledge', q: kbs },
+    { to: '/studio/agents', k: 'agents', q: agents }, { to: '/studio/scenarios', k: 'scenarios', q: scenarios },
+    { to: '/studio/exercises', k: 'exercises', q: exercises },
+  ]
+  return (
+    <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      {steps.map((s, i) => {
+        const n = s.q.data?.length
+        const done = typeof n === 'number' && n > 0
+        return (
+          <li key={s.to}>
+            <Card>
+              <p className="text-xs font-semibold text-muted uppercase">{t('home.step', { n: i + 1 })}</p>
+              <Link to={s.to} className="font-semibold no-underline hover:underline">{t(`home.setupItems.${s.k}`)}</Link>
+              <p className="mt-1 text-sm">{s.q.isPending ? '…' : <Badge tone={done ? 'ok' : 'neutral'}>{done ? t('home.count', { n }) : t('home.todo')}</Badge>}</p>
+            </Card>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
 function ProviderStatus() {
   const { t } = useTranslation()
   const q = useApiQuery<Ready>(keys.ready, '/ready')
@@ -36,13 +67,7 @@ export function HomePage() {
     <>
       <PageHeader title={t('home.title', { name: workspace?.name ?? '' })} description={t('home.description')} />
       <Section title={t('home.system')}><ProviderStatus /></Section>
-      <Section title={t('home.quick')}>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[['/studio/countries', 'countries'], ['/studio/knowledge', 'knowledge'], ['/studio/agents', 'agents'], ['/studio/scenarios', 'scenarios'], ['/studio/exercises', 'exercises'], ['/gaps', 'gaps'], ['/reports', 'reports'], ['/evaluation', 'evaluation']].map(([to, k]) => (
-            <li key={to}><Card><Link to={to} className="font-semibold">{t(`nav.${k}`)}</Link></Card></li>
-          ))}
-        </ul>
-      </Section>
+      <Section title={t('home.setup')}><SetupChecklist /></Section>
       <Section title={t('home.exercises')}>
         <QueryState q={q} what="(/exercises)">
           {(rows) => rows.length === 0 ? <EmptyState title={t('home.noExercises')} hint={t('home.noExercisesHint')} action={<Link to="/studio/exercises">{t('nav.exercises')}</Link>} /> : (

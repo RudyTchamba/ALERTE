@@ -22,7 +22,7 @@
   --info-soft: #d6ecf8;
   --neutral: #3b4452;
   --neutral-soft: #e4e7ec;
-  --banner: #5b21b6;
+  --banner: #1f2d4a;
   --focus: #b45309;
 }
 :root[data-theme='dark'] {
@@ -46,7 +46,7 @@
   --info-soft: #0f2f41;
   --neutral: #cbd2de;
   --neutral-soft: #262d3a;
-  --banner: #c4a8ff;
+  --banner: #cdd6ea;
   --focus: #fbbf24;
 }
 @media (prefers-color-scheme: dark) {
@@ -71,7 +71,7 @@
     --info-soft: #0f2f41;
     --neutral: #cbd2de;
     --neutral-soft: #262d3a;
-    --banner: #c4a8ff;
+    --banner: #cdd6ea;
     --focus: #fbbf24;
   }
 }
@@ -103,7 +103,10 @@
 html { font-size: 16px; }
 body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; margin: 0; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
-a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+@layer base {
+  a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+}
 button, [role='tab'], [role='button'] { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 .sr-only-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

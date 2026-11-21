@@ -1,0 +1,10 @@
+{
+  "title": "Exercices", "description": "Créez un exercice à partir d'un scénario, attribuez les sièges à des IA ou à des humains, vérifiez la préparation et lancez.", "new": "Nouvel exercice", "prepare": "Préparer", "openRoom": "Ouvrir la salle",
+  "cloneRun": "Cloner et rejouer", "cloneHint": "Un nouvel exercice avec le même scénario et les mêmes réglages, lié à l'original (test contrefactuel ou de stabilité).",
+  "scenario": "Scénario", "aiMode": "Mode d'exécution", "aiModeHint": "Seul « Modèle réel » prouve que l'IA fonctionne. Les exécutions scénarisées et les rejeux sont étiquetés SANS IA partout.",
+  "modes": { "ai": "Modèle réel", "scripted": "Scénarisé (SANS IA)", "cassette": "Rejeu de cassette" }, "paces": { "manual": "Manuel (pas à pas)", "auto": "Automatique", "auto_delay": "Automatique avec délai" }, "pace": "Rythme",
+  "budget": "Budget d'appels au modèle", "budgetHint": "Laisser vide pour la valeur par défaut du serveur. L'exercice se met en pause quand il est épuisé.",
+  "seats": "Sièges", "seatsHint": "Un siège par institution. Un siège humain reçoit un lien personnel ; l'agent IA du siège ne sert qu'à la reprise en main.", "noSeats": "Aucun siège.", "addSeat": "Ajouter un siège", "addFromScenario": "Ajouter les institutions du scénario", "saveSeats": "Enregistrer les sièges",
+  "controller": "Joué par", "ctrl": { "agent": "Agent IA", "human": "Humain", "scripted": "Scénarisé" }, "humanName": "Nom de l'humain", "seatLink": "Lien du siège", "seatLinkFor": "Lien pour {{name}} (siège {{seat}})", "seatLinkHint": "Envoyez-le au joueur. Le jeton se trouve après « # » et n'atteint jamais les journaux du serveur.",
+  "readiness": "Préparation de l'exercice", "readyToLaunch": "Prêt", "blocked": "{{n}} problème(s) bloquant(s)", "nWarnings": "{{n}} avertissement(s)", "blockingLabel": "Bloquant", "recheck": "Revérifier", "markReady": "Marquer prêt", "markedReady": "Exercice marqué prêt", "launch": "Lancer l'exercice", "launchHint": "Marquez d'abord l'exercice prêt ; le lancement fige la configuration (instantané)."
+}

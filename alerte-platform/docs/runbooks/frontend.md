@@ -58,7 +58,7 @@ Le jeton vit dans `sessionStorage` (onglet courant), jamais dans une URL ni un j
 
 * Couleur toujours accompagnée d'un mot et d'une icône (`Badge`, `StatusBadge`) ; focus visible ; lien d'évitement ; `aria-live`
   pour les événements entrants de la salle ; matrice d'accès = cases à cocher natives dans un tableau à en-têtes.
-* Anglais complet (`src/i18n/en/*.json`) ; français prévu (P1) : `src/i18n/fr/*.json` ne contient que le cadre, le reste retombe sur l'anglais.
+* Anglais et français complets (`src/i18n/en/*.json`, `src/i18n/fr/*.json`, mêmes clés : un test de parité l'impose) ; langue initiale = choix mémorisé, sinon langue du navigateur. Les messages renvoyés par le backend (contrôles du scénario, textes de lacunes) restent dans la langue du backend (français pour la plupart).
 * Thème clair/sombre (jetons CSS dans `src/styles/index.css`), responsive : Studio tablette/bureau, Player/Observer téléphone.
 
 ## Dépendances ajoutées au projet pré-créé

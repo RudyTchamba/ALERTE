@@ -1,0 +1,24 @@
+{
+  "generic": "Une erreur inattendue est survenue.",
+  "network": { "unreachable": "Le serveur est injoignable. Vérifiez que le backend est démarré." },
+  "auth": { "missing_token": "Aucun jeton d'accès. Veuillez vous connecter.", "invalid_token": "Ce jeton est invalide, expiré ou révoqué." },
+  "workspace": {
+    "forbidden": "Votre rôle ne permet pas cette action.",
+    "bootstrap_disabled": "Un espace de travail existe déjà. En créer un autre exige le jeton propriétaire."
+  },
+  "validation": { "failed": "Certains champs sont invalides." },
+  "kb": {
+    "not_ready": "Cette base de connaissances n'a pas encore de version publiée.",
+    "export": { "restricted_documents": "Certains documents sont restreints ou de licence inconnue et ne peuvent pas être exportés dans une publication ouverte." },
+    "import": { "integrity_failed": "L'archive a échoué au contrôle d'intégrité et a été refusée." }
+  },
+  "exercise": {
+    "invalid_transition": "Cette commande n'est pas autorisée dans l'état actuel de l'exercice.",
+    "readiness_blocked": "Des contrôles de préparation bloquants subsistent. Corrigez-les avant le lancement."
+  },
+  "decision": { "citation_failed": "Une ou plusieurs citations n'ont pas pu être vérifiées." },
+  "seat": { "not_assigned": "Ce siège ne vous est pas attribué.", "human_unnamed": "Un humain nommé est requis pour un siège humain." },
+  "gap": { "review": { "reason_required": "Un motif est requis pour contester ou rejeter une lacune." } },
+  "budget": { "exhausted": "Le budget d'appels au modèle est épuisé ; l'exercice a été mis en pause." },
+  "stream": { "invalid_token": "Le jeton de flux est invalide, expiré ou déjà utilisé." }
+}

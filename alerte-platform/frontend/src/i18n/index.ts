@@ -7,12 +7,14 @@ import fr from './fr'
 export const LANGS = ['en', 'fr'] as const
 export type Lang = (typeof LANGS)[number]
 const stored = localGet('alerte.lang')
-const initial: Lang = stored === 'fr' ? 'fr' : 'en'
+// Langue : choix mémorisé, sinon langue du navigateur (fr/en), sinon anglais.
+const browser = typeof navigator !== 'undefined' ? navigator.language?.toLowerCase() : ''
+const initial: Lang = stored === 'fr' || stored === 'en' ? stored : browser?.startsWith('fr') ? 'fr' : 'en'
 
 void i18n.use(initReactI18next).init({
   resources: { en: { translation: en }, fr: { translation: fr } },
   lng: initial,
-  fallbackLng: 'en', // French is planned (P1): untranslated keys fall back to the complete English set
+  fallbackLng: 'en', // une clé non traduite retombe sur l'anglais
   interpolation: { escapeValue: false },
   returnNull: false,
   react: { useSuspense: false },

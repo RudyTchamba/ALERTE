@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -25,6 +26,19 @@ results: list[tuple[str, str, str]] = []  # (niveau, titre, détail)
 
 def add(level: str, title: str, detail: str = "") -> None:
     results.append((level, title, detail))
+
+
+def load_dotenv() -> None:
+    """Lit `backend/.env` (clé=valeur, commentaires ignorés) SANS écraser l'environnement existant, comme le fait le backend."""
+    f = BACKEND / ".env"
+    if not f.is_file():
+        return
+    for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.split(" #")[0].strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
 def venv_python() -> Path:
@@ -61,9 +75,15 @@ def check_python() -> None:
 def check_node() -> None:
     node, npm = shutil.which("node"), shutil.which("npm")
     if not node or not npm:
-        add("AVERTISSEMENT", "Node.js/npm introuvables dans le PATH",
-            "Installez/activez Node 22 avec nvm : `nvm install && nvm use` (le fichier .nvmrc fixe la version). "
-            + hint("", "", "Windows : nvm-windows ou fnm."))
+        nvm_dir = Path(os.environ.get("NVM_DIR", Path.home() / ".nvm")) / "versions" / "node"
+        found = sorted(nvm_dir.glob("v*")) if nvm_dir.is_dir() else []
+        if found:
+            add("AVERTISSEMENT", "Node.js installé via nvm mais non activé dans ce shell",
+                f"versions trouvées : {', '.join(p.name for p in found)}. Activez-la : `nvm use` (dans frontend/, lit .nvmrc).")
+        else:
+            add("AVERTISSEMENT", "Node.js/npm introuvables dans le PATH",
+                "Installez/activez Node 22 avec nvm : `nvm install && nvm use` (le fichier .nvmrc fixe la version). "
+                + hint("", "", "Windows : nvm-windows ou fnm."))
         return
     code, out = run([node, "--version"])
     ver = out.lstrip("v").split(".")
@@ -80,15 +100,16 @@ def check_tesseract() -> None:
             hint("sudo apt install tesseract-ocr tesseract-ocr-fra tesseract-ocr-ara", "brew install tesseract tesseract-lang",
                  "Installeur UB Mannheim, puis ajouter au PATH et définir TESSDATA_PREFIX"))
         return
-    code, out = run([exe, "--list-langs"])
-    langs = set(out.split()[4:]) if code == 0 else set()
-    missing = {"fra", "ara", "eng"} - langs
     tess = os.environ.get("ALERTE_TESSDATA_DIR")
-    if missing and not tess:
+    cmd = [exe, "--list-langs"] + (["--tessdata-dir", tess] if tess else [])
+    code, out = run(cmd)
+    langs = {ln.strip() for ln in out.splitlines() if re.fullmatch(r"[A-Za-z_]{2,12}", ln.strip())} if code == 0 else set()
+    missing = {"fra", "ara", "eng"} - langs
+    if missing:
         add("AVERTISSEMENT", f"Tesseract : langues manquantes {sorted(missing)}",
             "Installer les paquets de langues ou définir ALERTE_TESSDATA_DIR vers un dossier tessdata (ara, fra, eng).")
     else:
-        add("OK", "Tesseract disponible", f"langues : {sorted(langs)}" if not missing else f"tessdata externe : {tess}")
+        add("OK", "Tesseract disponible", f"langues : {sorted(langs)}" + (f" (tessdata : {tess})" if tess else ""))
 
 
 def check_pdf() -> None:
@@ -149,6 +170,7 @@ def main() -> int:
     ap.add_argument("--backend-only", action="store_true")
     ap.add_argument("--strict", action="store_true")
     args = ap.parse_args()
+    load_dotenv()
     add("INFO", f"Système : {OS} {platform.release()} — {platform.machine()}")
     check_python()
     if not args.backend_only:

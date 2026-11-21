@@ -43,6 +43,27 @@ def commitment_hash(payload: dict, registry: dict[str, str]) -> str:
                              "registry": dict(sorted(registry.items()))})
 
 
+def effective_profile(ctx: Any, ex: Exercise, profile: dict | None) -> dict | None:
+    """Profil de modèle EFFECTIF d'un agent pour cet exercice.
+
+    * `ai_mode=scripted` : fournisseur de test `scripted` (SANS IA), quel que soit le profil de l'agent ;
+    * `ai_mode=cassette` : rejeu de la cassette `exercise.settings.cassette` (SANS IA) ;
+    * `ai_mode=ai` : le profil de l'agent, ou à défaut le serveur par défaut `ALERTE_LLM_BASE_URL`/`ALERTE_LLM_MODEL`."""
+    if ex.ai_mode == "scripted":
+        return {"provider": "scripted", "model": "scripted-rules-v1", "endpoint_ref": None, "temperature": 0.0,
+                "max_tokens": None, "timeout_s": None, "extra": {}}
+    if ex.ai_mode == "cassette":
+        return {"provider": "cassette", "model": "cassette", "endpoint_ref": None, "temperature": 0.0, "max_tokens": None,
+                "timeout_s": None, "extra": {"cassette": (ex.settings or {}).get("cassette")}}
+    if profile and profile.get("provider"):
+        return profile
+    st = ctx.settings
+    if st.llm_mode == "openai_compat":
+        return {"provider": "openai_compat", "model": st.llm_model, "endpoint_ref": "ALERTE_LLM_BASE_URL", "temperature": 0.0,
+                "max_tokens": None, "timeout_s": None, "extra": {}}
+    return profile
+
+
 def build_snapshot(ctx: Any, session: Session, ex: Exercise, seats: list[Seat]) -> tuple[dict, dict[str, str]]:
     ws = ex.workspace_id
     scen = copy.deepcopy(svc(ctx, "scenarios").export_scenario_snapshot(session, ws, ex.scenario_id))
@@ -63,6 +84,7 @@ def build_snapshot(ctx: Any, session: Session, ex: Exercise, seats: list[Seat]) 
         if s.agent_id:
             agent = copy.deepcopy(agents.export_agent_snapshot(session, ws, s.agent_id))
             agent.setdefault("id", s.agent_id)
+            agent["model_profile"] = effective_profile(ctx, ex, agent.get("model_profile"))
             grants[s.agent_id] = sorted(agents.kb_grants(session, ws, s.agent_id))
         seat_entries.append({"seat_id": s.id, "code": s.code, "institution_id": s.institution_id,
                              "controller": s.controller, "agent": agent})

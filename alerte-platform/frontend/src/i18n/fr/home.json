@@ -1,0 +1,28 @@
+{
+  "title": "Espace {{name}}",
+  "description": "Exercices de cet espace de travail et état du système.",
+  "system": "État du système",
+  "checking": "Vérification…",
+  "notReady": "Backend non prêt",
+  "unreachable": "Backend injoignable",
+  "up": "actif",
+  "down": "en panne",
+  "quick": "Accès rapide",
+  "exercises": "Exercices",
+  "noExercises": "Aucun exercice",
+  "noExercisesHint": "Construisez un scénario, puis créez-en un exercice.",
+  "exTitle": "Titre",
+  "mode": "Mode",
+  "started": "Démarré",
+  "setup": "Pour commencer",
+  "step": "Étape {{n}}",
+  "count": "{{n}} configuré(s)",
+  "todo": "À faire",
+  "setupItems": {
+    "institutions": "Pays et institutions",
+    "knowledge": "Bases de connaissances",
+    "agents": "Agents",
+    "scenarios": "Scénarios",
+    "exercises": "Exercices"
+  }
+}
