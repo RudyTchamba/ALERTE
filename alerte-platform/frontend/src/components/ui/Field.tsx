@@ -36,7 +36,7 @@ export function Field({ label, error, hint, required, children, className }: Fie
   )
 }
 
-const base = 'w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted disabled:opacity-60 aria-[invalid=true]:border-danger'
+const base = 'w-full rounded-lg border border-line bg-surface2 px-3 py-2 text-sm text-ink placeholder:text-muted transition focus:border-brand disabled:opacity-60 aria-[invalid=true]:border-danger'
 
 export function Input({ className, ...p }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={cn(base, 'min-h-10', className)} {...p} />

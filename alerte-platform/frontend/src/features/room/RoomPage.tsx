@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Pause, Play, SkipForward, Square, Zap } from 'lucide-react'
@@ -54,40 +54,68 @@ function RoomView({ ex }: { ex: Exercise }) {
   const live = status === 'open' ? 'ok' : status === 'ended' ? 'neutral' : status === 'error' ? 'danger' : 'warn'
   const hasAudit = role === 'owner' || role === 'member'
 
+  const isLive = status === 'open' && ['running', 'paused'].includes(exState)
+  const lastBySeat = new Map(state.decisions.map((d) => [d.seat, d]))
+  const latest = [...lastBySeat.values()]
+  const verified = latest.filter((d) => d.status === 'recorded' && d.author !== 'fallback').length
+  const refused = latest.length - verified
+  const budgetPct = cap ? Math.min(100, Math.round((used / cap) * 100)) : 0
+
   return (
     <>
       <NoAiBanner aiMode={ex.ai_mode} />
-      <header className="mb-4 rounded-lg border border-line bg-surface p-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-bold">{ex.title}</h1>
-            <p className="flex flex-wrap items-center gap-2 text-sm">
+      <header className="panel relative mb-4 overflow-hidden">
+        <span aria-hidden className={`absolute inset-x-0 top-0 h-0.5 ${isLive ? 'bg-ok' : exState === 'completed' ? 'bg-brand' : 'bg-line'}`} />
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4">
+          <div className="min-w-0">
+            <p className="eyebrow mb-1 flex items-center gap-2">
+              <span className={`live-dot ${isLive ? 'is-live text-ok' : status === 'error' ? 'text-danger' : 'text-muted'}`} aria-hidden />
+              {t('room.eyebrow')} · <span className="font-mono normal-case">{ex.code}</span>
+            </p>
+            <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">{ex.title}</h1>
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
               <StatusBadge status={exState} />{ex.substate === 'waiting_human' && <Badge tone="warn">{t('room.waitingHuman')}</Badge>}
-              <span><span className="text-muted">{t('room.clock')}:</span> <strong>{state.simTime ?? '—'}</strong></span>
-              <span><span className="text-muted">{t('room.budget')}:</span> <strong>{used}{cap ? `/${cap}` : ''}</strong> {t('room.calls')}</span>
-              <Badge tone={live}>{t(`room.stream.${status}`)}</Badge>
-              <Link to={`/audit/${ex.id}`}>{t('nav.audit')}</Link>
+              {status !== 'ended' && <Badge tone={live}>{t(`room.stream.${status}`)}</Badge>}
+              <Link to={`/audit/${ex.id}`} className="text-sm">{t('nav.audit')}</Link>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={t('room.commands')}>
-            <Button disabled={!ok('pause')} onClick={() => cmd.mutate({ kind: 'pause' })} icon={<Pause className="h-4 w-4" aria-hidden />}>{t('room.cmd.pause')}</Button>
-            <Button disabled={!ok('resume')} onClick={() => cmd.mutate({ kind: 'resume' })} icon={<Play className="h-4 w-4" aria-hidden />}>{t('room.cmd.resume')}</Button>
-            <Button disabled={!ok('step')} onClick={() => cmd.mutate({ kind: 'step' })} icon={<SkipForward className="h-4 w-4" aria-hidden />}>{t('room.cmd.step')}</Button>
-            <label className="sr-only" htmlFor="pace">{t('exercises.pace')}</label>
-            <Select id="pace" className="!w-auto" disabled={!ok('speed')} value={ex.pace} onChange={(e) => cmd.mutate({ kind: 'speed', args: { pace: e.target.value } })}>
-              <option value="manual">{t('exercises.paces.manual')}</option><option value="auto">{t('exercises.paces.auto')}</option><option value="auto_delay">{t('exercises.paces.auto_delay')}</option>
-            </Select>
-            <Button disabled={!ok('surprise')} onClick={() => setSurprise(true)} icon={<Zap className="h-4 w-4" aria-hidden />}>{t('room.cmd.surprise')}</Button>
-            <Button variant="danger" disabled={!ok('stop')} onClick={() => setStopAsk(true)} icon={<Square className="h-4 w-4" aria-hidden />}>{t('room.cmd.stop')}</Button>
-          </div>
+          <dl className="flex flex-wrap items-stretch gap-3">
+            <div className="rounded-lg border border-line bg-surface2 px-4 py-2">
+              <dt className="eyebrow">{t('room.clock')}</dt>
+              <dd className="font-mono text-2xl font-bold text-brand tabular"><strong>{state.simTime ?? '—'}</strong></dd>
+            </div>
+            <div className="min-w-44 rounded-lg border border-line bg-surface2 px-4 py-2">
+              <dt className="eyebrow">{t('room.budget')}</dt>
+              <dd className="text-sm"><span className="font-mono text-2xl font-bold tabular"><strong>{used}{cap ? `/${cap}` : ''}</strong></span> <span className="text-muted">{t('room.calls')}</span>
+                {cap > 0 && <span aria-hidden className="mt-1 block h-1 overflow-hidden rounded bg-surface"><span className={`block h-full ${budgetPct > 85 ? 'bg-danger' : 'bg-brand'}`} style={{ width: `${budgetPct}%` }} /></span>}
+              </dd>
+            </div>
+          </dl>
         </div>
-        {error && status !== 'open' && <p role="status" className="mt-2 text-xs text-muted">{error}</p>}
+        <div className="flex flex-wrap items-center gap-2 border-t border-line bg-surface2/50 px-4 py-2.5" role="group" aria-label={t('room.commands')}>
+          <Button size="sm" disabled={!ok('pause')} onClick={() => cmd.mutate({ kind: 'pause' })} icon={<Pause className="h-4 w-4" aria-hidden />}>{t('room.cmd.pause')}</Button>
+          <Button size="sm" variant={ok('resume') ? 'primary' : 'secondary'} disabled={!ok('resume')} onClick={() => cmd.mutate({ kind: 'resume' })} icon={<Play className="h-4 w-4" aria-hidden />}>{t('room.cmd.resume')}</Button>
+          <Button size="sm" disabled={!ok('step')} onClick={() => cmd.mutate({ kind: 'step' })} icon={<SkipForward className="h-4 w-4" aria-hidden />}>{t('room.cmd.step')}</Button>
+          <label className="sr-only" htmlFor="pace">{t('exercises.pace')}</label>
+          <Select id="pace" className="!w-auto !min-h-8 !py-1" disabled={!ok('speed')} value={ex.pace} onChange={(e) => cmd.mutate({ kind: 'speed', args: { pace: e.target.value } })}>
+            <option value="manual">{t('exercises.paces.manual')}</option><option value="auto">{t('exercises.paces.auto')}</option><option value="auto_delay">{t('exercises.paces.auto_delay')}</option>
+          </Select>
+          <Button size="sm" disabled={!ok('surprise')} onClick={() => setSurprise(true)} icon={<Zap className="h-4 w-4" aria-hidden />}>{t('room.cmd.surprise')}</Button>
+          <Button size="sm" variant="danger" className="ml-auto" disabled={!ok('stop')} onClick={() => setStopAsk(true)} icon={<Square className="h-4 w-4" aria-hidden />}>{t('room.cmd.stop')}</Button>
+        </div>
+        {error && status !== 'open' && <p role="status" className="border-t border-line px-4 py-2 text-xs text-muted">{error}</p>}
       </header>
-      {state.errors.length > 0 && <div role="alert" className="mb-3 rounded border border-danger bg-dangersoft p-2 text-sm">{state.errors.slice(-3).map((e) => <p key={e.seq}><Badge tone="danger">{e.component}</Badge> {e.message}</p>)}</div>}
-      <div className="grid gap-4 lg:grid-cols-[17rem_1fr] xl:grid-cols-[17rem_1fr_22rem]">
-        <Timeline injects={state.injects} current={state.currentInject} />
+      {state.errors.length > 0 && <div role="alert" className="mb-3 rounded-lg border border-danger bg-dangersoft p-2 text-sm">{state.errors.slice(-3).map((e) => <p key={e.seq}><Badge tone="danger">{e.component}</Badge> {e.message}</p>)}</div>}
+      <dl className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat label={t('room.summary.injects')} value={state.injects.length} />
+        <Stat label={t('room.summary.decisions')} value={latest.length} detail={<><span className="text-ok">{verified} {t('room.summary.verified')}</span> · <span className={refused ? 'text-danger' : ''}>{refused} {t('room.summary.refused')}</span></>} />
+        <Stat label={t('room.summary.messages')} value={state.board.length} />
+        <Stat label={t('room.summary.signals')} value={state.signals.length} tone={state.signals.length ? 'text-danger' : undefined} />
+      </dl>
+      <div className="grid gap-4 lg:grid-cols-[17rem_1fr] xl:grid-cols-[17rem_1fr_24rem]">
+        <Timeline injects={state.injects} current={['completed', 'stopped'].includes(exState) ? null : state.currentInject} />
         <SeatCards seats={seats} decisions={state.decisions} onSeat={setSeatOpen} onDecision={setTrace} />
-        <div className="flex flex-col gap-6 lg:col-span-2 xl:col-span-1">
+        <div className="flex flex-col gap-4 lg:col-span-2 xl:col-span-1">
           <BoardPanel board={state.board} />
           <SignalsPanel signals={state.signals} canSeeAudit={hasAudit} />
         </div>
@@ -153,5 +181,14 @@ function SeatDialog({ ex, code, state, onTrace, onClose, canControl, running }: 
         </section>
       )}
     </Dialog>
+  )
+}
+
+function Stat({ label, value, detail, tone }: { label: string; value: number; detail?: ReactNode; tone?: string }) {
+  return (
+    <div className="panel px-4 py-3">
+      <dt className="eyebrow">{label}</dt>
+      <dd><span className={`text-2xl font-black tabular ${tone ?? ''}`}>{value}</span>{detail && <span className="ml-2 text-xs text-muted">{detail}</span>}</dd>
+    </div>
   )
 }

@@ -18,7 +18,7 @@ const ToneIcon = { ok: CheckCircle2, warn: AlertTriangle, danger: XCircle, info:
 export function Badge({ tone = 'neutral', children, className }: { tone?: Tone; children: ReactNode; className?: string }) {
   const Icon = ToneIcon[tone]
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold whitespace-nowrap', toneClass[tone], className)}>
+    <span className={cn('inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap', toneClass[tone], className)}>
       <Icon className="h-3.5 w-3.5" aria-hidden />
       {children}
     </span>

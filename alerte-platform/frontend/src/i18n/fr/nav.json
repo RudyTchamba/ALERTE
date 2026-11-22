@@ -21,5 +21,15 @@
   "tokens": "Jetons d'accès",
   "logout": "Se déconnecter",
   "workspace": "Espace",
-  "role": "Rôle"
+  "role": "Rôle",
+  "prepare": "Préparer",
+  "play": "Jouer",
+  "analyze": "Analyser",
+  "system": "Système",
+  "prepareHint": "Institutions, mandats, documents, agents, scénario",
+  "playHint": "Lancer et suivre l'exercice",
+  "analyzeHint": "Lacunes prouvées, rapports, audit",
+  "theme": "Thème",
+  "openMenu": "Ouvrir le menu",
+  "closeMenu": "Fermer le menu"
 }

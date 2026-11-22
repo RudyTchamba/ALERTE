@@ -24,5 +24,42 @@
     "agents": "Agents",
     "scenarios": "Scénarios",
     "exercises": "Exercices"
+  },
+  "hero": {
+    "eyebrow": "Salle de crise virtuelle",
+    "title": "Testez vos institutions avant la vraie crise.",
+    "lead": "Des agents IA incarnent les institutions d'un pays, chacune limitée à ses mandats officiels et à ses propres documents. ALERTE fait jouer un scénario de crise et révèle, preuves à l'appui, les failles de coordination : responsabilités orphelines, mandats qui se chevauchent, procédures absentes.",
+    "ctaRoom": "Entrer en salle de simulation",
+    "ctaPrepare": "Préparer un exercice",
+    "ctaGaps": "Voir les lacunes"
+  },
+  "how": {
+    "title": "Comment ça marche",
+    "prepare": "Institutions, mandats et textes de loi : chaque agent ne sait que ce que son institution sait.",
+    "play": "Les événements tombent ; les agents cherchent, se coordonnent et décident. Chaque décision doit citer un texte vérifié.",
+    "analyze": "Les lacunes émergent avec leur chaîne de preuves, puis sont validées par des humains et publiées en rapport."
+  },
+  "kpi": {
+    "title": "En chiffres",
+    "played": "Exercices joués",
+    "withAi": "avec IA réelle",
+    "gaps": "Lacunes détectées",
+    "toReview": "en attente de revue",
+    "institutions": "Institutions modélisées",
+    "agents": "Agents IA configurés"
+  },
+  "setupTitle": "Préparation",
+  "setupLead": "Les cinq briques d'un exercice.",
+  "next": "Prochaine étape",
+  "ready": "Prêt",
+  "latest": "Derniers exercices",
+  "viewAll": "Tout voir",
+  "open": "Ouvrir",
+  "checks": {
+    "database": "Base de données",
+    "data_dir": "Stockage",
+    "knowledge": "Connaissances",
+    "hybrid": "Recherche hybride (IA)",
+    "lexical": "Recherche lexicale seule"
   }
 }

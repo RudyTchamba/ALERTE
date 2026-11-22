@@ -24,5 +24,42 @@
     "agents": "Agents",
     "scenarios": "Scenarios",
     "exercises": "Exercises"
+  },
+  "hero": {
+    "eyebrow": "Virtual crisis room",
+    "title": "Stress-test your institutions before the real crisis.",
+    "lead": "AI agents play a country's institutions, each bound by its official mandates and its own documents. ALERTE runs a crisis scenario and reveals coordination failures with evidence: orphan responsibilities, overlapping mandates, missing procedures.",
+    "ctaRoom": "Enter the simulation room",
+    "ctaPrepare": "Prepare an exercise",
+    "ctaGaps": "See the gaps"
+  },
+  "how": {
+    "title": "How it works",
+    "prepare": "Institutions, mandates and legal texts: each agent only knows what its institution knows.",
+    "play": "Events unfold; agents search, coordinate and decide. Every decision must cite a verified text.",
+    "analyze": "Gaps emerge with their evidence chain, then are validated by humans and published as a report."
+  },
+  "kpi": {
+    "title": "Key figures",
+    "played": "Exercises played",
+    "withAi": "with a real AI model",
+    "gaps": "Gaps detected",
+    "toReview": "awaiting review",
+    "institutions": "Institutions modelled",
+    "agents": "AI agents configured"
+  },
+  "setupTitle": "Preparation",
+  "setupLead": "The five building blocks of an exercise.",
+  "next": "Next step",
+  "ready": "Ready",
+  "latest": "Latest exercises",
+  "viewAll": "View all",
+  "open": "Open",
+  "checks": {
+    "database": "Database",
+    "data_dir": "Storage",
+    "knowledge": "Knowledge",
+    "hybrid": "Hybrid search (AI)",
+    "lexical": "Lexical search only"
   }
 }

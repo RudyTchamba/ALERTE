@@ -21,5 +21,15 @@
   "tokens": "Access tokens",
   "logout": "Sign out",
   "workspace": "Workspace",
-  "role": "Role"
+  "role": "Role",
+  "prepare": "Prepare",
+  "play": "Play",
+  "analyze": "Analyse",
+  "system": "System",
+  "prepareHint": "Institutions, mandates, documents, agents, scenario",
+  "playHint": "Launch and follow the exercise",
+  "analyzeHint": "Evidence-backed gaps, reports, audit",
+  "theme": "Theme",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu"
 }

@@ -1,78 +1,91 @@
 @import 'tailwindcss';
 
-/* Design tokens. Light is the default; dark follows the OS unless the user picks a theme explicitly. */
+/* Design tokens — ambiance « centre de crise ». Sombre par défaut (voir app/theme.ts) ; clair sur demande.
+   Ambre = marque / action, rouge = alerte, vert = vérifié, orange = attention, cyan = information / focus. */
 :root {
-  color-scheme: light;
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --surface-2: #eef0f4;
-  --border: #c9ced8;
-  --text: #14181f;
-  --text-muted: #4a5363;
-  --brand: #1d4ed8;
-  --brand-contrast: #ffffff;
-  --brand-soft: #dbe6ff;
-  --ok: #0f6a35;
-  --ok-soft: #d7f2e2;
-  --warn: #8a4b00;
-  --warn-soft: #fdebc8;
-  --danger: #b0141f;
-  --danger-soft: #fbdadd;
-  --info: #0b5a85;
-  --info-soft: #d6ecf8;
-  --neutral: #3b4452;
-  --neutral-soft: #e4e7ec;
-  --banner: #1f2d4a;
-  --focus: #b45309;
-}
-:root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0e1117;
-  --surface: #161b24;
-  --surface-2: #1e2531;
-  --border: #3a4455;
-  --text: #eef1f6;
-  --text-muted: #aeb7c6;
-  --brand: #7ea6ff;
-  --brand-contrast: #0b1020;
-  --brand-soft: #1c2c52;
-  --ok: #6fdc9b;
-  --ok-soft: #12351f;
-  --warn: #f5c36b;
-  --warn-soft: #3a2a0a;
-  --danger: #ff8a93;
-  --danger-soft: #431419;
-  --info: #7cc7ee;
-  --info-soft: #0f2f41;
-  --neutral: #cbd2de;
-  --neutral-soft: #262d3a;
-  --banner: #cdd6ea;
-  --focus: #fbbf24;
+  --bg: #080c12;
+  --surface: #0f151e;
+  --surface-2: #17202c;
+  --border: #263241;
+  --text: #e8edf4;
+  --text-muted: #97a5b8;
+  --brand: #f5a524;
+  --brand-contrast: #160f02;
+  --brand-soft: #33240a;
+  --ok: #3ddc97;
+  --ok-soft: #0d2b20;
+  --warn: #fb923c;
+  --warn-soft: #36200d;
+  --danger: #ff6b6b;
+  --danger-soft: #3a1517;
+  --danger-contrast: #1f0606;
+  --info: #4cc3f5;
+  --info-soft: #0c2838;
+  --neutral: #cbd5e1;
+  --neutral-soft: #1d2735;
+  --banner: #f5a524;
+  --banner-ink: #160f02;
+  --focus: #4cc3f5;
+  --glow: rgba(245, 165, 36, 0.07);
+  --grid: rgba(151, 165, 184, 0.045);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --bg: #0e1117;
-    --surface: #161b24;
-    --surface-2: #1e2531;
-    --border: #3a4455;
-    --text: #eef1f6;
-    --text-muted: #aeb7c6;
-    --brand: #7ea6ff;
-    --brand-contrast: #0b1020;
-    --brand-soft: #1c2c52;
-    --ok: #6fdc9b;
-    --ok-soft: #12351f;
-    --warn: #f5c36b;
-    --warn-soft: #3a2a0a;
-    --danger: #ff8a93;
-    --danger-soft: #431419;
-    --info: #7cc7ee;
-    --info-soft: #0f2f41;
-    --neutral: #cbd2de;
-    --neutral-soft: #262d3a;
-    --banner: #cdd6ea;
-    --focus: #fbbf24;
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #e9edf2;
+  --border: #c7cfda;
+  --text: #0e1621;
+  --text-muted: #475467;
+  --brand: #b45309;
+  --brand-contrast: #ffffff;
+  --brand-soft: #fdf0d9;
+  --ok: #047857;
+  --ok-soft: #d5f5e7;
+  --warn: #9a3412;
+  --warn-soft: #fde6d6;
+  --danger: #b91c1c;
+  --danger-soft: #fde0e0;
+  --danger-contrast: #ffffff;
+  --info: #0b6aa2;
+  --info-soft: #dbeefa;
+  --neutral: #344054;
+  --neutral-soft: #e4e8ee;
+  --banner: #f59e0b;
+  --banner-ink: #1a1204;
+  --focus: #0b6aa2;
+  --glow: rgba(180, 83, 9, 0.06);
+  --grid: rgba(14, 22, 33, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #f3f5f8;
+    --surface: #ffffff;
+    --surface-2: #e9edf2;
+    --border: #c7cfda;
+    --text: #0e1621;
+    --text-muted: #475467;
+    --brand: #b45309;
+    --brand-contrast: #ffffff;
+    --brand-soft: #fdf0d9;
+    --ok: #047857;
+    --ok-soft: #d5f5e7;
+    --warn: #9a3412;
+    --warn-soft: #fde6d6;
+    --danger: #b91c1c;
+    --danger-soft: #fde0e0;
+    --danger-contrast: #ffffff;
+    --info: #0b6aa2;
+    --info-soft: #dbeefa;
+    --neutral: #344054;
+    --neutral-soft: #e4e8ee;
+    --banner: #f59e0b;
+    --banner-ink: #1a1204;
+    --focus: #0b6aa2;
+    --glow: rgba(180, 83, 9, 0.06);
+    --grid: rgba(14, 22, 33, 0.035);
   }
 }
 
@@ -96,12 +109,35 @@
   --color-infosoft: var(--info-soft);
   --color-neutral: var(--neutral);
   --color-neutralsoft: var(--neutral-soft);
+  --color-banner: var(--banner);
+  --color-bannerink: var(--banner-ink);
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 }
 
 html { font-size: 16px; }
-body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; margin: 0; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, var(--glow), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+  background-attachment: fixed;
+  color: var(--text); font-family: var(--font-sans); line-height: 1.5; margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { letter-spacing: -0.01em; }
+.tabular { font-variant-numeric: tabular-nums; }
+/* Petite étiquette au-dessus d'un titre. */
+.eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+/* Bandeau « exercice fictif » : rayures de signalisation. */
+.hazard { background: repeating-linear-gradient(-45deg, var(--banner) 0 14px, color-mix(in srgb, var(--banner) 82%, black) 14px 28px); color: var(--banner-ink); }
+/* Point « en direct ». L'animation est neutralisée par prefers-reduced-motion plus bas. */
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 60%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
+.live-dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 9999px; background: currentColor; }
+.live-dot.is-live { animation: pulse-ring 1.6s ease-out infinite; }
+.panel { background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); border-radius: 0.75rem; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 @layer base {
   a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
