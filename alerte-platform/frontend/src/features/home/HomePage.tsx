@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, BookOpenText, Bot, CheckCircle2, Circle, Flag, Landmark, Radio, SearchCheck, Workflow } from 'lucide-react'
+import { ArrowRight, BookOpenText, Bot, CheckCircle2, Circle, Flag, Landmark, MonitorPlay, Radio, SearchCheck, Workflow } from 'lucide-react'
 import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
 import type { Exercise, Ready } from '@/api/loose'
@@ -11,6 +11,7 @@ import { Badge, EmptyState, QueryState, StatusBadge } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { fmtDateTime } from '@/lib/format'
 import { ApiError } from '@/api/client'
+import { FlowDemo } from './FlowDemo'
 
 export function exercisePath(e: Pick<Exercise, 'id' | 'state'>): string {
   return ['running', 'paused', 'interrupted', 'completed', 'stopped', 'archived'].includes(e.state) ? `/room/${e.id}` : `/studio/exercises/${e.id}`
@@ -222,6 +223,16 @@ export function HomePage() {
     <>
       <p className="sr-only">{t('home.title', { name: workspace?.name ?? '' })}</p>
       <Hero latest={latestPlayed} />
+      <section aria-labelledby="demo-lead" className="mb-6">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <p id="demo-lead" className="max-w-3xl text-sm text-muted">{t('home.demo.sectionLead')}</p>
+          <span className="flex flex-wrap items-center gap-4">
+            <Link to="/present" className="inline-flex items-center gap-1.5 rounded-lg border border-brand/50 bg-brandsoft px-3 py-1.5 text-sm font-semibold text-brand no-underline hover:border-brand"><MonitorPlay className="h-4 w-4" aria-hidden />{t('room.present.open')}</Link>
+            {latestPlayed && <Link to={`/room/${latestPlayed.id}`} className="text-sm font-semibold">{t('home.demo.seeReal')} →</Link>}
+          </span>
+        </div>
+        <FlowDemo />
+      </section>
       <KpiRow exercises={q.data ?? []} />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section aria-labelledby="latest-title">

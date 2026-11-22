@@ -61,5 +61,20 @@
     "knowledge": "Knowledge",
     "hybrid": "Hybrid search (AI)",
     "lexical": "Lexical search only"
+  },
+  "demo": {
+    "title": "A simulation in 30 seconds",
+    "badge": "Illustration — fictional data",
+    "inject": "Flash flood on the river",
+    "injectBody": "The river rises by 2 m in one hour.",
+    "q1": "flood warning",
+    "a1": "Issue a flood warning",
+    "m1": "Flood warning issued: prepare the public alert.",
+    "q2": "public alert broadcast",
+    "m2": "Broadcast the alert by SMS in the flood zone.",
+    "q3": "obligation to broadcast an alert",
+    "a2": "Broadcast the alert by SMS",
+    "sectionLead": "Watch the flow: the event arrives, each institution searches its own texts, coordinates with the others and decides. The automatic check verifies every citation, and the detector flags the gaps.",
+    "seeReal": "See a real exercise in replay"
   }
 }

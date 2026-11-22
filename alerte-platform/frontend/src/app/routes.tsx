@@ -20,6 +20,13 @@ function RequireAuth() {
   return <AppShell />
 }
 
+/** Pages plein écran (mode présentation) : authentifiées, mais sans la coque de navigation. */
+function RequireAuthBare() {
+  const { token } = useAuth()
+  if (!token) return <Navigate to="/access" replace />
+  return <Outlet />
+}
+
 function Root() {
   return (
     <AuthProvider>
@@ -35,6 +42,13 @@ export const routes: RouteObject[] = [
       { path: '/access', element: page(() => import('@/features/access/EntryPage'), 'EntryPage') },
       { path: '/play', element: page(() => import('@/features/room/PlayerPage'), 'PlayerPage') },
       { path: '/watch', element: page(() => import('@/features/room/ObserverPage'), 'ObserverPage') },
+      {
+        element: <RequireAuthBare />,
+        children: [
+          { path: '/present', element: page(() => import('@/features/present/PresentPage'), 'PresentPage') },
+          { path: '/present/:exerciseId', element: page(() => import('@/features/present/PresentPage'), 'PresentPage') },
+        ],
+      },
       {
         element: <RequireAuth />,
         children: [

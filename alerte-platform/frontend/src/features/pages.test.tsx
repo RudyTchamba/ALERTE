@@ -175,7 +175,8 @@ describe('Simulation Room', () => {
     es.emit(4, 'DECISION', { decision_id: 'D1', seat_code: 'MET', action: 'Refer to DPC', outcome: 'refer', status: 'not_verified', confidence: 'low', legal_basis: [{ chunk_id: 'CH1', article: '33', quote: 'q', check: 'fail', reason: 'quote_not_in_chunk' }] }, { actor: 'seat:MET', seat: 'MET' })
     es.emit(5, 'GAP', { signal: 'ORPHAN_REQUEST', origin_kind: 'coordinator_signal', inject_ref: 'inj-1' }, { visibility: 'audit' })
     es.emit(6, 'HUMAN', { kind: 'task_opened', seat: 'DPC' }, { seat: 'DPC', visibility: 'seat' })
-    expect(await screen.findByText(/River rising/)).toBeInTheDocument()
+    // Le titre apparaît aussi dans le narrateur de la vue Flux : on cible la ligne de la chronologie.
+    expect(await screen.findByText(/D1 07:10 — River rising/)).toBeInTheDocument()
     expect(screen.getByText(/D1 07:10 — River rising/)).toBeInTheDocument()
     expect(screen.getByText('D1 06:00')).toBeInTheDocument() // header clock = sim_time of the latest event
     expect(await screen.findByText('Please evacuate zone B')).toBeInTheDocument()

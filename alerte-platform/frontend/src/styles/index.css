@@ -137,6 +137,14 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 60%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
 .live-dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 9999px; background: currentColor; }
 .live-dot.is-live { animation: pulse-ring 1.6s ease-out infinite; }
+/* Vue Flux : halo des nœuds actifs, trajet lumineux. */
+@keyframes flow-halo { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.8; } }
+.flow-halo { animation: flow-halo 1.4s ease-in-out infinite; }
+@keyframes flow-dash { to { stroke-dashoffset: -24; } }
+.flow-trail { stroke-dasharray: 8 6; animation: flow-dash 0.8s linear infinite; }
+@keyframes flow-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.flow-callout { animation: flow-pop 0.35s ease-out; transform-box: fill-box; }
+@media (prefers-reduced-motion: reduce) { .flow-pulse { display: none; } }
 .panel { background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); border-radius: 0.75rem; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 @layer base {

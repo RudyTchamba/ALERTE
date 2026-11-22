@@ -61,5 +61,20 @@
     "knowledge": "Connaissances",
     "hybrid": "Recherche hybride (IA)",
     "lexical": "Recherche lexicale seule"
+  },
+  "demo": {
+    "title": "Une simulation en 30 secondes",
+    "badge": "Illustration — données fictives",
+    "inject": "Crue soudaine sur le fleuve",
+    "injectBody": "Le niveau du fleuve monte de 2 m en une heure.",
+    "q1": "avis de crue",
+    "a1": "Émettre un avis de crue",
+    "m1": "Avis de crue émis : préparez l'alerte à la population.",
+    "q2": "diffusion alerte population",
+    "m2": "Diffusez l'alerte par SMS dans la zone inondable.",
+    "q3": "obligation de diffuser une alerte",
+    "a2": "Diffuser l'alerte par SMS",
+    "sectionLead": "Regardez le flux : l'événement arrive, chaque institution cherche dans ses propres textes, se coordonne avec les autres et décide. Le contrôle automatique vérifie chaque citation, et le détecteur signale les failles.",
+    "seeReal": "Voir un vrai exercice en rejeu"
   }
 }

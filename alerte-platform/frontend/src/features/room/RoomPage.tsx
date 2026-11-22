@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Pause, Play, SkipForward, Square, Zap } from 'lucide-react'
+import { MonitorPlay, Pause, Play, SkipForward, Square, Zap } from 'lucide-react'
 import { api } from '@/api/client'
 import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
@@ -13,6 +13,7 @@ import { Badge, Button, ConfirmDialog, Dialog, Field, Input, Mono, QueryState, S
 import { errorMessage } from '@/lib/errors'
 import { useQueryClient } from '@tanstack/react-query'
 import { DecisionTraceDialog } from './DecisionTrace'
+import { FlowPlayer } from './flow/FlowPlayer'
 import { BoardPanel, SeatCards, SignalsPanel, Timeline } from './RoomPanels'
 import { OutcomeBadge, VerifiedBadge } from './parts'
 import type { DecisionItem } from './state'
@@ -77,6 +78,7 @@ function RoomView({ ex }: { ex: Exercise }) {
               <StatusBadge status={exState} />{ex.substate === 'waiting_human' && <Badge tone="warn">{t('room.waitingHuman')}</Badge>}
               {status !== 'ended' && <Badge tone={live}>{t(`room.stream.${status}`)}</Badge>}
               <Link to={`/audit/${ex.id}`} className="text-sm">{t('nav.audit')}</Link>
+              <Link to={`/present/${ex.id}`} className="inline-flex items-center gap-1 rounded-md border border-brand/50 bg-brandsoft px-2 py-0.5 text-sm font-semibold text-brand no-underline hover:border-brand"><MonitorPlay className="h-4 w-4" aria-hidden />{t('room.present.open')}</Link>
             </p>
           </div>
           <dl className="flex flex-wrap items-stretch gap-3">
@@ -105,7 +107,13 @@ function RoomView({ ex }: { ex: Exercise }) {
         </div>
         {error && status !== 'open' && <p role="status" className="border-t border-line px-4 py-2 text-xs text-muted">{error}</p>}
       </header>
-      {state.errors.length > 0 && <div role="alert" className="mb-3 rounded-lg border border-danger bg-dangersoft p-2 text-sm">{state.errors.slice(-3).map((e) => <p key={e.seq}><Badge tone="danger">{e.component}</Badge> {e.message}</p>)}</div>}
+      {state.errors.length > 0 && (
+        <details role="alert" className="mb-3 rounded-lg border border-danger/60 bg-dangersoft/60 px-3 py-2 text-sm">
+          <summary className="cursor-pointer font-semibold text-danger">{t('room.techErrors', { count: state.errors.length })}</summary>
+          <div className="mt-2 flex flex-col gap-1">{state.errors.slice(-3).map((e) => <p key={e.seq}><Badge tone="danger">{e.component}</Badge> {e.message}</p>)}</div>
+        </details>
+      )}
+      <FlowPlayer events={state.events} seats={seats.map((x) => x.code)} live={isLive} title={ex.title} />
       <dl className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('room.summary.injects')} value={state.injects.length} />
         <Stat label={t('room.summary.decisions')} value={latest.length} detail={<><span className="text-ok">{verified} {t('room.summary.verified')}</span> · <span className={refused ? 'text-danger' : ''}>{refused} {t('room.summary.refused')}</span></>} />
