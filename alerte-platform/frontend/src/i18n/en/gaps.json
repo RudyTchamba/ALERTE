@@ -113,5 +113,75 @@
     "clear": "Show all"
   },
   "filters": "Filters",
-  "activeFilters": "{{n}} active"
+  "activeFilters": "{{n}} active",
+  "matrix": {
+    "title": "Responsibility map",
+    "eyebrow": "Who must do what?",
+    "description": "Each row is an action a crisis requires; each column, an institution. A green cell: a validated mandate, with its text. A red row: nobody has the mandate to act.",
+    "country": "Country",
+    "action": "Required action",
+    "status": "Status",
+    "gaps": "Gaps",
+    "noActions": "No action in the catalogue",
+    "noActionsHint": "Add actions and mandates under “Countries & institutions”.",
+    "noInstitutions": "No institution for this country.",
+    "summary": {
+      "actions": "Required actions",
+      "covered": "Covered",
+      "overlap": "Overlaps",
+      "orphan": "Nobody",
+      "undetermined": "Undetermined",
+      "coverage": "Coverage"
+    },
+    "row": {
+      "covered": "Covered",
+      "overlap": "Several, no lead",
+      "orphan": "Nobody",
+      "undetermined": "Undetermined"
+    },
+    "rowHint": {
+      "covered": "At least one institution holds a validated mandate.",
+      "overlap": "Several institutions may act, none is designated as lead.",
+      "orphan": "No institution holds a validated mandate, and a human declared the registry complete.",
+      "undetermined": "No validated mandate found, but the registry has not been fully reviewed: absence cannot be concluded yet."
+    },
+    "cell": {
+      "responsible": "Validated mandate",
+      "lead": "Lead",
+      "proposed": "Proposed, to validate",
+      "involved": "Ancillary role",
+      "none": "No mandate"
+    },
+    "legend": "Legend",
+    "detail": "Detail",
+    "pick": "Click a cell to see the mandate and the text it rests on.",
+    "source": "Source",
+    "noSource": "No source attached",
+    "deadline": "With deadline",
+    "procedure": "Procedure",
+    "noneHere": "{{inst}} has no recorded mandate for this action.",
+    "addMandate": "Complete the mandate registry",
+    "openGaps": "See the gaps",
+    "registry": "Registry: {{n}}/{{total}} institution(s) reviewed",
+    "kinds": {
+      "power": "Power",
+      "duty": "Duty",
+      "lead": "Lead",
+      "coordination": "Coordination",
+      "information_sharing": "Information sharing",
+      "procedure": "Procedure",
+      "human_oversight": "Human oversight",
+      "liability": "Liability",
+      "inclusion": "Inclusion",
+      "channel_protection": "Channel protection",
+      "international_agreement": "International agreement",
+      "prohibition": "Prohibition"
+    },
+    "proc": {
+      "specific": "specific",
+      "general": "general",
+      "none": "none",
+      "unknown": "unknown"
+    }
+  }
 }

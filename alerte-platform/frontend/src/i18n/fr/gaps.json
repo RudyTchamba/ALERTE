@@ -113,5 +113,75 @@
     "clear": "Tout afficher"
   },
   "filters": "Filtres",
-  "activeFilters": "{{n}} actif(s)"
+  "activeFilters": "{{n}} actif(s)",
+  "matrix": {
+    "title": "Carte des responsabilités",
+    "eyebrow": "Qui doit faire quoi ?",
+    "description": "Chaque ligne est une action qu'une crise exige ; chaque colonne, une institution. Une case verte : un mandat validé, avec son texte. Une ligne rouge : personne n'a le mandat d'agir.",
+    "country": "Pays",
+    "action": "Action requise",
+    "status": "Statut",
+    "gaps": "Lacunes",
+    "noActions": "Aucune action dans le catalogue",
+    "noActionsHint": "Ajoutez des actions et des mandats dans « Pays et institutions ».",
+    "noInstitutions": "Aucune institution pour ce pays.",
+    "summary": {
+      "actions": "Actions requises",
+      "covered": "Couvertes",
+      "overlap": "Chevauchements",
+      "orphan": "Personne",
+      "undetermined": "Non déterminées",
+      "coverage": "Taux de couverture"
+    },
+    "row": {
+      "covered": "Couverte",
+      "overlap": "Plusieurs, sans chef de file",
+      "orphan": "Personne",
+      "undetermined": "Non déterminé"
+    },
+    "rowHint": {
+      "covered": "Au moins une institution a un mandat validé.",
+      "overlap": "Plusieurs institutions peuvent agir, aucune n'est désignée chef de file.",
+      "orphan": "Aucune institution n'a de mandat validé, et le registre a été déclaré complet par un humain.",
+      "undetermined": "Aucun mandat validé trouvé, mais le registre n'a pas été entièrement revu : on ne peut pas encore conclure à une absence."
+    },
+    "cell": {
+      "responsible": "Mandat validé",
+      "lead": "Chef de file",
+      "proposed": "Proposé, à valider",
+      "involved": "Rôle annexe",
+      "none": "Aucun mandat"
+    },
+    "legend": "Légende",
+    "detail": "Détail",
+    "pick": "Cliquez sur une case pour voir le mandat et le texte qui le fonde.",
+    "source": "Source",
+    "noSource": "Aucune source rattachée",
+    "deadline": "Avec délai",
+    "procedure": "Procédure",
+    "noneHere": "{{inst}} n'a aucun mandat enregistré pour cette action.",
+    "addMandate": "Compléter le registre des mandats",
+    "openGaps": "Voir les lacunes",
+    "registry": "Registre : {{n}}/{{total}} institution(s) revue(s)",
+    "kinds": {
+      "power": "Pouvoir",
+      "duty": "Obligation",
+      "lead": "Chef de file",
+      "coordination": "Coordination",
+      "information_sharing": "Partage d'information",
+      "procedure": "Procédure",
+      "human_oversight": "Supervision humaine",
+      "liability": "Responsabilité",
+      "inclusion": "Inclusion",
+      "channel_protection": "Protection du canal",
+      "international_agreement": "Accord international",
+      "prohibition": "Interdiction"
+    },
+    "proc": {
+      "specific": "spécifique",
+      "general": "générale",
+      "none": "aucune",
+      "unknown": "inconnue"
+    }
+  }
 }

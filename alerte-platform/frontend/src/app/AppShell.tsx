@@ -2,7 +2,7 @@ import { useState, type ComponentType } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  BookOpenText, Bot, FileBarChart2, Flag, Gauge, Home, KeyRound, Landmark, LogOut, Menu, Network, Radio, ScrollText,
+  BookOpenText, Bot, FileBarChart2, Flag, Gauge, Grid3x3, Home, KeyRound, Landmark, LogOut, Menu, Network, Radio, ScrollText,
   SearchCheck, ShieldCheck, TriangleAlert, Workflow, X,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
@@ -40,6 +40,7 @@ const NAV: NavGroup[] = [
     { to: '/room', key: 'room_live', icon: Radio },
   ] },
   { group: 'analyze', step: 3, hint: 'analyzeHint', items: [
+    { to: '/responsibilities', key: 'responsibilities', icon: Grid3x3 },
     { to: '/gaps', key: 'gaps', icon: SearchCheck },
     { to: '/reports', key: 'reports', icon: FileBarChart2 },
     { to: '/audit', key: 'audit', icon: ScrollText },
