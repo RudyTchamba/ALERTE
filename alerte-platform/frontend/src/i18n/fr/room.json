@@ -236,14 +236,15 @@
     "fullscreen": "Plein écran",
     "help": "Raccourcis clavier",
     "exit": "Quitter le mode présentation",
-    "keys": "Espace / → : suivant · ← : précédent · P : lecture auto · F : plein écran · Échap : quitter",
+    "keys": "Espace / → : suivant · ← : précédent · P : lecture auto · Q : QR public · F : plein écran · Échap : quitter",
     "kbd": {
       "next": "Espace / →",
       "prev": "←",
       "auto": "P",
       "home": "Début / Fin",
       "fs": "F",
-      "exit": "Échap"
+      "exit": "Échap",
+      "qr": "Q"
     },
     "kbdDesc": {
       "next": "Étape suivante (ou télécommande)",
@@ -251,7 +252,34 @@
       "auto": "Lecture automatique",
       "home": "Écran-titre / bilan",
       "fs": "Plein écran",
-      "exit": "Quitter"
+      "exit": "Quitter",
+      "qr": "Faire jouer le public (QR code)"
+    },
+    "audience": {
+      "eyebrow": "Interactif",
+      "title": "Faire jouer le public",
+      "lead": "Confiez une institution à quelqu'un dans la salle : il la jouera depuis son téléphone, face aux agents IA, avec les mêmes règles (citer un texte vérifié).",
+      "pickSeat": "Institution à confier",
+      "name": "Prénom affiché",
+      "defaultName": "Public",
+      "generate": "Générer le QR code",
+      "working": "Bascule du siège…",
+      "liveHint": "Exercice en cours : la bascule s'applique entre deux activations (quelques secondes).",
+      "setupHint": "Exercice non lancé : le siège sera confié à un humain dès le lancement.",
+      "scan": "Scannez pour jouer {{seat}}",
+      "qrFor": "QR code du siège {{seat}}",
+      "heldBy": "Siège tenu par « {{name}} » ; lien personnel valable 12 heures.",
+      "localhost": "Cette page est ouverte sur « localhost » : un téléphone ne pourra pas ouvrir le lien. Lancez le frontend avec « npm run dev -- --host » et ouvrez l'interface via l'adresse IP de cette machine.",
+      "terminal": "Cet exercice est terminé : on ne peut plus y faire entrer un joueur. Lancez un nouvel exercice pour faire jouer le public."
     }
+  },
+  "alerts": {
+    "interruptedTitle": "Exercice interrompu",
+    "interruptedText": "Le serveur s'est arrêté pendant l'exercice (redémarrage). Rien n'est perdu : tout est consigné au journal. Cliquez sur « Reprendre » pour continuer là où il s'est arrêté.",
+    "waitingTitle": "{{seat}} attend la décision d'un humain ({{name}})",
+    "waitingText": "Le joueur doit ouvrir son lien personnel (QR code) pour décider. Sinon, rendez le siège à l'agent IA.",
+    "deadlineAgent": "Reprise automatique par l'agent IA dans {{time}}.",
+    "deadlineSkip": "Le tour sera passé dans {{time}}.",
+    "showQr": "Afficher le QR code du joueur"
   }
 }

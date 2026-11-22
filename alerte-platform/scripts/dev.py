@@ -34,8 +34,9 @@ def main() -> int:
     env = {**os.environ, "ALERTE_DATA_DIR": args.data_dir, "PYTHONUTF8": "1"}
     flags = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if IS_WIN else {"start_new_session": True}
     procs: list[subprocess.Popen] = []
+    # --timeout-graceful-shutdown : les flux SSE ouverts (salles de simulation) ne bloquent plus le rechargement automatique.
     procs.append(subprocess.Popen([str(vpy), "-m", "uvicorn", "app.main:app_factory", "--factory", "--reload",
-                                   "--port", str(args.port)], cwd=BACKEND, env=env, **flags))
+                                   "--timeout-graceful-shutdown", "3", "--port", str(args.port)], cwd=BACKEND, env=env, **flags))
     if not args.no_frontend:
         npm = shutil.which("npm")
         if npm:

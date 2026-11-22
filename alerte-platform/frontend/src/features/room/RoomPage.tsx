@@ -14,6 +14,8 @@ import { errorMessage } from '@/lib/errors'
 import { useQueryClient } from '@tanstack/react-query'
 import { DecisionTraceDialog } from './DecisionTrace'
 import { FlowPlayer } from './flow/FlowPlayer'
+import { RoomAlerts } from './RoomAlerts'
+import { AudienceQR } from '@/features/present/AudienceQR'
 import { BoardPanel, SeatCards, SignalsPanel, Timeline } from './RoomPanels'
 import { OutcomeBadge, VerifiedBadge } from './parts'
 import type { DecisionItem } from './state'
@@ -39,6 +41,7 @@ function RoomView({ ex }: { ex: Exercise }) {
   const [seatOpen, setSeatOpen] = useState<string | null>(null)
   const [stopAsk, setStopAsk] = useState(false)
   const [surprise, setSurprise] = useState(false)
+  const [qrSeat, setQrSeat] = useState<string | null>(null)
   const exState = state.exerciseState ?? ex.state
   const canControl = role === 'owner' || role === 'member'
 
@@ -113,6 +116,9 @@ function RoomView({ ex }: { ex: Exercise }) {
           <div className="mt-2 flex flex-col gap-1">{state.errors.slice(-3).map((e) => <p key={e.seq}><Badge tone="danger">{e.component}</Badge> {e.message}</p>)}</div>
         </details>
       )}
+      <RoomAlerts ex={ex} exState={exState} seats={seats} events={state.events} canControl={canControl}
+        onShowQr={setQrSeat} onResume={() => cmd.mutate({ kind: 'resume' })}
+        onGiveToAgent={(seat) => cmd.mutate({ kind: 'seat_switch', args: { seat, controller: 'agent', reason: 'facilitator' } }, { onSuccess: () => toast.push(t('room.seatSwitched')) })} />
       <FlowPlayer events={state.events} seats={seats.map((x) => x.code)} live={isLive} title={ex.title} />
       <dl className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('room.summary.injects')} value={state.injects.length} />
@@ -131,6 +137,7 @@ function RoomView({ ex }: { ex: Exercise }) {
       <p className="sr-only-live" aria-live="polite" role="log">{state.announcements.slice(-1)[0] ?? ''}</p>
       <DecisionTraceDialog decision={trace} events={state.events} onClose={() => setTrace(null)} />
       {seatOpen && <SeatDialog ex={ex} code={seatOpen} state={state.decisions} onTrace={(d) => { setSeatOpen(null); setTrace(d) }} onClose={() => setSeatOpen(null)} canControl={canControl} running={['running', 'paused'].includes(exState)} />}
+      {qrSeat && <AudienceQR ex={ex} initialSeat={qrSeat} fixed onClose={() => setQrSeat(null)} />}
       {surprise && <SurpriseDialog exId={ex.id} seats={seats.map((s) => s.code)} onClose={() => setSurprise(false)} />}
       <ConfirmDialog open={stopAsk} onClose={() => setStopAsk(false)} danger title={t('room.cmd.stop')} message={t('room.stopConfirm')} confirmLabel={t('room.cmd.stop')} onConfirm={() => { cmd.mutate({ kind: 'stop' }); setStopAsk(false) }} />
     </>

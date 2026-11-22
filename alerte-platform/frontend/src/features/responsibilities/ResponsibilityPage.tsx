@@ -1,10 +1,15 @@
 import { useMemo, useState } from 'react'
+import { useQueries } from '@tanstack/react-query'
+import { api } from '@/api/client'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, BookMarked, CheckCircle2, Circle, CircleDashed, Crown, FlaskConical, HelpCircle, Layers, Users } from 'lucide-react'
 import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
 import type { ActionItem, Country, Gap, Institution, Mandate, RegistryReview } from '@/api/types'
+
+interface ScenarioLite { id: string; country_id: string | null }
+interface InjectLite { demands?: { action_code: string | null }[] }
 import { EmptyState, Field, PageHeader, QueryState, Select } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { buildMatrix, summarize, type CellState, type MMandate, type Row, type RowState } from './matrix'
@@ -37,6 +42,7 @@ export function ResponsibilityPage() {
   const mandates = useApiQuery<Mandate[]>(keys.mandates(), '/mandates')
   const reviews = useApiQuery<RegistryReview[]>(keys.registryReviews, '/registry-reviews')
   const gaps = useApiQuery<Gap[]>(keys.gaps({}), '/gaps')
+  const scenarios = useApiQuery<ScenarioLite[]>(keys.scenarios, '/scenarios')
   const [countryPick, setCountryPick] = useState('')
   const [sel, setSel] = useState<{ action: string; inst: string } | null>(null)
 
@@ -49,14 +55,24 @@ export function ResponsibilityPage() {
   const country = countryPick || defaultCountry
 
   const institutions = useMemo(() => (insts.data ?? []).filter((i) => i.country_id === country).sort((a, b) => a.code.localeCompare(b.code)), [insts.data, country])
+  // Actions qui concernent CE pays : demandées par ses scénarios ou portées par ses mandats (le catalogue est commun à l'espace).
+  const countryScenarios = useMemo(() => (scenarios.data ?? []).filter((x) => x.country_id === country), [scenarios.data, country])
+  const injectQs = useQueries({ queries: countryScenarios.map((x) => ({ queryKey: ['scenario-injects', x.id], queryFn: () => api.get<InjectLite[]>(`/scenarios/${x.id}/injects`) })) })
+  const relevant = new Set((mandates.data ?? []).filter((m) => institutions.some((i) => i.id === m.institution_id)).map((m) => m.action_code))
+  for (const r of injectQs) for (const inj of r.data ?? []) for (const d of inj.demands ?? []) if (d.action_code) relevant.add(d.action_code)
+  const countryActions = (actions.data ?? []).filter((a) => relevant.has(a.code))
   const reviewed = useMemo(() => new Set((reviews.data ?? []).filter((r) => r.status === 'reviewed_complete').map((r) => r.institution_id)), [reviews.data])
-  const rows = useMemo(() => buildMatrix(actions.data ?? [], institutions, (mandates.data ?? []) as MMandate[], reviewed), [actions.data, institutions, mandates.data, reviewed])
+  const rows = buildMatrix(countryActions, institutions, (mandates.data ?? []) as MMandate[], reviewed)
   const sum = summarize(rows)
   const gapsByAction = useMemo(() => {
     const m = new Map<string, Set<string>>()
-    for (const g of gaps.data ?? []) if (g.action_code) m.set(g.action_code, (m.get(g.action_code) ?? new Set()).add(g.code))
+    // Seulement les lacunes qui concernent une institution de ce pays.
+    const ids = new Set(institutions.map((i) => i.id))
+    for (const g of gaps.data ?? []) {
+      if (g.action_code && (g.institution_ids as string[]).some((id) => ids.has(id))) m.set(g.action_code, (m.get(g.action_code) ?? new Set()).add(g.code))
+    }
     return m
-  }, [gaps.data])
+  }, [gaps.data, institutions])
   const nReviewed = institutions.filter((i) => reviewed.has(i.id)).length
 
   const selRow = sel ? rows.find((r) => r.action.code === sel.action) : undefined
@@ -67,7 +83,7 @@ export function ResponsibilityPage() {
       <PageHeader eyebrow={t('gaps.matrix.eyebrow')} title={t('gaps.matrix.title')} description={t('gaps.matrix.description')}
         actions={<Field label={t('gaps.matrix.country')} className="w-56"><Select value={country} onChange={(e) => { setCountryPick(e.target.value); setSel(null) }}>{countries.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>} />
       <QueryState q={actions} what="(/actions)">
-        {(acts) => acts.length === 0 ? <EmptyState title={t('gaps.matrix.noActions')} hint={t('gaps.matrix.noActionsHint')} action={<Link to="/studio/countries">{t('nav.countries')}</Link>} /> : (
+        {() => countryActions.length === 0 ? <EmptyState title={t('gaps.matrix.noActions')} hint={t('gaps.matrix.noActionsHint')} action={<Link to="/studio/countries">{t('nav.countries')}</Link>} /> : (
           <>
             {/* Synthèse */}
             <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
@@ -87,7 +103,7 @@ export function ResponsibilityPage() {
             <p className="mb-3 text-xs text-muted">{t('gaps.matrix.registry', { n: nReviewed, total: institutions.length })} · <Link to="/studio/countries">{t('gaps.matrix.addMandate')}</Link></p>
 
             {institutions.length === 0 ? <EmptyState title={t('gaps.matrix.noInstitutions')} /> : (
-              <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_24rem]">
+              <div className="grid gap-4 min-[1800px]:grid-cols-[minmax(0,1fr)_24rem]">
                 <div className="panel overflow-x-auto">
                   <table className="w-full border-collapse text-sm">
                     <caption className="sr-only">{t('gaps.matrix.title')}</caption>

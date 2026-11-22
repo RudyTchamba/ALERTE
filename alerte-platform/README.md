@@ -166,7 +166,7 @@ Deux terminaux distincts.
 ```bash
 cd alerte-platform/backend
 source .venv/bin/activate            # Windows : .\.venv\Scripts\Activate.ps1
-python -m uvicorn app.main:app_factory --factory --reload --port 8000
+python -m uvicorn app.main:app_factory --factory --reload --timeout-graceful-shutdown 3 --port 8000
 ```
 
 Le premier démarrage crée `backend/data/` et applique les migrations (`schéma=alembic` dans le journal).

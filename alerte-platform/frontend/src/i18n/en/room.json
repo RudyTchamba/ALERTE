@@ -236,14 +236,15 @@
     "fullscreen": "Full screen",
     "help": "Keyboard shortcuts",
     "exit": "Leave presentation mode",
-    "keys": "Space / → : next · ← : previous · P : autoplay · F : full screen · Esc : leave",
+    "keys": "Space / → : next · ← : previous · P : autoplay · Q : audience QR · F : full screen · Esc : leave",
     "kbd": {
       "next": "Space / →",
       "prev": "←",
       "auto": "P",
       "home": "Home / End",
       "fs": "F",
-      "exit": "Esc"
+      "exit": "Esc",
+      "qr": "Q"
     },
     "kbdDesc": {
       "next": "Next step (or clicker)",
@@ -251,7 +252,34 @@
       "auto": "Autoplay",
       "home": "Title screen / debrief",
       "fs": "Full screen",
-      "exit": "Leave"
+      "exit": "Leave",
+      "qr": "Let the audience play (QR code)"
+    },
+    "audience": {
+      "eyebrow": "Interactive",
+      "title": "Let the audience play",
+      "lead": "Hand an institution to someone in the room: they play it from their phone, against the AI agents, under the same rules (cite a verified text).",
+      "pickSeat": "Institution to hand over",
+      "name": "Display name",
+      "defaultName": "Audience",
+      "generate": "Generate the QR code",
+      "working": "Switching the seat…",
+      "liveHint": "Exercise running: the switch applies between two activations (a few seconds).",
+      "setupHint": "Exercise not started: the seat will be held by a human from launch.",
+      "scan": "Scan to play {{seat}}",
+      "qrFor": "QR code for seat {{seat}}",
+      "heldBy": "Seat held by “{{name}}”; personal link valid for 12 hours.",
+      "localhost": "This page is open on “localhost”: a phone will not be able to open the link. Start the frontend with “npm run dev -- --host” and open the interface via this machine's IP address.",
+      "terminal": "This exercise is over: no player can join it any more. Start a new exercise to let the audience play."
     }
+  },
+  "alerts": {
+    "interruptedTitle": "Exercise interrupted",
+    "interruptedText": "The server stopped during the exercise (restart). Nothing is lost: everything is in the ledger. Click “Resume” to continue where it stopped.",
+    "waitingTitle": "{{seat}} is waiting for a human decision ({{name}})",
+    "waitingText": "The player must open their personal link (QR code) to decide. Otherwise, give the seat back to the AI agent.",
+    "deadlineAgent": "The AI agent takes over automatically in {{time}}.",
+    "deadlineSkip": "The turn will be skipped in {{time}}.",
+    "showQr": "Show the player's QR code"
   }
 }
