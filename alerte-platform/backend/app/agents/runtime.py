@@ -6,6 +6,7 @@ jamais d'un paramètre du modèle."""
 from __future__ import annotations
 
 import json
+import re
 import threading
 import unicodedata
 from collections.abc import Callable, Iterator
@@ -26,6 +27,21 @@ FINAL_TOOLS = ("post", "decide")
 MAX_ROUNDS = 2
 DEFAULT_LIMITS = {"max_steps": 4, "max_search_calls": 3, "max_legal_calls": 2}
 
+
+
+LANG_NAMES = {"fr": "French", "en": "English", "es": "Spanish", "pt": "Portuguese", "ar": "Arabic", "ru": "Russian",
+              "sw": "Swahili", "de": "German", "it": "Italian"}
+_CJK = re.compile(r"[぀-ヿ㐀-䶿一-鿿가-힯]")
+_CJK_LANGS = ("zh", "ja", "ko")
+
+
+def wrong_script(text: str, language: str | None) -> str | None:
+    """Un exercice dans une langue sans idéogrammes ne doit pas recevoir de texte chinois, japonais ou coréen
+    (dérive observée des petits modèles multilingues). Renvoie le motif de rejet, ou None."""
+    lang = (language or "").lower()[:2]
+    if not lang or lang in _CJK_LANGS or not _CJK.search(text or ""):
+        return None
+    return f"text must be written in {LANG_NAMES.get(lang, lang)} only (no Chinese, Japanese or Korean characters)"
 
 class _Outage(Exception):
     pass
@@ -152,6 +168,8 @@ class AgentRuntime:
         tools = list(run.ctx.agent.get("tools") or [])
         raw, pl = self._llm(run, base, schema, key, retried=False)
         act, err = env.parse_envelope(raw.text)
+        if act is not None and (bad := wrong_script(act.model_dump_json(), run.ctx.inject.get("language"))):
+            act, err = None, bad
         if act is not None and act.action in tools and act.action not in allowed:
             err = f"action '{act.action}' is not allowed now; allowed actions: {', '.join(allowed)}"
             kind = "cut"
@@ -166,6 +184,8 @@ class AgentRuntime:
                              LLMMessage("user", f"Your reply was rejected: {err}. Reply again with one valid JSON object.")]
         raw2, pl2 = self._llm(run, retry_msgs, schema, key + ":r", retried=True)
         act2, err2 = env.parse_envelope(raw2.text)
+        if act2 is not None and (bad2 := wrong_script(act2.model_dump_json(), run.ctx.inject.get("language"))):
+            act2, err2 = None, bad2
         if act2 is not None and act2.action in tools and act2.action not in allowed:
             err2, act2, kind = f"action '{act2.action}' is not allowed now", None, "cut"
         if act2 is None:

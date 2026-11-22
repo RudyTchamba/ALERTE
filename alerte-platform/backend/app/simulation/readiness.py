@@ -114,6 +114,16 @@ def compute_readiness(ctx: Any, session: Session, ex: Exercise, seats: list[Seat
         for d in i.get("demands", []):
             if d.get("action_code") and not mandates.action_exists(session, ws, d["action_code"]):
                 _chk(out, BLOCKING, "inject.unknown_action", f"action inconnue : {d['action_code']}", ref)
+    from .alerting import sim_minutes
+    prev = None
+    for i in sorted(injects, key=lambda x: x.get("seq", 0)):
+        m = sim_minutes(i.get("sim_time"))
+        if m is not None and prev is not None and m < prev[0]:
+            _chk(out, WARNING, "inject.time_order",
+                 f"ordre incohérent : « {i.get('title')} » ({i.get('sim_time')}) vient après {prev[1]}",
+                 i.get("inject_ref"))
+        if m is not None:
+            prev = (m, i.get("sim_time"))
     if scen and hasattr(scenarios, "readiness_scenario_checks"):
         for c in scenarios.readiness_scenario_checks(session, ws, ex.scenario_id):
             if c.get("ok") is True:  # `scenarios` renvoie aussi les contrôles réussis ; seuls les échecs comptent

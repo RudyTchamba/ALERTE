@@ -63,6 +63,9 @@ def _item(d: Mapping[str, Any], limit: int) -> str:
     return " | ".join(parts)
 
 
+_LANG = {"fr": "French", "en": "English", "es": "Spanish", "pt": "Portuguese", "ar": "Arabic", "ru": "Russian", "sw": "Swahili"}
+
+
 def hit_block(h: Mapping[str, Any], limit: int) -> str:
     art = h.get("article")
     return (f'<retrieved_document untrusted="true" chunk_id="{sanitize(h["chunk_id"])}" doc="{sanitize(h.get("doc_code", ""), 60)}" '
@@ -103,6 +106,10 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
                  f"Inject title: {sanitize(inj.get('title'), 200)}",
                  f"Time: {sanitize(inj.get('sim_time'), 40)}   From: {sanitize(inj.get('from_actor'), 100)}",
                  f"Inject text: {sanitize(inj.get('body') or inj.get('text'), 900)}"]
+    if inj.get("language"):
+        lang = str(inj["language"]).lower()[:2]
+        name = _LANG.get(lang, sanitize(lang, 8))
+        ctx_lines.append(f"Exercise language: {name}. Write action, rationale and messages in {name} only.")
     if inj.get("system_output"):
         ctx_lines.append(f"AI system output received: {sanitize(inj['system_output'], 600)}")
     if ctx.inbox:

@@ -178,3 +178,11 @@ def test_ready_endpoint_and_modification_returns_to_draft(world):
     assert state() == "ready"
     world.client.put(f"{API}/exercises/{ex_id}/seats", json={"seats": world.seats()}, headers=world.fac)
     assert state() == "draft"
+
+
+def test_readiness_warns_when_inject_order_contradicts_sim_time(world):
+    ex_id = world.new_exercise()
+    warns = lambda: {c["code"] for c in world.client.get(f"{API}/exercises/{ex_id}/readiness", headers=world.fac).json()["warnings"]}  # noqa: E731
+    assert "inject.time_order" not in warns()
+    world.scenarios.scenarios[world.scenario_id]["injects"][1]["sim_time"] = "D1 00:30"  # 2e inject avant le 1er
+    assert "inject.time_order" in warns()

@@ -50,6 +50,7 @@ def test_g3_missing_procedure_and_deadline():
     nodl = [mandate("m1", "A", "duty", "a1", has_deadline=False)]
     g = by(run(snap(["time_critical"]), nodl), "G3")
     assert g is not None and "délai" in g.description and g.category == "crisis_preparedness_response_gap"
+    assert "a une procédure spécifique mais aucun délai" in g.description and "aucune procédure" not in g.description
     assert by(run(snap([]), nodl), "G3") is None
     # un mandat `procedure` spécifique compense
     assert by(run(snap(), weak + [mandate("m2", "B", "procedure", "a1")]), "G3") is None

@@ -952,6 +952,15 @@ def decision_dicts(s: Session, ex_id: str, seat_id: str) -> list[dict]:
                                .order_by(Decision.ledger_seq))]
 
 
+def _with_language(inject: dict, snap: dict) -> dict:
+    """Copie de l'inject avec la langue du scénario (consigne de langue pour les agents)."""
+    out = dict(inject)
+    lang = (snap.get("scenario") or {}).get("language")
+    if lang and not out.get("language"):
+        out["language"] = lang
+    return out
+
+
 def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo], si: SeatInfo, u: Unit, rnd: int,
                        key: str, budget_left: int | None = None, purpose: str = "agent") -> SeatContext:
     inst = next((i for i in snap["institutions"] if i["id"] == si.institution_id), {"id": si.institution_id})
@@ -964,7 +973,7 @@ def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo]
     return SeatContext(
         exercise_id=ex_id, workspace_id=snap["workspace_id"], seat_id=si.id, seat_code=si.code,
         institution={k: inst.get(k) for k in ("id", "code", "name", "kind")}, agent=agent,
-        scope=scope_for_seat(snap, si.code, purpose), inject=dict(u.inject), round=rnd,
+        scope=scope_for_seat(snap, si.code, purpose), inject=_with_language(u.inject, snap), round=rnd,
         inbox=[inbox_dict(i) for i in items], board=board_dicts(s, ex_id),
         own_decisions=decision_dicts(s, ex_id, si.id),
         mandates=[m for m in snap["mandates"] if m.get("institution_id") == si.institution_id],

@@ -170,13 +170,17 @@ MANDATES = [
      [("le maire est chargé de la police municipale prévention des accidents fléaux calamiteux", "EHBNE6"),
       ("le maire est chargé de la police municipale prévention des accidents fléaux calamiteux", "EHBNE8")]),
 ]
+# Statut de procédure selon les sources : ORSEC et plan choléra décrivent une procédure ; l'IFRC indique qu'aucun
+# détail n'existe sur le système d'alerte ; ailleurs, le texte attribue la mission sans décrire la procédure.
+PROCEDURE = {("GOUVEN", "activate_emergency_plan"): "specific", ("MINSANTE", "cholera_response"): "specific",
+             ("PROCIV", "broadcast_public_alert"): "none", ("GOUVEN", "broadcast_public_alert"): "none"}
 existing_m = {(m["institution_id"], m["action_code"]) for m in call("GET", "/mandates")}
 n = 0
 for ic, action, kind, ev, desc, srcs in MANDATES:
     if (inst[ic], action) in existing_m:
         continue
     call("POST", "/mandates", json={"institution_id": inst[ic], "kind": kind, "action_code": action, "description": desc,
-                                    "procedure_status": "general", "evidence_tag": ev, "sources": [chunk(q, s) for q, s in srcs]})
+                                    "procedure_status": PROCEDURE.get((ic, action), "general"), "evidence_tag": ev, "sources": [chunk(q, s) for q, s in srcs]})
     n += 1
 print("mandats proposés créés :", n, flush=True)
 

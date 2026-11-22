@@ -297,3 +297,18 @@ def test_scripted_provider_runs_end_to_end_and_is_labelled(make_runtime, tmp_pat
     assert res.status == "ok" and res.decision["status"] == "recorded" and res.decision["outcome"] == "act"
     assert res.decision["rationale"].startswith("[scripted")
     assert next(e.payload for e in res.events if e.type == "LLM_CALL")["provider"] == "scripted"
+
+
+def test_wrong_script_is_rejected_then_rewritten_in_exercise_language(make_runtime):  # noqa: ANN001
+    from app.agents.runtime import wrong_script
+    assert wrong_script("不采取行动", "fr") and wrong_script("不采取行动", "zh") is None and wrong_script("不采取行动", None) is None
+    assert wrong_script("Évacuer les berges", "fr") is None
+    inject = {"inject_ref": "inj-001", "seq": 1, "sim_time": "J1 06:00", "title": "Crue", "body": "Pluies.",
+              "from_actor": "MET", "tags": [], "demands": [], "language": "fr"}
+    zh = decide(outcome="no_legal_basis_found", basis=[], action="不采取行动")
+    fr = decide(outcome="no_legal_basis_found", basis=[], action="Ne pas agir faute de base légale")
+    prov = QueueProvider([zh, fr])
+    res = make_runtime(prov).activate(make_ctx(inject=inject))
+    assert res.status == "ok" and res.decision["action"] == "Ne pas agir faute de base légale"
+    assert "Exercise language: French" in prov.calls[0][0].content
+    assert "French only" in prov.calls[1][-1].content

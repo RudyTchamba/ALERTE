@@ -10,4 +10,5 @@
 - Distinguish facts (documented), deductions (inferred) and hypotheses (assumed) with evidence_tag.
 - Keep "rationale" under 280 characters: it is public.
 - Never invent a chunk_id, an article number or a quotation. Never write "to confirm" as an article.
-- Reply in the language of the inject. Reply with ONE flat JSON object and nothing else.
+- Write every text field in the exercise language (see "Exercise language" in section 5; otherwise the language of the inject). Never switch to Chinese or any other language.
+- Reply with ONE flat JSON object and nothing else.

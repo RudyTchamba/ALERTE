@@ -326,9 +326,14 @@ def _evaluate(ctx: _Ctx, rule: GapRule, d: Demand) -> None:
         if not (no_proc or no_deadline):
             return
         insts = sorted({m.institution_id for m in hold})
-        deadline = " ni délai défini" if lang == "fr" else " nor defined deadline"
-        c = _new(ctx, rule, "G3", d.action_code, None, d, insts, cat, sev, "rule", "documented",
-                 rule.texts[lang].format(label=label, deadline=deadline if no_deadline else ""), absence=True)
+        if no_proc:
+            deadline = " ni délai défini" if lang == "fr" else " nor defined deadline"
+            text = rule.texts[lang].format(label=label, deadline=deadline if no_deadline else "")
+        else:  # procédure spécifique documentée, mais aucun délai pour une action urgente
+            text = (f"L'action « {label} » a une procédure spécifique mais aucun délai défini, alors que la situation est urgente."
+                    if lang == "fr" else
+                    f"Action \"{label}\" has a specific procedure but no defined deadline, although the situation is time-critical.")
+        c = _new(ctx, rule, "G3", d.action_code, None, d, insts, cat, sev, "rule", "documented", text, absence=True)
         c.registry_state = reg.worst_state(insts)
         if c.registry_state != "reviewed_complete":
             c.basis = "inferred"
