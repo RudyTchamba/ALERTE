@@ -164,3 +164,22 @@ class ImprovementAction(Base, TimestampMixin):
     due_date: Mapped[dt.date | None] = mapped_column(Date, nullable=True)
     status: Mapped[str] = mapped_column(String(12), default="planned")  # planned|in_progress|done|dropped
     kpi: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class ReformDraft(Base, TimestampMixin):
+    """Projet de texte rédigé par l'IA pour une lacune : citations vérifiées, ancré dans le registre de l'exercice.
+
+    `content_sha256` couvre le contenu, les ancres et le modèle : il identifie le document imprimé (QR de vérification).
+    Le projet n'est jamais une norme : c'est une proposition à examiner par des juristes."""
+
+    __tablename__ = "reform_draft"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    workspace_id: Mapped[str] = mapped_column(String(26), index=True)
+    gap_id: Mapped[str] = mapped_column(ForeignKey("gap.id", ondelete="CASCADE"), index=True)
+    exercise_id: Mapped[str] = mapped_column(String(26))
+    content: Mapped[dict] = mapped_column(JSON)   # {title, article_label, article_text, explanation, citations:[…]}
+    anchors: Mapped[dict] = mapped_column(JSON)   # {exercise_code, snapshot_sha256, ledger_head_seq, ledger_head_hash, gap_fingerprint}
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)  # toutes les citations passent le contrôle déterministe
+    model: Mapped[str] = mapped_column(String(120))
+    content_sha256: Mapped[str] = mapped_column(String(64), index=True, unique=True)

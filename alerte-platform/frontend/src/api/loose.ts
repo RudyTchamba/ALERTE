@@ -588,3 +588,19 @@ export interface PublicAlerts {
   first_alert: PublicAlert | null
   alerts: PublicAlert[]
 }
+
+/** Projet de texte vérifiable (POST/GET /gaps/{id}/reform-drafts, GET /verify/reform/{sha256}). */
+export interface ReformCitation { chunk_id: string; document_version_id: string | null; doc_code: string | null; article: string | null; quote: string; check: string; reason: string }
+export interface ReformContent {
+  title: string; article_label: string; article_text: string; explanation: string
+  citations: ReformCitation[]; rejected_citations: number; rejected?: { chunk_id: string; article: string | null; reason: string }[]; language: string; action_label: string; prompt_version: string
+}
+export interface ReformAnchors {
+  exercise_code: string | null; snapshot_sha256: string | null; ledger_head_seq: number | null; ledger_head_hash: string | null
+  ledger_ok_at_drafting: boolean; gap_fingerprint: string; gap_code: string; gap_title: string
+}
+export interface ReformDraft { id: string; gap_id: string; exercise_id: string; content: ReformContent; anchors: ReformAnchors; verified: boolean; model: string; sha256: string; created_at: string | null }
+export type ReformVerification = { found: false } | {
+  found: true; ok: boolean; content_ok: boolean; ledger_ok: boolean; anchor_ok: boolean; ledger_checked: number | null
+  verified_citations: boolean; sha256: string; created_at: string | null; content: ReformContent; anchors: ReformAnchors; model: string
+}

@@ -59,6 +59,7 @@ export const routes: RouteObject[] = [
       { path: '/play', element: page(() => import('@/features/room/PlayerPage'), 'PlayerPage') },
       { path: '/watch', element: page(() => import('@/features/room/ObserverPage'), 'ObserverPage') },
       { path: '/alerte', element: page(() => import('@/features/citizen/CitizenPage'), 'CitizenPage') },
+      { path: '/verify/:sha', element: page(() => import('@/features/reform/VerifyPage'), 'VerifyPage') },
       {
         element: <RequireAuthBare />,
         children: [

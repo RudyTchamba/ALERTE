@@ -9,6 +9,7 @@ import type { Exercise, GapCompare, RefSuggestion } from '@/api/loose'
 import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast, useEnumLabel, Mono } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { fmtDateTime, fmtPct } from '@/lib/format'
+import { ReformSection } from '@/features/reform/ReformSection'
 import { natureTags } from './nature'
 
 const SEV: Record<number, 'danger' | 'warn' | 'info'> = { 3: 'danger', 2: 'warn', 1: 'info' }
@@ -268,6 +269,8 @@ function GapView({ g, institutions }: { g: GapDetail; institutions: Institution[
             <ul className="text-sm">{suggestions.data!.map((s) => <li key={s.reference_id} className="flex items-center gap-2">{s.jurisdiction} — {s.instrument} <Badge tone="neutral">{s.fit_score.toFixed(2)}</Badge><Button size="sm" onClick={() => assoc.mutate(s.reference_id)}>{t('gaps.associate')}</Button></li>)}</ul></div>
         )}
       </Section>
+
+      <ReformSection gapId={g.id} />
 
       <ImprovementActions g={g} institutions={institutions} />
 

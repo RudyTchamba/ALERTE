@@ -15,5 +15,6 @@ import about from './en/about.json'
 import home from './en/home.json'
 import exercises from './en/exercises.json'
 import citizen from './en/citizen.json'
+import reform from './en/reform.json'
 
-export default { common, nav, errors, access, geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, about, home, exercises, citizen }
+export default { common, nav, errors, access, geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, about, home, exercises, citizen, reform }
