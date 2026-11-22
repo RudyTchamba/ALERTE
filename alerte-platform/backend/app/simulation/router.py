@@ -11,7 +11,7 @@ from ..audit.router import allowed_visibilities
 from ..core.auth import Principal, require_role
 from ..core.context import AppContext, get_ctx, get_session
 from ..core.errors import Forbidden
-from . import human, schemas, service, sse
+from . import alerting, human, schemas, service, sse
 from .engine import SimulationManager
 
 router = APIRouter()
@@ -117,6 +117,12 @@ def board(exercise_id: str, p: Principal = Depends(ANY), session: Session = Depe
 def decisions(exercise_id: str, seat: str | None = None, inject_ref: str | None = None, p: Principal = Depends(ANY),
               session: Session = Depends(get_session)):
     return service.decisions_view(session, p, exercise_id, seat, inject_ref)
+
+
+@router.get("/exercises/{exercise_id}/public-alerts", tags=["simulation"])
+def public_alerts(exercise_id: str, p: Principal = Depends(ANY), session: Session = Depends(get_session)):
+    """Ce que reçoit la population : alertes diffusées (CAP 1.2, status=Exercise), bloquées, délai d'alerte."""
+    return alerting.public_alerts(session, p, exercise_id)
 
 
 @router.get("/exercises/{exercise_id}/inbox", tags=["simulation"])

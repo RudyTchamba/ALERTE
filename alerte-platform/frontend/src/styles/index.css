@@ -162,3 +162,8 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.9s linear infinite; }
+
+/* Alerte d'urgence sur le téléphone d'un habitant : fond rouge clignotant (atténué si mouvement réduit). */
+.alert-flash { background: #b91c1c; animation: alert-flash 1s steps(1, end) infinite; }
+@keyframes alert-flash { 0%, 100% { background: #b91c1c; } 50% { background: #7f1d1d; } }
+@media (prefers-reduced-motion: reduce) { .alert-flash { animation: none; } }

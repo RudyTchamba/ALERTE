@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, Keyboard, Maximize, Minimize, Pause, Play, QrCode, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Keyboard, Maximize, Megaphone, Minimize, Pause, Play, QrCode, X } from 'lucide-react'
 import type { StreamEvent } from '@/api/sse'
 import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
@@ -14,6 +14,7 @@ import { seatVisuals, toSteps, type FlowStep } from '@/features/room/flow/narrat
 import { StepIcon, TONE_BORDER, TONE_TEXT, useCallout, useSay } from '@/features/room/flow/present'
 import { useExerciseStream } from '@/features/room/useExerciseStream'
 import { AudienceQR } from './AudienceQR'
+import { PublicAlertPanel } from '@/features/citizen/PublicAlertPanel'
 
 /** Mode présentation : `/present` (démonstration fictive) ou `/present/:exerciseId` (exercice réel, en direct ou en rejeu). */
 export function PresentPage() {
@@ -82,6 +83,7 @@ function Stage({ events, seats, title, code, badge, exitTo, audience }: { events
   const [playing, setPlaying] = useState(false)
   const [help, setHelp] = useState(false)
   const [qr, setQr] = useState(false)
+  const [warn, setWarn] = useState(false)
   const [fullscreen, toggleFullscreen] = useFullscreen()
   const cur = Math.min(pos, n)
   const step = cur >= 0 && cur < n ? steps[cur] : null
@@ -106,6 +108,7 @@ function Stage({ events, seats, title, code, badge, exitTo, audience }: { events
       const tag = (e.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
       if (qr) { if (e.key === 'Escape' || e.key === 'q' || e.key === 'Q') setQr(false); return }
+      if (warn) { if (e.key === 'Escape' || e.key === 'a' || e.key === 'A') setWarn(false); return }
       switch (e.key) {
         case ' ': case 'ArrowRight': case 'PageDown': case 'Enter': e.preventDefault(); setPlaying(false); next(); break
         case 'ArrowLeft': case 'PageUp': case 'Backspace': e.preventDefault(); setPlaying(false); prev(); break
@@ -115,13 +118,14 @@ function Stage({ events, seats, title, code, badge, exitTo, audience }: { events
         case 'f': case 'F': toggleFullscreen(); break
         case 'h': case 'H': case '?': setHelp((v) => !v); break
         case 'q': case 'Q': if (audience) { setPlaying(false); setQr(true) } break
+        case 'a': case 'A': if (audience) { setPlaying(false); setWarn(true) } break
         case 'Escape': if (!document.fullscreenElement) navigate(exitTo); break
         default: break
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [next, prev, n, toggleFullscreen, navigate, exitTo, qr, audience])
+  }, [next, prev, n, toggleFullscreen, navigate, exitTo, qr, warn, audience])
 
   const sum = summary(steps)
   const pct = n ? Math.round((Math.max(cur, 0) / n) * 100) : 0
@@ -192,6 +196,7 @@ function Stage({ events, seats, title, code, badge, exitTo, audience }: { events
             <CtlButton label={playing ? t('room.flow.pause') : t('room.present.auto')} onClick={() => setPlaying((v) => !v)} active={playing}>{playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}</CtlButton>
             <CtlButton label={t('room.flow.next')} onClick={() => { setPlaying(false); next() }}><ChevronRight className="h-5 w-5" /></CtlButton>
             {audience && <CtlButton label={t('room.present.audience.title')} onClick={() => { setPlaying(false); setQr(true) }} active={qr}><QrCode className="h-5 w-5" /></CtlButton>}
+            {audience && <CtlButton label={t('citizen.panelTitle')} onClick={() => { setPlaying(false); setWarn(true) }} active={warn}><Megaphone className="h-5 w-5" /></CtlButton>}
             <CtlButton label={t('room.present.fullscreen')} onClick={toggleFullscreen}>{fullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}</CtlButton>
             <CtlButton label={t('room.present.help')} onClick={() => setHelp((v) => !v)}><Keyboard className="h-5 w-5" /></CtlButton>
             <CtlButton label={t('room.present.exit')} onClick={() => navigate(exitTo)}><X className="h-5 w-5" /></CtlButton>
@@ -200,11 +205,12 @@ function Stage({ events, seats, title, code, badge, exitTo, audience }: { events
       </footer>
 
       {qr && audience && <AudienceQR ex={audience} onClose={() => setQr(false)} />}
+      {warn && audience && <PublicAlertPanel ex={audience} onClose={() => setWarn(false)} />}
       {help && (
         <div role="dialog" aria-label={t('room.present.help')} className="absolute right-8 bottom-32 w-80 rounded-xl border border-line bg-surface p-4 text-sm shadow-2xl">
           <p className="mb-2 font-bold">{t('room.present.help')}</p>
           <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1.5">
-            {(['next', 'prev', 'auto', 'home', 'fs', 'qr', 'exit'] as const).filter((k) => k !== 'qr' || audience).map((k) => (
+            {(['next', 'prev', 'auto', 'home', 'fs', 'qr', 'alert', 'exit'] as const).filter((k) => (k !== 'qr' && k !== 'alert') || audience).map((k) => (
               <div key={k} className="contents"><dt><kbd className="rounded border border-line bg-surface2 px-1.5 font-mono text-xs">{t(`room.present.kbd.${k}`)}</kbd></dt><dd className="text-muted">{t(`room.present.kbdDesc.${k}`)}</dd></div>
             ))}
           </dl>

@@ -236,7 +236,7 @@
     "fullscreen": "Plein écran",
     "help": "Raccourcis clavier",
     "exit": "Quitter le mode présentation",
-    "keys": "Espace / → : suivant · ← : précédent · P : lecture auto · Q : QR public · F : plein écran · Échap : quitter",
+    "keys": "Espace / → : suivant · ← : précédent · P : lecture auto · Q : QR public · A : alerte habitants · F : plein écran · Échap : quitter",
     "kbd": {
       "next": "Espace / →",
       "prev": "←",
@@ -244,7 +244,8 @@
       "home": "Début / Fin",
       "fs": "F",
       "exit": "Échap",
-      "qr": "Q"
+      "qr": "Q",
+      "alert": "A"
     },
     "kbdDesc": {
       "next": "Étape suivante (ou télécommande)",
@@ -253,7 +254,8 @@
       "home": "Écran-titre / bilan",
       "fs": "Plein écran",
       "exit": "Quitter",
-      "qr": "Faire jouer le public (QR code)"
+      "qr": "Faire jouer le public (QR code)",
+      "alert": "Alerte à la population (QR habitant)"
     },
     "audience": {
       "eyebrow": "Interactif",
@@ -285,5 +287,6 @@
   "citeThis": "Citer cet extrait",
   "citationAdded": "Citation ajoutée à votre décision",
   "citeHint": "Astuce : cherchez un texte, puis « Citer cet extrait » remplit la citation pour vous.",
-  "needBasis": "Il faut au moins une citation (cherchez un texte puis « Citer cet extrait »), ou choisissez l'issue « Aucune base légale trouvée »."
+  "needBasis": "Il faut au moins une citation (cherchez un texte puis « Citer cet extrait »), ou choisissez l'issue « Aucune base légale trouvée ».",
+  "alertPublic": "Alerte habitants"
 }

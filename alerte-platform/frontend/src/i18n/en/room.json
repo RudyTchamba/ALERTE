@@ -236,7 +236,7 @@
     "fullscreen": "Full screen",
     "help": "Keyboard shortcuts",
     "exit": "Leave presentation mode",
-    "keys": "Space / → : next · ← : previous · P : autoplay · Q : audience QR · F : full screen · Esc : leave",
+    "keys": "Space / → : next · ← : previous · P : autoplay · Q : audience QR · A : public warning · F : full screen · Esc : leave",
     "kbd": {
       "next": "Space / →",
       "prev": "←",
@@ -244,7 +244,8 @@
       "home": "Home / End",
       "fs": "F",
       "exit": "Esc",
-      "qr": "Q"
+      "qr": "Q",
+      "alert": "A"
     },
     "kbdDesc": {
       "next": "Next step (or clicker)",
@@ -253,7 +254,8 @@
       "home": "Title screen / debrief",
       "fs": "Full screen",
       "exit": "Leave",
-      "qr": "Let the audience play (QR code)"
+      "qr": "Let the audience play (QR code)",
+      "alert": "Public warning (resident QR)"
     },
     "audience": {
       "eyebrow": "Interactive",
@@ -285,5 +287,6 @@
   "citeThis": "Cite this excerpt",
   "citationAdded": "Citation added to your decision",
   "citeHint": "Tip: search a text, then “Cite this excerpt” fills in the citation for you.",
-  "needBasis": "At least one citation is required (search a text, then “Cite this excerpt”), or choose the outcome “No legal basis found”."
+  "needBasis": "At least one citation is required (search a text, then “Cite this excerpt”), or choose the outcome “No legal basis found”.",
+  "alertPublic": "Public warning"
 }

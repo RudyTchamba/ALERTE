@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { MonitorPlay, Pause, Play, SkipForward, Square, Zap } from 'lucide-react'
+import { Megaphone, MonitorPlay, Pause, Play, SkipForward, Square, Zap } from 'lucide-react'
 import { api } from '@/api/client'
 import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
@@ -16,6 +16,7 @@ import { DecisionTraceDialog } from './DecisionTrace'
 import { FlowPlayer } from './flow/FlowPlayer'
 import { RoomAlerts } from './RoomAlerts'
 import { AudienceQR } from '@/features/present/AudienceQR'
+import { PublicAlertPanel } from '@/features/citizen/PublicAlertPanel'
 import { BoardPanel, SeatCards, SignalsPanel, Timeline } from './RoomPanels'
 import { OutcomeBadge, VerifiedBadge } from './parts'
 import type { DecisionItem } from './state'
@@ -42,6 +43,7 @@ function RoomView({ ex }: { ex: Exercise }) {
   const [stopAsk, setStopAsk] = useState(false)
   const [surprise, setSurprise] = useState(false)
   const [qrSeat, setQrSeat] = useState<string | null>(null)
+  const [warn, setWarn] = useState(false)
   const exState = state.exerciseState ?? ex.state
   const canControl = role === 'owner' || role === 'member'
 
@@ -82,6 +84,7 @@ function RoomView({ ex }: { ex: Exercise }) {
               {status !== 'ended' && <Badge tone={live}>{t(`room.stream.${status}`)}</Badge>}
               <Link to={`/audit/${ex.id}`} className="text-sm">{t('nav.audit')}</Link>
               <Link to={`/present/${ex.id}`} className="inline-flex items-center gap-1 rounded-md border border-brand/50 bg-brandsoft px-2 py-0.5 text-sm font-semibold text-brand no-underline hover:border-brand"><MonitorPlay className="h-4 w-4" aria-hidden />{t('room.present.open')}</Link>
+              {canControl && <button type="button" onClick={() => setWarn(true)} className="inline-flex items-center gap-1 rounded-md border border-danger/50 bg-dangersoft px-2 py-0.5 text-sm font-semibold text-danger hover:border-danger"><Megaphone className="h-4 w-4" aria-hidden />{t('room.alertPublic')}</button>}
             </p>
           </div>
           <dl className="flex flex-wrap items-stretch gap-3">
@@ -137,6 +140,7 @@ function RoomView({ ex }: { ex: Exercise }) {
       <p className="sr-only-live" aria-live="polite" role="log">{state.announcements.slice(-1)[0] ?? ''}</p>
       <DecisionTraceDialog decision={trace} events={state.events} onClose={() => setTrace(null)} />
       {seatOpen && <SeatDialog ex={ex} code={seatOpen} state={state.decisions} onTrace={(d) => { setSeatOpen(null); setTrace(d) }} onClose={() => setSeatOpen(null)} canControl={canControl} running={['running', 'paused'].includes(exState)} />}
+      {warn && <PublicAlertPanel ex={ex} fixed onClose={() => setWarn(false)} />}
       {qrSeat && <AudienceQR ex={ex} initialSeat={qrSeat} fixed onClose={() => setQrSeat(null)} />}
       {surprise && <SurpriseDialog exId={ex.id} seats={seats.map((s) => s.code)} onClose={() => setSurprise(false)} />}
       <ConfirmDialog open={stopAsk} onClose={() => setStopAsk(false)} danger title={t('room.cmd.stop')} message={t('room.stopConfirm')} confirmLabel={t('room.cmd.stop')} onConfirm={() => { cmd.mutate({ kind: 'stop' }); setStopAsk(false) }} />
