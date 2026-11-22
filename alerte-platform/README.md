@@ -180,7 +180,7 @@ npm run dev
 ```
 
 **Arrêt propre** : `Ctrl+C` dans chaque terminal (uvicorn termine ses requêtes en cours ; les jobs actifs passent à `interrupted` et sont signalés au prochain démarrage).
-Option tout-en-un : `python3 scripts/dev.py` lance les deux et les arrête ensemble avec `Ctrl+C`.
+Option tout-en-un : `python3 scripts/dev.py` lance les deux et les arrête ensemble avec `Ctrl+C` ; ajoutez `--host` pour exposer le frontend sur le réseau local (téléphones des joueurs, QR code du mode présentation).
 
 Mode « un seul processus » : `cd frontend && npm run build`, puis le backend sert aussi l'interface sur `http://localhost:8000/`.
 

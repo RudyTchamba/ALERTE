@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Lance le backend (uvicorn) et, sauf --no-frontend, le frontend Vite. Multiplateforme ; Ctrl-C arrête les deux.
 
-Usage : python scripts/dev.py [--port 8000] [--no-frontend] [--data-dir ./backend/data]
+Usage : python scripts/dev.py [--port 8000] [--no-frontend] [--host] [--data-dir ./backend/data]
+
+`--host` expose le frontend sur le réseau local (téléphones des joueurs : QR code « faire jouer le public ») ;
+le backend reste sur localhost, joint via le proxy de Vite.
 """
 from __future__ import annotations
 
@@ -20,10 +23,22 @@ BACKEND, FRONTEND = ROOT / "backend", ROOT / "frontend"
 IS_WIN = platform.system() == "Windows"
 
 
+def lan_ip() -> str:
+    """Adresse de cette machine sur le réseau local (celle de la route par défaut)."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        try:
+            s.connect(("10.255.255.255", 1))
+            return s.getsockname()[0]
+        except OSError:
+            return "127.0.0.1"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--no-frontend", action="store_true")
+    ap.add_argument("--host", action="store_true", help="expose le frontend sur le réseau local (téléphones)")
     ap.add_argument("--data-dir", default=str(BACKEND / "data"))
     args = ap.parse_args()
 
@@ -40,10 +55,13 @@ def main() -> int:
     if not args.no_frontend:
         npm = shutil.which("npm")
         if npm:
-            procs.append(subprocess.Popen([npm, "run", "dev"], cwd=FRONTEND, env=env, **flags))
+            vite = [npm, "run", "dev"] + (["--", "--host"] if args.host else [])
+            procs.append(subprocess.Popen(vite, cwd=FRONTEND, env=env, **flags))
         else:
             print("npm introuvable : frontend non lancé (activez Node avec nvm).")
     print(f"API : http://localhost:{args.port}/api/v1/docs   |   Frontend : http://localhost:5173")
+    if args.host:
+        print(f"Réseau local (téléphones) : http://{lan_ip()}:5173  — ouvrez l'interface via cette adresse pour que les QR codes fonctionnent")
 
     def stop(*_a) -> None:
         for p in procs:

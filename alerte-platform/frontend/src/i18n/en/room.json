@@ -281,5 +281,9 @@
     "deadlineAgent": "The AI agent takes over automatically in {{time}}.",
     "deadlineSkip": "The turn will be skipped in {{time}}.",
     "showQr": "Show the player's QR code"
-  }
+  },
+  "citeThis": "Cite this excerpt",
+  "citationAdded": "Citation added to your decision",
+  "citeHint": "Tip: search a text, then “Cite this excerpt” fills in the citation for you.",
+  "needBasis": "At least one citation is required (search a text, then “Cite this excerpt”), or choose the outcome “No legal basis found”."
 }

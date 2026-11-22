@@ -281,5 +281,9 @@
     "deadlineAgent": "Reprise automatique par l'agent IA dans {{time}}.",
     "deadlineSkip": "Le tour sera passé dans {{time}}.",
     "showQr": "Afficher le QR code du joueur"
-  }
+  },
+  "citeThis": "Citer cet extrait",
+  "citationAdded": "Citation ajoutée à votre décision",
+  "citeHint": "Astuce : cherchez un texte, puis « Citer cet extrait » remplit la citation pour vous.",
+  "needBasis": "Il faut au moins une citation (cherchez un texte puis « Citer cet extrait »), ou choisissez l'issue « Aucune base légale trouvée »."
 }

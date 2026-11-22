@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from 'react'
 import { Navigate, Outlet, type RouteObject } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LoadingState } from '@/components/ui'
 import { AppShell } from './AppShell'
 import { AuthProvider, useAuth } from './auth'
@@ -35,9 +36,24 @@ function Root() {
   )
 }
 
+/** Écran d'erreur lisible (au lieu de l'écran technique de React Router) : un geste pour repartir. */
+function RouteError() {
+  const { t } = useTranslation()
+  return (
+    <main className="grid min-h-screen place-items-center p-6 text-center">
+      <div className="max-w-md">
+        <p className="mb-2 text-xl font-bold">{t('common.crashTitle')}</p>
+        <p className="mb-5 text-sm text-muted">{t('common.crashHint')}</p>
+        <button type="button" onClick={() => window.location.reload()} className="rounded-lg bg-brand px-5 py-2.5 font-semibold text-brandfg">{t('common.reload')}</button>
+      </div>
+    </main>
+  )
+}
+
 export const routes: RouteObject[] = [
   {
     element: <Root />,
+    errorElement: <RouteError />,
     children: [
       { path: '/access', element: page(() => import('@/features/access/EntryPage'), 'EntryPage') },
       { path: '/play', element: page(() => import('@/features/room/PlayerPage'), 'PlayerPage') },

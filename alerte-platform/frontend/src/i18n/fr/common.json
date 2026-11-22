@@ -117,5 +117,8 @@
     "documentary": "documentaire",
     "artifact": "artefact",
     "undetermined": "indéterminée"
-  }
+  },
+  "crashTitle": "Un problème d'affichage est survenu",
+  "crashHint": "Rechargez la page : votre session et l'exercice sont conservés. Si le navigateur propose de traduire la page, refusez (l'application a son propre choix de langue).",
+  "reload": "Recharger la page"
 }
