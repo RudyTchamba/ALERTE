@@ -131,3 +131,28 @@ def test_live_registry_states_are_verified_against_the_launch_commitment(env):
     put("EXV2", commit)
     r = env.detect("EXV2").json()
     assert r["integrity"]["commitment"] == "mismatch" and "commitment_mismatch" in r["warnings"]
+
+
+def test_reform_hypothesis_resolves_the_gap_without_touching_the_real_registry(env):
+    """« Et si… ? » : un mandat hypothétique injecté dans le seul snapshot fait disparaître la lacune ; le registre reste intact."""
+    from app.simulation.snapshot import REFORM_SOURCE_ARTICLE, reform_entries
+    a, b = setup_registry(env)
+    for inst in (a, b):
+        env.client.put(f"{API}/institutions/{inst}/registry-review", json={"status": "reviewed_complete"}, headers=env.owner)
+    base, _ = build_snapshot(env, a, b, set(), action="act_y")  # personne n'a de mandat pour act_y
+    put_live(env, "EXB", base)
+    assert [g["code"] for g in env.detect("EXB").json()["gaps"]] == ["G1"]
+    reform = reform_entries({"reform_mandates": [
+        {"institution_id": a, "action_code": "act_y", "kind": "duty", "description": "A diffuse l'alerte sous 15 min", "has_deadline": True},
+        {"institution_id": "NOT-SEATED", "action_code": "act_y"},  # institution absente de l'exercice : ignorée
+    ]}, {a, b})
+    assert len(reform) == 1 and reform[0]["hypothesis"] is True and reform[0]["evidence_tag"] == "assumed"
+    assert reform[0]["sources"][0]["article"] == REFORM_SOURCE_ARTICLE
+    what_if, _ = build_snapshot(env, a, b, set(), action="act_y")
+    what_if["mandates"] = what_if["mandates"] + reform
+    put_live(env, "EXR", what_if)
+    assert env.detect("EXR").json()["gaps"] == []
+    cmp = env.client.get(f"{API}/gaps/compare", params={"a": "EXB", "b": "EXR"}, headers=env.owner).json()
+    assert cmp["summary"] == {"new": 0, "persistent": 0, "resolved": 1}
+    real = env.client.get(f"{API}/mandates", headers=env.owner).json()
+    assert [m["action_code"] for m in real] == ["act_x"]  # aucun mandat act_y n'a été écrit dans le registre réel

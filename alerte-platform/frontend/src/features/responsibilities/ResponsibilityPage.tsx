@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, BookMarked, CheckCircle2, Circle, CircleDashed, Crown, HelpCircle, Layers, Users } from 'lucide-react'
+import { AlertTriangle, BookMarked, CheckCircle2, Circle, CircleDashed, Crown, FlaskConical, HelpCircle, Layers, Users } from 'lucide-react'
 import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
 import type { ActionItem, Country, Gap, Institution, Mandate, RegistryReview } from '@/api/types'
@@ -184,7 +184,15 @@ function Detail({ row, inst }: { row: Row | undefined; inst: Institution | undef
       <p className="mb-3 text-sm"><span className="font-mono font-bold">{inst.code}</span> <span className="text-muted">— {inst.name}</span></p>
       <p className={cn('mb-4 rounded-lg px-3 py-2 text-sm', st.bg, st.text)}><strong>{t(`gaps.matrix.row.${row.state}`)}.</strong> {t(`gaps.matrix.rowHint.${row.state}`)}</p>
       {cell.mandates.length === 0 ? (
-        <p className="text-sm text-muted">{t('gaps.matrix.noneHere', { inst: inst.code })} <Link to="/studio/countries">{t('gaps.matrix.addMandate')}</Link></p>
+        <div className="flex flex-col gap-3 text-sm">
+          <p className="text-muted">{t('gaps.matrix.noneHere', { inst: inst.code })} <Link to="/studio/countries">{t('gaps.matrix.addMandate')}</Link></p>
+          {row.state !== 'covered' && (
+            <Link to={`/what-if?inst=${inst.id}&action=${encodeURIComponent(row.action.code)}`}
+              className="inline-flex items-center gap-2 self-start rounded-lg border border-brand/50 bg-brandsoft px-3 py-2 font-semibold text-brand no-underline hover:border-brand">
+              <FlaskConical className="h-4 w-4" aria-hidden />{t('gaps.whatif.fromMatrix', { inst: inst.code })}
+            </Link>
+          )}
+        </div>
       ) : (
         <ul className="flex flex-col gap-3">
           {cell.mandates.map((m) => (

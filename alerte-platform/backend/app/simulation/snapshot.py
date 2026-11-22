@@ -21,6 +21,29 @@ INJECT_DEFAULTS = {"tags": [], "demands": [], "fault_mode": "none", "system_outp
                    "body": "", "title": "", "sim_time": None}
 
 
+REFORM_SOURCE_ARTICLE = "Réforme (hypothèse)"
+
+
+def reform_entries(settings: dict | None, seat_institutions: set[str] | list[str]) -> list[dict[str, Any]]:
+    """Mandats hypothétiques (`settings.reform_mandates`) au format des mandats du snapshot.
+
+    Seuls ceux qui visent une institution présente à l'exercice sont retenus. Ils entrent dans l'empreinte
+    d'engagement comme les autres mandats : un exercice « Et si » est donc distinct et vérifiable."""
+    seats = set(seat_institutions)
+    out = []
+    for i, r in enumerate((settings or {}).get("reform_mandates") or []):
+        if r.get("institution_id") not in seats:
+            continue
+        out.append({"id": f"reform-{i + 1}", "institution_id": r["institution_id"], "kind": r.get("kind", "duty"),
+                    "action_code": r["action_code"], "description": r.get("description", ""),
+                    "procedure_status": r.get("procedure_status", "specific"), "has_deadline": bool(r.get("has_deadline")),
+                    "dependency_text": None, "dependency_ready": None, "depends_on_id": None, "conflicts_with_id": None,
+                    "evidence_tag": "assumed", "validation": "validated", "hypothesis": True,
+                    "sources": [{"document_version_id": None, "chunk_id": None, "article": REFORM_SOURCE_ARTICLE, "page": None,
+                                 "quote": r.get("description") or None}]})
+    return out
+
+
 def normalized_for_hash(payload: dict) -> dict:
     p = copy.deepcopy(payload)
     p["exercise"].pop("id", None)
@@ -101,6 +124,7 @@ def build_snapshot(ctx: Any, session: Session, ex: Exercise, seats: list[Seat]) 
         all_versions.update(versions)
     seat_inst = sorted({s.institution_id for s in seats})
     mand = sorted(mandates.export_active_mandates(session, ws, seat_inst, sorted(all_versions)), key=lambda m: m["id"])
+    mand += reform_entries(ex.settings, seat_inst)  # hypothèses « Et si » : jamais écrites dans le registre réel
     codes = {d["action_code"] for i in injects for d in i.get("demands", []) if d.get("action_code")}
     codes |= {m["action_code"] for m in mand if m.get("action_code")}
     catalogue = {a["code"]: a for a in (mandates.list_actions(session, ws) if hasattr(mandates, "list_actions") else [])}

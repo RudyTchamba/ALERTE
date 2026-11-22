@@ -66,6 +66,7 @@ export const routes: RouteObject[] = [
           { path: '/room', element: page(() => import('@/features/room/RoomPickerPage'), 'RoomPickerPage') },
           { path: '/room/:exerciseId', element: page(() => import('@/features/room/RoomPage'), 'RoomPage') },
           { path: '/responsibilities', element: page(() => import('@/features/responsibilities/ResponsibilityPage'), 'ResponsibilityPage') },
+          { path: '/what-if', element: page(() => import('@/features/whatif/WhatIfPage'), 'WhatIfPage') },
           { path: '/gaps', element: page(() => import('@/features/gaps/GapsPage'), 'GapsPage') },
           { path: '/gaps/:gapId', element: page(() => import('@/features/gaps/GapsPage'), 'GapsPage') },
           { path: '/reports', element: page(() => import('@/features/reports/ReportsPage'), 'ReportsPage') },

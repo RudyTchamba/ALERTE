@@ -145,6 +145,9 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 @keyframes flow-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .flow-callout { animation: flow-pop 0.35s ease-out; transform-box: fill-box; }
 @media (prefers-reduced-motion: reduce) { .flow-pulse { display: none; } }
+/* « Et si » : une lacune résolue se fait barrer en vert. */
+@keyframes gap-strike { from { background-size: 0% 2px; } to { background-size: 100% 2px; } }
+.gap-resolved { background-image: linear-gradient(var(--ok), var(--ok)); background-repeat: no-repeat; background-position: 0 55%; background-size: 0% 2px; animation: gap-strike 0.6s ease-out forwards; color: var(--text-muted); }
 .panel { background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); border-radius: 0.75rem; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 @layer base {

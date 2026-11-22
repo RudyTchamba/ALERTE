@@ -187,3 +187,19 @@ def test_reference_guard_blocks_deletion_of_objects_used_by_a_launched_exercise(
     world.client.post(f"{API}/exercises/{ex_id}/archive", headers=world.fac)
     assert world.client.delete(f"{API}/institutions/{world.inst['DPC']}", headers=world.owner).status_code == 409
     assert draft
+
+
+def test_reform_mandates_setting_is_validated(world):
+    from app.core.errors import Unprocessable
+    from app.simulation.common import resolve_settings
+    ok = resolve_settings({"reform_mandates": [{"institution_id": "I1", "action_code": "alert"}]}, 199)
+    assert ok["reform_mandates"][0] == {"institution_id": "I1", "action_code": "alert", "kind": "duty", "description": "",
+                                        "has_deadline": False, "procedure_status": "specific"}
+    for bad in ({"reform_mandates": [{"institution_id": "I1", "action_code": "alert", "kind": "king"}]},
+                {"reform_mandates": [{"institution_id": "I1"}]},
+                {"reform_mandates": [{"institution_id": "I1", "action_code": "a"}] * 21}):
+        try:
+            resolve_settings(bad, 199)
+            raise AssertionError("expected Unprocessable")
+        except Unprocessable:
+            pass
