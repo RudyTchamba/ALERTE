@@ -440,7 +440,16 @@ class ExerciseRunner:
                 except (_Paused, _Exit):
                     pass
                 except _StopRequested:
-                    self._finalize(states.STOPPED)
+                    # Un échec de la finalisation (ex. base verrouillée) ne doit pas tuer le fil : sinon le gestionnaire
+                    # croit le moteur vivant et l'exercice reste figé « en cours ». On passe par _on_crash (interrompu,
+                    # reprise possible).
+                    try:
+                        self._finalize(states.STOPPED)
+                    except (RunnerKilled, RunnerAborted):
+                        raise
+                    except Exception as exc:  # noqa: BLE001
+                        log.exception("finalisation en échec", extra={"exercise_id": self.ex_id})
+                        self._on_crash(exc)
                 except (RunnerKilled, RunnerAborted):
                     raise
                 except Exception as exc:  # noqa: BLE001 - arrêt anormal : ERROR + interrupted (reprise possible)
@@ -718,8 +727,12 @@ class ExerciseRunner:
             with s.begin_nested():
                 fn(s, self.ex_id, *args)
         except Exception as exc:  # noqa: BLE001 - un échec du moteur de lacunes ne bloque pas l'exercice
-            self.w.append(s, self.ex_id, "ERROR", "system", {"component": "gap_engine", "message": str(exc)[:300],
-                                                             "next_action": "continue"})
+            try:  # consigner l'échec, sans que l'échec de cette écriture (même cause, ex. base verrouillée) ne se propage
+                with s.begin_nested():
+                    self.w.append(s, self.ex_id, "ERROR", "system", {"component": "gap_engine", "message": str(exc)[:300],
+                                                                     "next_action": "continue"})
+            except Exception:  # noqa: BLE001
+                log.exception("impossible de consigner l'échec du moteur de lacunes", extra={"exercise_id": self.ex_id})
 
     # ------------------------------------------------------------------ fin
     def _finalize(self, final_state: str) -> None:
