@@ -1,5 +1,7 @@
 # ALERTE Platform
 
+> **Competition README (EN):** [../README.md](../README.md)
+
 Plateforme **générique** de simulation d'exercices de crise multi-agents. Des agents IA (ou des humains) jouent les **institutions réelles** d'un pays, chacune
 bornée par ses **mandats** et par les **documents** auxquels elle a légitimement accès. Les **lacunes institutionnelles** (responsabilité orpheline,
 chevauchement de mandats, procédure absente, absence de supervision humaine de l'IA…) **émergent** des documents, du registre de mandats, des événements
