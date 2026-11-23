@@ -1,15 +1,17 @@
 /**
- * Contracts for endpoints that are NOT in the backend OpenAPI yet. Everything here is `TODO(api)`:
- * when the endpoint appears in `GET /api/v1/openapi.json`, run `npm run gen:api`, move the type to `types.ts`
- * (alias of the generated schema) and delete it from this file.
+ * API coverage notes (last `npm run gen:api`). Every route the UI calls is served by the backend.
  *
- * Status at the last `gen:api`: reports, evaluation, scorecard, gaps, simulation, knowledge, agents, scenarios, mandates
- * and audit are all served. What is still missing (doc 12) and therefore NOT called by the UI:
- *   - TODO(api) GET /decisions/{id}/trace        : the Room/Audit decision trace is rebuilt client-side from ledger events.
- *   - TODO(api) GET /blobs/{sha256}              : raw prompts/outputs cannot be shown (hashes only).
- *   - TODO(api) GET /exercises/{id}/replay       : replay is computed client-side from the ledger (no model call).
- *   - TODO(api) POST /sessions/exchange          : seat links use the fragment token directly as Bearer.
- *   - TODO(api) role of the caller (GET /auth/me): the UI probes `GET /tokens` (owner-only) to detect the owner role.
- *   - TODO(api) response_model for the endpoints listed in loose.ts (plain dict responses).
+ * Served since the last review:
+ *   - GET /auth/me                                : role and scope of the token (replaces the old `GET /tokens` probe).
+ *   - GET /exercises/{id}/llm-calls/{seq}         : raw prompt and response of a model call, integrity-checked
+ *                                                   (facilitator/auditor; never an arbitrary blob by fingerprint).
+ *   - POST /scorecard/exercises/{id}/assess       : AI judge of the 13-dimension scorecard (background job).
+ *   - GET /ledger/public-key                      : Ed25519 key that signs ledger anchors (public).
+ *
+ * Deliberate design choices (not missing features):
+ *   - Decision trace and replay are rebuilt client-side from the ledger events the caller may read: the ledger is the
+ *     single source of truth, so no second, possibly divergent, server-side computation is needed.
+ *   - Seat links carry a scoped, expiring token in the URL fragment (never sent to servers or logs) used as Bearer.
+ *   - Endpoints listed in loose.ts return plain dicts; their shapes are typed by hand there.
  */
 export {}

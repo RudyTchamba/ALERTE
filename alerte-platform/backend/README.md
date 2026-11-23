@@ -155,7 +155,7 @@ les jobs en cours passent à `interrupted`. Les simulations ont leur propre mote
 Depuis `backend/`, venv actif :
 
 ```bash
-python -m uvicorn app.main:app_factory --factory --reload --port 8000     # développement (rechargement automatique)
+python -m uvicorn app.main:app_factory --factory --reload --timeout-graceful-shutdown 3 --port 8000     # développement (rechargement automatique)
 python -m uvicorn app.main:app_factory --factory --port 8000              # sans rechargement
 ```
 

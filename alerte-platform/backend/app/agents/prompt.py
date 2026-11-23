@@ -13,7 +13,7 @@ from typing import Any
 
 from ..contracts import LLMMessage, SeatContext
 
-PROMPT_VERSION = "agent-prompt-v1"
+PROMPT_VERSION = "agent-prompt-v2"
 TOKEN_BUDGET = 4000
 _DIR = Path(__file__).parent / "prompts"
 _TAGS = re.compile(r"<(/?)(retrieved_document|board_message|legal_adviser_answer|inbox_item)", re.I)
@@ -48,10 +48,11 @@ _LEVELS = [  # (mandats, inbox, board, décisions, hits, car/hit, notes, car/not
 def _mandate_line(m: Mapping[str, Any]) -> str:
     srcs = []
     for s in (m.get("sources") or [])[:2]:
-        label = s.get("doc_code") or str(s.get("document_version_id") or "doc")[:10]
+        # Pas d'identifiant tronqué : le modèle le prenait pour un chunk_id citable (prompt v2).
+        label = s.get("doc_code") or "document"
         art = s.get("article")
         srcs.append(f"{label}" + (f" · art. {art}" if art else ""))
-    src = f" (source: {'; '.join(srcs)})" if srcs else ""
+    src = f" (source: {'; '.join(srcs)} — retrieve it with search_kb to cite it)" if srcs else ""
     return f"- [{sanitize(m.get('kind', ''), 20)}] {sanitize(m.get('action_code') or '', 80)}: " \
            f"{sanitize(m.get('description', ''), 220)}{src}"
 
@@ -60,6 +61,9 @@ def _item(d: Mapping[str, Any], limit: int) -> str:
     keys = ("msg_id", "from", "from_actor", "to", "msg_type", "title", "body", "text", "in_reply_to", "reply_status")
     parts = [f"{k}={sanitize(d[k], limit)}" for k in keys if d.get(k) not in (None, "")]
     return " | ".join(parts)
+
+
+_LANG = {"fr": "French", "en": "English", "es": "Spanish", "pt": "Portuguese", "ar": "Arabic", "ru": "Russian", "sw": "Swahili"}
 
 
 def hit_block(h: Mapping[str, Any], limit: int) -> str:
@@ -94,7 +98,7 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
           f"Mission: {sanitize(a.get('mission'), 600)}\nInstructions: {sanitize(a.get('instructions'), 1500)}")
     mand = [_mandate_line(m) for m in ctx.mandates[:n_m]]
     s2 = "## 2. Documented mandate (validated, with sources)\n" + ("\n".join(mand) if mand else "- (no validated mandate recorded)")
-    tools_txt = _tpl("tools_v1.txt").replace("{max_steps}", str(limits.get("max_steps", 4)))
+    tools_txt = _tpl("tools_v2.txt").replace("{max_steps}", str(limits.get("max_steps", 4)))
     others = ", ".join(c for c in ctx.seat_codes if c != ctx.seat_code) or "(none)"
     s4 = f"{tools_txt}\nTools available to you: {', '.join(tools) or '(none)'}\nOther seat codes: {others}"
     inj = ctx.inject
@@ -102,6 +106,10 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
                  f"Inject title: {sanitize(inj.get('title'), 200)}",
                  f"Time: {sanitize(inj.get('sim_time'), 40)}   From: {sanitize(inj.get('from_actor'), 100)}",
                  f"Inject text: {sanitize(inj.get('body') or inj.get('text'), 900)}"]
+    if inj.get("language"):
+        lang = str(inj["language"]).lower()[:2]
+        name = _LANG.get(lang, sanitize(lang, 8))
+        ctx_lines.append(f"Exercise language: {name}. Write action, rationale and messages in {name} only.")
     if inj.get("system_output"):
         ctx_lines.append(f"AI system output received: {sanitize(inj['system_output'], 600)}")
     if ctx.inbox:
@@ -121,7 +129,7 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
         ctx_lines.append("Tool results so far:")
         ctx_lines += [sanitize(n, c_n) for n in list(notes)[-n_n:]]
     ctx_lines.append(f"Allowed actions now: {', '.join(allowed)}")
-    return "\n\n".join([s1, s2, _tpl("rules_v1.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
+    return "\n\n".join([s1, s2, _tpl("rules_v2.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
 
 
 def build_messages(ctx: SeatContext, **kw: Any) -> list[LLMMessage]:

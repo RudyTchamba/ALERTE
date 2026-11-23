@@ -188,3 +188,37 @@ def test_capacity_cap_on_concurrent_runners(world):
     assert world.start(b)
     world.wait(b, {"completed"})
     assert Behavior and not world.mgr.is_active(b)
+
+
+def test_stop_survives_gap_engine_and_error_logging_failures(world, monkeypatch):
+    """Cas réel (EX-018) : base verrouillée pendant la détection finale, puis aussi pendant l'écriture de l'ERROR."""
+    from app.simulation import engine as eng
+
+    def boom(session, exercise_id):  # noqa: ANN001
+        raise RuntimeError("database is locked")
+    monkeypatch.setattr(world.gap, "on_exercise_finished", boom)
+    real_append = eng.Writer.append
+
+    def flaky_append(self, s, ex_id, type_, actor, payload, **kw):  # noqa: ANN001
+        if type_ == "ERROR" and payload.get("component") == "gap_engine":
+            raise RuntimeError("database is locked")
+        return real_append(self, s, ex_id, type_, actor, payload, **kw)
+    monkeypatch.setattr(eng.Writer, "append", flaky_append)
+    ex_id = world.new_exercise()
+    pause_at(world, ex_id, "inject:1:round:1:seat:MET", "stop")
+    assert world.run(ex_id) == "stopped" and world.verify(ex_id)["ok"]
+
+
+def test_failed_finalization_interrupts_instead_of_freezing(world, monkeypatch):
+    from app.simulation import engine as eng
+
+    def broken(self, final_state):  # noqa: ANN001
+        raise RuntimeError("database is locked")
+    monkeypatch.setattr(eng.ExerciseRunner, "_finalize", broken)
+    ex_id = world.new_exercise()
+    pause_at(world, ex_id, "inject:1:round:1:seat:MET", "stop")
+    world.start(ex_id)
+    world.wait(ex_id, {"interrupted"})
+    wait_for(lambda: ex_id not in world.mgr._runners)  # le fil s'est terminé proprement : rien ne reste « vivant »
+    errs = [e for e in world.ledger(ex_id) if e["type"] == "ERROR" and e["payload"]["component"] == "runner"]
+    assert errs and errs[-1]["payload"]["next_action"] == "interrupted"

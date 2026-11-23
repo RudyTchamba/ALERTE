@@ -50,6 +50,7 @@ def test_g3_missing_procedure_and_deadline():
     nodl = [mandate("m1", "A", "duty", "a1", has_deadline=False)]
     g = by(run(snap(["time_critical"]), nodl), "G3")
     assert g is not None and "délai" in g.description and g.category == "crisis_preparedness_response_gap"
+    assert "a une procédure spécifique mais aucun délai" in g.description and "aucune procédure" not in g.description
     assert by(run(snap([]), nodl), "G3") is None
     # un mandat `procedure` spécifique compense
     assert by(run(snap(), weak + [mandate("m2", "B", "procedure", "a1")]), "G3") is None
@@ -241,3 +242,13 @@ def test_registry_and_demands_are_the_only_inputs():
     a = detect(s, reg, demands_from_snapshot(s), [])
     b = detect(s, reg, demands_from_snapshot(s), [])
     assert [(c.fingerprint, c.evidence_basis) for c in a] == [(c.fingerprint, c.evidence_basis) for c in b]
+
+
+def test_gap_without_action_is_titled_by_inject_and_institutions_never_question_mark():
+    from app.gaps.detection import _Ctx
+    snap = {"scenario": {"language": "fr", "injects": [{"inject_ref": "inj-001", "title": "Crue à Maroua"}]},
+            "institutions": [{"id": "I1", "code": "MAIRIE"}], "actions": [], "seats": []}
+    ctx = _Ctx(snap, None, [], [])  # type: ignore[arg-type]
+    assert ctx.label(None, "inj-001", ["I1"]) == "Crue à Maroua — MAIRIE"
+    assert ctx.label(None) == "action non précisée"
+    assert "?" not in ctx.label(None, "inj-404")

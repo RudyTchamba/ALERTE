@@ -9,16 +9,18 @@ export function applyTheme(t: Theme) {
   else el.setAttribute('data-theme', t)
 }
 
-export function initTheme() {
+/** Thème enregistré ; à défaut, sombre (ambiance « centre de crise »). « system » suit le système d'exploitation. */
+function storedTheme(): Theme {
   const s = localGet('alerte.theme')
-  applyTheme(s === 'light' || s === 'dark' ? s : 'system')
+  return s === 'light' || s === 'dark' || s === 'system' ? s : 'dark'
+}
+
+export function initTheme() {
+  applyTheme(storedTheme())
 }
 
 export function useTheme(): [Theme, (t: Theme) => void] {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const s = localGet('alerte.theme')
-    return s === 'light' || s === 'dark' ? s : 'system'
-  })
+  const [theme, setTheme] = useState<Theme>(storedTheme)
   const set = useCallback((t: Theme) => {
     localSet('alerte.theme', t)
     applyTheme(t)

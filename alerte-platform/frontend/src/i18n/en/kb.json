@@ -25,5 +25,8 @@
     "inc": { "originals": "Original files", "embeddings": "Embeddings", "mandates": "Mandates", "references": "References" } },
   "backToKb": "Back to the knowledge base", "retire": "Retire document", "retireConfirm": "Retire “{{title}}”? It is refused if an exercise or a published version references it.",
   "metadata": "Metadata", "currentVersion": "Current version", "file": "File", "size": "Size", "extraction": "Extraction", "newVersion": "Upload a new version", "ingesting": "Ingesting", "pagesToReview": "Pages to re-read", "pagesToReviewHint": "These pages have low extraction quality (scan, OCR). Check them against the original.", "page": "Page",
-  "versionHistory": "Version history", "note": "Note", "preview": "Page preview", "pageOf": "Page {{page}} of {{total}}", "noChunks": "No chunk yet", "article": "Article", "text": "Text"
+  "versionHistory": "Version history", "note": "Note", "preview": "Page preview", "pageOf": "Page {{page}} of {{total}}", "noChunks": "No chunk yet", "article": "Article", "text": "Text",
+  "signedHere": "Signed by this instance (Ed25519)",
+  "signedOther": "Ed25519-signed by another instance (key {{key}})",
+  "unsigned": "Unsigned archive: provenance not attested"
 }

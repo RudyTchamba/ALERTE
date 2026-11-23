@@ -69,10 +69,11 @@ function AuditView({ ex }: { ex: Exercise }) {
               {v && (v.ok ? <Badge tone="ok">{t('audit.intact', { n: v.checked })}</Badge> : <Badge tone="danger">{v.first_bad_seq !== null ? t('audit.firstAltered', { n: v.first_bad_seq }) : t('audit.notIntact')}</Badge>)}
               {v?.anchor_mismatch && <> <Badge tone="danger">{t('audit.anchorMismatch')}</Badge></>}
               {v?.truncated_after_anchor && <> <Badge tone="danger">{t('audit.truncated')}</Badge></>}
+              {v && (v.signatures_checked ?? 0) > 0 && <> <Badge tone={v.signatures_ok ? 'ok' : 'danger'}>{v.signatures_ok ? t('audit.signaturesOk', { n: v.signatures_checked }) : t('audit.signaturesBad')}</Badge></>}
               {v && !v.ok && v.reason && <p className="text-sm text-danger">{v.reason}</p>}
             </div>
           </div>
-          {v && <p className="mt-2 text-xs text-muted">{t('audit.head')}: #{v.head_seq ?? '—'} <Mono>{(v.head_hash ?? '').slice(0, 24)}</Mono></p>}
+          {v && <p className="mt-2 text-xs text-muted">{t('audit.head')}: #{v.head_seq ?? '—'} <Mono>{(v.head_hash ?? '').slice(0, 24)}</Mono>{v.signature_key_id && <> · {t('audit.signedBy')} <Mono>{v.signature_key_id}</Mono> (<a href="/api/v1/ledger/public-key" target="_blank" rel="noreferrer">{t('audit.publicKey')}</a>)</>}</p>}
           <p className="mt-3 text-xs text-muted">{t('audit.honest')}</p>
           <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 text-xs">
             <dt className="text-muted">{t('audit.replayDigest')}</dt><dd><Mono>{digest.data?.replay_digest ?? '—'}</Mono> ({digest.data?.events ?? 0} {t('audit.events')})</dd>
@@ -118,7 +119,7 @@ function AuditView({ ex }: { ex: Exercise }) {
           </>
         )}
       </Section>
-      <DecisionTraceDialog decision={traceDecision} events={events} onClose={() => setParams({})} />
+      <DecisionTraceDialog decision={traceDecision} events={events} onClose={() => setParams({})} exerciseId={ex.id} />
     </>
   )
 }

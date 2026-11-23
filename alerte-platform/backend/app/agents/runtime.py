@@ -5,6 +5,8 @@ messages postés, décision) que la simulation écrit dans SA transaction. L'ide
 jamais d'un paramètre du modèle."""
 from __future__ import annotations
 
+import json
+import re
 import threading
 import unicodedata
 from collections.abc import Callable, Iterator
@@ -23,8 +25,24 @@ from .providers import ProviderUnavailable, provider_for, request_bytes, sanitiz
 CLOSING = "For exercise purposes only; confirm with a qualified lawyer."
 FINAL_TOOLS = ("post", "decide")
 MAX_ROUNDS = 2
+SEARCH_K = 8  # résultats par recherche : assez pour atteindre la loi derrière les documents généraux
 DEFAULT_LIMITS = {"max_steps": 4, "max_search_calls": 3, "max_legal_calls": 2}
 
+
+
+LANG_NAMES = {"fr": "French", "en": "English", "es": "Spanish", "pt": "Portuguese", "ar": "Arabic", "ru": "Russian",
+              "sw": "Swahili", "de": "German", "it": "Italian"}
+_CJK = re.compile(r"[぀-ヿ㐀-䶿一-鿿가-힯]")
+_CJK_LANGS = ("zh", "ja", "ko")
+
+
+def wrong_script(text: str, language: str | None) -> str | None:
+    """Un exercice dans une langue sans idéogrammes ne doit pas recevoir de texte chinois, japonais ou coréen
+    (dérive observée des petits modèles multilingues). Renvoie le motif de rejet, ou None."""
+    lang = (language or "").lower()[:2]
+    if not lang or lang in _CJK_LANGS or not _CJK.search(text or ""):
+        return None
+    return f"text must be written in {LANG_NAMES.get(lang, lang)} only (no Chinese, Japanese or Korean characters)"
 
 class _Outage(Exception):
     pass
@@ -151,6 +169,8 @@ class AgentRuntime:
         tools = list(run.ctx.agent.get("tools") or [])
         raw, pl = self._llm(run, base, schema, key, retried=False)
         act, err = env.parse_envelope(raw.text)
+        if act is not None and (bad := wrong_script(act.model_dump_json(), run.ctx.inject.get("language"))):
+            act, err = None, bad
         if act is not None and act.action in tools and act.action not in allowed:
             err = f"action '{act.action}' is not allowed now; allowed actions: {', '.join(allowed)}"
             kind = "cut"
@@ -165,6 +185,8 @@ class AgentRuntime:
                              LLMMessage("user", f"Your reply was rejected: {err}. Reply again with one valid JSON object.")]
         raw2, pl2 = self._llm(run, retry_msgs, schema, key + ":r", retried=True)
         act2, err2 = env.parse_envelope(raw2.text)
+        if act2 is not None and (bad2 := wrong_script(act2.model_dump_json(), run.ctx.inject.get("language"))):
+            act2, err2 = None, bad2
         if act2 is not None and act2.action in tools and act2.action not in allowed:
             err2, act2, kind = f"action '{act2.action}' is not allowed now", None, "cut"
         if act2 is None:
@@ -209,6 +231,22 @@ class AgentRuntime:
             {"chunk_id": r.chunk_id, "pass": r.passed, "reason": r.reason} for r in res]}, "audit")
         return res
 
+    @staticmethod
+    def _cite_hint(run: _Run, r: Any) -> str:
+        """Consigne de correction précise pour une citation refusée (valeurs attendues tirées des seuls blocs récupérés)."""
+        hit = run.retrieved.get(r.chunk_id)
+        if r.reason == "article_mismatch" and hit is not None:
+            art = hit.get("article")
+            return (f'chunk {r.chunk_id}: set "article" to ' + (f'"{art}"' if art else "null")
+                    + " (the article attribute of that retrieved_document).")
+        if r.reason in ("unknown_chunk", "not_in_retrieval_set", "out_of_scope"):
+            ids = ", ".join(run.retrieved) or "(none: call search_kb first)"
+            return f"chunk {r.chunk_id or '(empty)'}: not a retrieved chunk_id. Use one of: {ids}."
+        if r.reason in ("quote_not_in_chunk", "quote_too_short"):
+            return (f'chunk {r.chunk_id}: "quote" must be 20+ consecutive characters copied exactly from the text of '
+                    "that retrieved_document.")
+        return f"chunk {r.chunk_id}: {r.reason}."
+
     def _action_code_ok(self, run: _Run, code: str | None) -> bool:
         mandates = self._svc("mandates")
         if not code or mandates is None or not hasattr(mandates, "action_exists"):
@@ -230,9 +268,13 @@ class AgentRuntime:
         if any(not r.passed for r in res) and not run.cite_retry_used:
             run.cite_retry_used = True
             fails = "; ".join(f"{r.chunk_id}: {r.reason}" for r in res if not r.passed)
-            msgs = base + [LLMMessage("assistant", "(decision submitted)"),
-                           LLMMessage("user", f"Citation check failed: {fails}. Reply with a corrected decide action: cite only "
-                                              "chunks you retrieved, with exact quotes, or use outcome no_legal_basis_found.")]
+            hints = "\n".join(f"- {self._cite_hint(run, r)}" for r in res if not r.passed)
+            submitted = json.dumps({"action": "decide", "rationale": rationale, "decision": dec.model_dump()},
+                                   ensure_ascii=False)
+            msgs = base + [LLMMessage("assistant", submitted[:3000]),
+                           LLMMessage("user", f"Citation check failed: {fails}.\n{hints}\nReply with a corrected decide action: "
+                                              "cite only chunks you retrieved, with exact quotes, or use outcome "
+                                              "no_legal_basis_found.")]
             try:
                 raw, pl = self._llm(run, msgs, env.envelope_schema(["decide"]), key + ":c", retried=True)
             except _Outage:
@@ -270,7 +312,7 @@ class AgentRuntime:
             return
         run.searches += 1
         try:
-            hits = [_hit_dict(h) for h in self._svc("search").search(ctx.scope, q, k=5)]
+            hits = [_hit_dict(h) for h in self._svc("search").search(ctx.scope, q, k=SEARCH_K)]
         except Exception as exc:  # noqa: BLE001 - la recherche peut refuser (index incohérent…)
             run.error("search", clean(str(exc))[:300], "continue")
             run.notes.append("search_kb: search unavailable.")

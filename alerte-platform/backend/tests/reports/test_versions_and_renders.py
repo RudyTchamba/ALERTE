@@ -182,7 +182,7 @@ def test_pdf_uses_only_embedded_fonts():
     css = (pdf.RENDER_DIR / "print.css").read_text(encoding="utf-8")
     assert css.count("@font-face") == 5 and all(Path(pdf.RENDER_DIR / m).is_file() for m in
                                               __import__("re").findall(r'url\("([^"]+)"\)', css))
-    assert pdf.get_pdf_renderer().name == "weasyprint" and pdf.Xhtml2PdfRenderer().name == "xhtml2pdf"
+    assert pdf.get_pdf_renderer().name == "weasyprint" and pdf.BasicPdfRenderer().available()
     assert pdf.is_rtl("مرحبا بالعالم") and not pdf.is_rtl("Hello مرحبا world and more latin") and not pdf.is_rtl("")
 
 

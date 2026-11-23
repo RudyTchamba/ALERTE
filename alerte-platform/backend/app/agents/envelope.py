@@ -99,13 +99,13 @@ def envelope_schema(allowed: list[str]) -> dict[str, Any]:
         "outcome": {"type": "string", "enum": ["act", "decline", "refer", "no_legal_basis_found"]},
         "legal_basis": {"type": "array", "items": {"type": "object", "properties": {
             "chunk_id": {"type": "string"}, "article": {"type": ["string", "null"]}, "quote": {"type": "string"}},
-            "required": ["chunk_id", "quote"]}},
+            "required": ["chunk_id", "article", "quote"]}},
         "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
         "options_considered": {"type": "array", "items": {"type": "string"}},
         "gap_flags": {"type": "array", "items": {"type": "object", "properties": {
             "hint": {"type": ["string", "null"]}, "text": {"type": "string"}}}},
         "evidence_tag": {"type": "string", "enum": ["documented", "inferred", "assumed"]}},
-        "required": ["action", "outcome", "confidence", "evidence_tag"]}
+        "required": ["action", "outcome", "legal_basis", "confidence", "evidence_tag"]}
     return {"title": "AlerteActionEnvelope", "type": "object", "properties": {
         "action": {"type": "string", "enum": list(allowed)},
         "rationale": {"type": "string", "maxLength": MAX_RATIONALE},

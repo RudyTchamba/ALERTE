@@ -42,6 +42,9 @@ class VerifyOut(BaseModel):
     truncated_after_anchor: bool
     head_seq: int | None
     head_hash: str | None
+    signatures_checked: int = 0
+    signatures_ok: bool | None = None
+    signature_key_id: str | None = None
 
 
 def allowed_visibilities(p: Principal) -> set[str]:
@@ -87,7 +90,48 @@ def list_anchors(exercise_id: str, p: Principal = Depends(require_role("facilita
     guard_exercise(ctx, session, p, exercise_id)
     rows = session.scalars(select(LedgerAnchor).where(LedgerAnchor.exercise_id == exercise_id)
                            .order_by(LedgerAnchor.seq))
-    return [{"seq": a.seq, "hash": a.hash, "kind": a.kind, "created_at": a.created_at.isoformat()} for a in rows]
+    return [{"seq": a.seq, "hash": a.hash, "kind": a.kind, "signature": a.signature,
+             "created_at": a.created_at.isoformat()} for a in rows]
+
+
+@router.get("/ledger/public-key", tags=["audit"])
+def public_key(ctx: AppContext = Depends(get_ctx)):
+    """Clé publique Ed25519 de l'instance (PUBLIQUE, sans jeton) : vérification externe des ancres signées.
+    Message signé : `ALERTE-ANCHOR-v1|<exercise_id>|<seq>|<hash>` ; signature en base64."""
+    signer = getattr(ctx.service("ledger"), "signer", None)
+    if signer is None:
+        raise NotFound("aucune clé de signature configurée")
+    return {"algorithm": "Ed25519", "key_id": signer.key_id(), "public_key_pem": signer.public_pem(),
+            "message_format": "ALERTE-ANCHOR-v1|<exercise_id>|<seq>|<hash>"}
+
+
+@router.get("/exercises/{exercise_id}/llm-calls/{seq}", tags=["audit"])
+def llm_call_detail(exercise_id: str, seq: int, p: Principal = Depends(require_role("facilitator", "auditor")),
+                    session: Session = Depends(get_session), ctx: AppContext = Depends(get_ctx)):
+    """Prompt et réponse BRUTS d'un appel au modèle (blobs adressés par contenu), avec contrôle d'intégrité.
+    Accès borné à l'exercice et aux rôles d'audit : jamais un blob arbitraire par son empreinte."""
+    guard_exercise(ctx, session, p, exercise_id)
+    ev = session.scalar(select(LedgerEvent).where(LedgerEvent.exercise_id == exercise_id, LedgerEvent.seq == seq,
+                                                  LedgerEvent.type == "LLM_CALL"))
+    if ev is None:
+        raise NotFound("appel au modèle introuvable")
+    out: dict[str, Any] = {"seq": ev.seq, "meta": {k: v for k, v in (ev.payload or {}).items()
+                                                   if not k.endswith("_blob_sha256")}}
+    import hashlib
+    for part in ("request", "response"):
+        sha = (ev.payload or {}).get(f"{part}_blob_sha256")
+        item: dict[str, Any] = {"sha256": sha, "available": False, "intact": None, "content": None}
+        if sha:
+            try:
+                path = ctx.blobs.path_for(sha)
+                if path.is_file():
+                    data = path.read_bytes()
+                    item.update(available=True, intact=hashlib.sha256(data).hexdigest() == sha,
+                                content=data[:200_000].decode("utf-8", errors="replace"))
+            except ValueError:
+                pass
+        out[part] = item
+    return out
 
 
 @router.get("/exercises/{exercise_id}/replay-digest", tags=["audit"])

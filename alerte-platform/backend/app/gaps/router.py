@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ..core.auth import Principal, require_role
 from ..core.context import AppContext, get_ctx, get_session
 from ..core.errors import NotFound
-from . import service
+from . import reform, service
 from .schemas import (
     GapDetail,
     GapOut,
@@ -137,3 +137,35 @@ def detect_gaps(exercise_id: str, p: Principal = Depends(Facilitator), session: 
     if snapshot.get("workspace_id") != p.workspace_id:
         raise NotFound("exercice introuvable")
     return engine.run(session, exercise_id, final=True)
+
+
+# --- projets de texte vérifiables ------------------------------------------------------------------
+@router.post("/gaps/{gap_id}/reform-drafts", status_code=201, tags=["gaps"])
+def create_reform_draft(gap_id: str, p: Principal = Depends(Facilitator), session: Session = Depends(get_session),
+                        ctx: AppContext = Depends(get_ctx)):
+    """L'IA rédige un article qui comble la lacune ; citations vérifiées ; ancré dans le registre (empreinte SHA-256)."""
+    g = service.get_gap(session, p.workspace_id, gap_id, p.role)
+    _guard(ctx, session, p, g.exercise_id)
+    return reform.draft_out(reform.generate(ctx, session, p.workspace_id, gap_id, p.role))
+
+
+@router.get("/gaps/{gap_id}/reform-drafts", tags=["gaps"])
+def list_reform_drafts(gap_id: str, p: Principal = Depends(Read), session: Session = Depends(get_session),
+                       ctx: AppContext = Depends(get_ctx)):
+    from sqlalchemy import select
+
+    from .models import ReformDraft
+    g = service.get_gap(session, p.workspace_id, gap_id, p.role)
+    _guard(ctx, session, p, g.exercise_id)
+    rows = session.scalars(select(ReformDraft).where(ReformDraft.workspace_id == p.workspace_id, ReformDraft.gap_id == g.id)
+                           .order_by(ReformDraft.created_at.desc()))
+    return [reform.draft_out(d) for d in rows]
+
+
+@router.get("/verify/reform/{sha256}", tags=["gaps"])
+def verify_reform_draft(sha256: str, session: Session = Depends(get_session), ctx: AppContext = Depends(get_ctx)):
+    """PUBLIC (sans jeton) : qui détient le document imprimé (donc son empreinte) peut vérifier son authenticité,
+    son intégrité et celle du registre de l'exercice. Rien d'autre n'est exposé."""
+    if len(sha256) != 64 or any(c not in "0123456789abcdef" for c in sha256):
+        raise NotFound("empreinte inconnue")
+    return reform.verify(ctx, session, sha256)

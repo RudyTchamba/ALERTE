@@ -2,6 +2,17 @@
   "title": "Évaluation et scorecard", "description": "Qualité mesurée d'un exercice (T1-T6) et scorecard AI Readiness en 13 dimensions. Une mesure qui ne peut pas être calculée est affichée « non calculée », jamais comme zéro.", "pick": "Choisissez un exercice pour voir ses mesures.",
   "metrics": "Mesures T1 à T6", "metric": "Mesure", "threshold": "Cible", "value": "Valeur", "source": "Source / détail", "met": "Cible atteinte", "notMet": "Cible non atteinte", "noVerdict": "Pas de verdict", "run": "Calculer", "rerun": "Recalculer", "ran": "Mesure calculée",
   "params": "Paramètres de certaines mesures", "t1Kb": "T1 : base de connaissances testée", "t3Scenario": "T3 : scénario (fixtures scellées)", "t5Clones": "T5 : identifiants d'exercices clonés (séparés par des virgules)",
-  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Les critères sont renseignés à partir des documents et du déroulé, indépendamment de la liste des lacunes. Une dimension sans critère évalué est « non évaluée » : ce n'est pas un score de 0.", "llmJudge": "Évaluation par LLM (P1)", "overall": "Global {{score}} / 5 (dimensions évaluées uniquement)", "assessedN": "{{n}} dimensions évaluées sur {{total}}", "dimension": "Dimension", "score": "Score", "criteria": "Critères", "criteriaN": "{{n}} critères", "reviewedBy": "Relu par", "saveAnswers": "Enregistrer {{n}} réponse(s)",
-  "answers": { "yes": "Oui", "partial": "Partiel", "no": "Non", "not_assessed": "Non évalué" }, "radarLabel": "Diagramme radar des dimensions du scorecard"
+  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Les critères sont renseignés à partir des documents et du déroulé, indépendamment de la liste des lacunes. Une dimension sans critère évalué est « non évaluée » : ce n'est pas un score de 0.", "llmJudge": "Évaluation par l'IA", "overall": "Global {{score}} / 5 (dimensions évaluées uniquement)", "assessedN": "{{n}} dimensions évaluées sur {{total}}", "dimension": "Dimension", "score": "Score", "criteria": "Critères", "criteriaN": "{{n}} critères", "reviewedBy": "Relu par", "saveAnswers": "Enregistrer {{n}} réponse(s)",
+  "answers": { "yes": "Oui", "partial": "Partiel", "no": "Non", "not_assessed": "Non évalué" }, "radarLabel": "Diagramme radar des dimensions du scorecard",
+  "judgeHint": "Le juge IA propose une réponse par critère à partir des faits de l'exercice (événements du registre, documents), jamais des lacunes. Chaque réponse doit citer ses preuves, sinon elle reste « non évaluée ». Vos propres réponses ne sont jamais écrasées.",
+  "judgeRunning": "Évaluation par l'IA",
+  "judgeDone": "Évaluation par l'IA terminée : réponses à relire.",
+  "judgeFailed": "Évaluation par l'IA impossible :",
+  "toReview": "{{n}} réponse(s) proposée(s) par l'IA à relire.",
+  "toReviewHint": "Vérifiez-les dans le tableau, corrigez si besoin, puis validez avec votre nom.",
+  "validateAll": "Valider {{n}} réponse(s)",
+  "aiToReview": "IA — à relire",
+  "aiReviewed": "IA — validé par {{who}}",
+  "manualNote": "saisie manuelle",
+  "dims": {"data_marketplace": "Place de marché données/modèles", "generated_content": "Contenus générés", "cross_domain": "Corrélation intersectorielle", "contextualization": "Contextualisation régionale", "ai_integration": "IA dans les processus", "human_interface": "Interface humaine", "strategy_alignment": "Alignement stratégique", "collaboration": "Collaboration avec l'IA", "human_impact": "Impact humain", "ai_policies": "IA et politiques", "ai_inclusion": "IA pour l'inclusion", "granular_priorities": "Priorités ciblées", "digital_infrastructure": "Infrastructure numérique"}
 }

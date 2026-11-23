@@ -41,6 +41,7 @@ class KnowledgeRuntime:
                  country_lookup: Callable[[Session, str, str], Any] | None = None) -> None:
         self.settings, self.factory, self.blobs, self.jobs, self.embedder = settings, factory, blobs, jobs, embedder
         self.country_lookup = country_lookup
+        self.signer: Any = None  # AnchorSigner (Ed25519), posé par setup
         self._vector_factory = vector_factory
         self._vectors: dict[str, VectorIndex] = {}
         self._vlock = threading.Lock()

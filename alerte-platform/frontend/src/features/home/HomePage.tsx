@@ -1,14 +1,19 @@
+import type { ComponentType, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ArrowRight, BellOff, BellRing, BookOpenText, Bot, CheckCircle2, Circle, Clock, Flag, Landmark, MonitorPlay, Radio, SearchCheck, ShieldAlert, Workflow } from 'lucide-react'
 import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
-import type { Exercise, Ready } from '@/api/loose'
+import type { Exercise, PublicAlerts, Ready } from '@/api/loose'
+import type { Gap } from '@/api/types'
 import { useAuth } from '@/app/auth'
 import { CheckCircle2, Circle } from 'lucide-react'
 import { PHASES, STEPS, stepsOf } from '@/app/journey'
 import { Badge, Card, EmptyState, InfoTip, PageHeader, QueryState, Section, StatusBadge, Table, TBody, Td, Th, THead, Tr } from '@/components/ui'
 import { fmtDateTime } from '@/lib/format'
 import { ApiError } from '@/api/client'
+import { FlowDemo } from './FlowDemo'
+import { humanDelay } from '@/features/citizen/siren'
 
 export function exercisePath(e: Pick<Exercise, 'id' | 'state'>): string {
   return ['running', 'paused', 'interrupted', 'completed', 'stopped', 'archived'].includes(e.state) ? `/room/${e.id}` : `/studio/exercises/${e.id}`
@@ -91,15 +96,60 @@ function ProviderStatus() {
   const { t } = useTranslation()
   const q = useApiQuery<Ready>(keys.ready, '/ready')
   // /ready answers 503 with a body when a check fails: the client reports it as an error; we show it as such.
-  if (q.isPending) return <Badge tone="neutral">{t('home.checking')}</Badge>
-  if (q.isError) {
+  let body: ReactNode
+  if (q.isPending) body = <Badge tone="neutral">{t('home.checking')}</Badge>
+  else if (q.isError) {
     const e = q.error
-    return <Badge tone="danger">{e instanceof ApiError && e.status === 503 ? t('home.notReady') : t('home.unreachable')}</Badge>
+    body = <Badge tone="danger">{e instanceof ApiError && e.status === 503 ? t('home.notReady') : t('home.unreachable')}</Badge>
+  } else {
+    const embedder = (q.data.checks.knowledge as { embedder?: { configured?: boolean } } | undefined)?.embedder
+    body = (
+      <ul className="flex flex-col gap-2 text-sm">
+        {Object.entries(q.data.checks).map(([k, v]) => (
+          <li key={k} className="flex items-center justify-between gap-2">
+            <span>{t(`home.checks.${k}`, k)}</span>
+            <Badge tone={v.ok === false ? 'danger' : 'ok'}>{v.ok === false ? t('home.down') : t('home.up')}</Badge>
+          </li>
+        ))}
+        {embedder && (
+          <li className="flex items-center justify-between gap-2 border-t border-line pt-2">
+            <span>{embedder.configured ? t('home.checks.hybrid') : t('home.checks.lexical')}</span>
+            <Badge tone={embedder.configured ? 'ok' : 'warn'}>{embedder.configured ? t('home.up') : t('home.down')}</Badge>
+          </li>
+        )}
+      </ul>
+    )
   }
   return (
-    <ul className="flex flex-wrap gap-2">
-      {Object.entries(q.data.checks).map(([k, v]) => <li key={k}><Badge tone={v.ok === false ? 'danger' : 'ok'}>{k}: {v.ok === false ? t('home.down') : t('home.up')}</Badge></li>)}
-    </ul>
+    <section aria-labelledby="sys-title" className="panel p-5">
+      <h2 id="sys-title" className="mb-3 text-lg font-bold">{t('home.system')}</h2>
+      {body}
+    </section>
+  )
+}
+
+/* ---------- Derniers exercices ---------- */
+const STATE_ACCENT: Record<string, string> = { running: 'border-l-ok', paused: 'border-l-warn', completed: 'border-l-info', stopped: 'border-l-muted', interrupted: 'border-l-danger', ready: 'border-l-brand' }
+function ExerciseCard({ e }: { e: Exercise }) {
+  const { t } = useTranslation()
+  const live = ['running', 'paused'].includes(e.state)
+  return (
+    <li>
+      <Link to={exercisePath(e)} className={cn('panel group flex h-full flex-col gap-2 border-l-4 p-4 text-ink no-underline transition-colors hover:border-brand', STATE_ACCENT[e.state] ?? 'border-l-line')}>
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono text-sm font-semibold text-muted">{e.code}</span>
+          <span className="flex items-center gap-1.5">
+            {live && <span className="live-dot is-live text-ok" aria-hidden />}
+            <StatusBadge status={e.state} /><AiModeBadge mode={e.ai_mode} />
+          </span>
+        </div>
+        <p className="line-clamp-2 font-semibold group-hover:text-brand">{e.title}</p>
+        <p className="mt-auto flex items-center justify-between text-sm text-muted">
+          <span>{fmtDateTime(e.started_at)}</span>
+          <span className="inline-flex items-center gap-1 font-semibold text-brand">{t('home.open')}<ArrowRight className="h-3.5 w-3.5" aria-hidden /></span>
+        </p>
+      </Link>
+    </li>
   )
 }
 
@@ -107,6 +157,8 @@ export function HomePage() {
   const { t } = useTranslation()
   const { workspace } = useAuth()
   const q = useApiQuery<Exercise[]>(keys.exercises(), '/exercises')
+  const sorted = [...(q.data ?? [])].sort(byRecent)
+  const latestPlayed = sorted.find((e) => e.state !== 'draft' && e.state !== 'ready')
   return (
     <>
       <PageHeader title={t('home.title', { name: workspace?.name ?? '' })} description={t('home.description')} />

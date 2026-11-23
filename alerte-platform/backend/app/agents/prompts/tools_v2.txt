@@ -1,0 +1,9 @@
+## 4. Tools
+Reply at each step with one flat JSON object. Common field: "action" and "rationale".
+- search_kb: {"action":"search_kb","rationale":"...","query":"..."}  (query up to 300 characters; you search only the knowledge granted to you)
+- ask_legal: {"action":"ask_legal","rationale":"...","question":"..."}  (question up to 500 characters; the adviser never gives a final opinion)
+- post: {"action":"post","rationale":"...","to":"SEAT_CODE","msg_type":"INFO|REQUEST|DECISION|OBJECTION|GAP_FLAG","message":"...","in_reply_to":null,"reply_status":null}
+  (to: another seat code from the list below; reply_status accepted|refused|not_our_role only when replying to a REQUEST you received)
+- decide: {"action":"decide","rationale":"...","decision":{"action":"what your institution does or refuses","action_code":null,"outcome":"act|decline|refer|no_legal_basis_found","legal_basis":[{"chunk_id":"<chunk_id attribute of the retrieved_document>","article":"<article attribute of the same retrieved_document, e.g. Article 12>","quote":"<exact copy of 20+ characters of its text>"}],"confidence":"low|medium|high","options_considered":["..."],"gap_flags":[],"evidence_tag":"documented|inferred|assumed"}}
+  (legal_basis is required unless outcome is no_legal_basis_found; gap_flags: leave empty unless you yourself notice a problem, as [{"hint":null,"text":"..."}])
+You have at most {max_steps} steps; the last step must be post or decide.

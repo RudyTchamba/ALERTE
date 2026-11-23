@@ -175,7 +175,8 @@ describe('Simulation Room', () => {
     es.emit(4, 'DECISION', { decision_id: 'D1', seat_code: 'MET', action: 'Refer to DPC', outcome: 'refer', status: 'not_verified', confidence: 'low', legal_basis: [{ chunk_id: 'CH1', article: '33', quote: 'q', check: 'fail', reason: 'quote_not_in_chunk' }] }, { actor: 'seat:MET', seat: 'MET' })
     es.emit(5, 'GAP', { signal: 'ORPHAN_REQUEST', origin_kind: 'coordinator_signal', inject_ref: 'inj-1' }, { visibility: 'audit' })
     es.emit(6, 'HUMAN', { kind: 'task_opened', seat: 'DPC' }, { seat: 'DPC', visibility: 'seat' })
-    expect(await screen.findByText(/River rising/)).toBeInTheDocument()
+    // Le titre apparaît aussi dans le narrateur de la vue Flux : on cible la ligne de la chronologie.
+    expect(await screen.findByText(/D1 07:10 — River rising/)).toBeInTheDocument()
     expect(screen.getByText(/D1 07:10 — River rising/)).toBeInTheDocument()
     expect(screen.getByText('D1 06:00')).toBeInTheDocument() // header clock = sim_time of the latest event
     expect(await screen.findByText('Please evacuate zone B')).toBeInTheDocument()
@@ -231,6 +232,26 @@ describe('Player seat', () => {
     await user.click(screen.getByRole('button', { name: /submit decision/i }))
     const err = await screen.findByText(/the quote is not in the chunk text/i)
     expect(err.closest('[role=alert]')).toHaveTextContent('CH9')
+  })
+
+  it('blocks a decision without legal basis and explains how to fix it (cite, or declare no legal basis)', async () => {
+    window.history.replaceState(null, '', '/play#t=seat-token-abc')
+    const user = userEvent.setup()
+    const card = { exercise: { id: ID('E1'), code: 'EX1', title: 'Flood run', state: 'running', ai_mode: 'ai' }, seat: { code: 'DPC', human_name: 'Marie', controller: 'human' }, institution: { id: ID('N2'), code: 'DPC', name: 'Civil protection', kind: 'agency' }, role: { mission: 'Protect people', instructions: null, tools: ['search_kb'], limits: null }, mandates: [], knowledge_bases: [{ kb_id: ID('K1'), code: 'KB', name: 'National' }], seat_codes: ['MET'] }
+    mockFetch({
+      'GET /seats/me': card,
+      'GET /seats/me/task': { exercise_state: 'running', task: { id: 't1', status: 'pending', round: 1, inject_ref: 'inj-1', deadline_at: iso, fallback: 'agent_takeover', inject: { inject_ref: 'inj-1', sim_time: 'D1 07:10', title: 'River rising', body: 'Water level 5 m', from_actor: 'MET', tags: [] }, inbox: [], board: [], own_decisions: [], staged_posts: [], usage: {}, limits: {} } },
+      'POST /exercises/:id/stream-token': { body: { stream_token: 'st', expires_in: 60 } },
+    })
+    vi.stubGlobal('EventSource', FakeEventSource)
+    renderPage(<PlayerPage />, { token: null, route: '/play', path: '/play' })
+    await screen.findByText(/It is your turn/)
+    await user.type(screen.getByLabelText(/action taken or refused/i), 'Evacuate')
+    await user.type(screen.getByLabelText(/public rationale/i), 'Because')
+    expect(screen.getByRole('button', { name: /submit decision/i })).toBeDisabled()
+    expect(screen.getByText(/at least one citation is required/i)).toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText(/^outcome$/i), 'no_legal_basis_found')
+    expect(screen.getByRole('button', { name: /submit decision/i })).toBeEnabled()
   })
 
   it('shows an invalid-link message when there is no token', async () => {

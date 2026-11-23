@@ -18,16 +18,13 @@ interface AuthState {
 }
 const Ctx = createContext<AuthState | null>(null)
 
-/**
- * TODO(api): `GET /workspaces/current` does not tell the caller's role. We probe `GET /tokens` (owner-only):
- * 200 -> owner, 403 -> "member". Ask the backend to expose the role (e.g. `role` in WorkspaceOut or `GET /auth/me`).
- */
+/** Rôle réel du jeton, donné par le backend (`GET /auth/me`). */
 async function detectRole(): Promise<string> {
   try {
-    await api.get('/tokens', { noAuthRedirect: true })
-    return 'owner'
+    const me = await api.get<{ role: string }>('/auth/me', { noAuthRedirect: true })
+    return me.role
   } catch (e) {
-    if (e instanceof ApiError && (e.status === 403 || e.status === 401)) return 'member'
+    if (e instanceof ApiError && e.status === 401) return 'member'
     return session.getRole() ?? 'member'
   }
 }

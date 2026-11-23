@@ -12,6 +12,7 @@ import type { Agent, Institution, ModelProfile } from '@/api/types'
 import type { PromptPreview, ProfileTest } from '@/api/loose'
 import { Badge, Button, Checkbox, Dialog, EmptyState, Field, Input, Mono, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
+import { PromptView } from './PromptView'
 
 const TOOLS = ['search_kb', 'ask_legal', 'post', 'decide'] as const
 const ROLE_KINDS = ['institution', 'ai_system', 'legal_adviser'] as const
@@ -131,14 +132,27 @@ function AgentDialog({ agent, institutions, profiles, onClose }: { agent: Agent 
 function PromptDialog({ agent, onClose }: { agent: Agent; onClose: () => void }) {
   const { t } = useTranslation()
   const q = useApiQuery<PromptPreview>(keys.promptPreview(agent.id), `/agents/${agent.id}/prompt-preview`)
+  const [mode, setMode] = useState<'formatted' | 'raw'>('formatted')
+  const [copied, setCopied] = useState(false)
   return (
     <Dialog open wide onClose={onClose} title={`${t('agents.promptPreview')} — ${agent.code}`}>
-      <p className="mb-2 text-sm text-muted">{t('agents.promptHint')}</p>
+      <p className="mb-3 text-sm text-muted">{t('agents.promptHint')}</p>
       <QueryState q={q} what="(/prompt-preview)">
         {(p) => (
           <>
-            <p className="mb-2 flex flex-wrap gap-2 text-xs"><Badge tone="info">v {p.version}</Badge><Badge tone="info">≈ {p.approx_tokens} tokens</Badge><Badge tone={p.mandates_included ? 'ok' : 'warn'}>{t('agents.mandatesIncluded', { n: p.mandates_included })}</Badge><Badge tone="info">{t('agents.grantedKbs', { n: p.granted_kb_ids.length })}</Badge></p>
-            <pre className="max-h-[50vh] overflow-auto rounded bg-surface2 p-3 text-xs whitespace-pre-wrap">{p.system_prompt}</pre>
+            <p className="mb-3 flex flex-wrap gap-2 text-sm"><Badge tone="info">v {p.version}</Badge><Badge tone="info">≈ {p.approx_tokens} tokens</Badge><Badge tone={p.mandates_included ? 'ok' : 'warn'}>{t('agents.mandatesIncluded', { n: p.mandates_included })}</Badge><Badge tone="info">{t('agents.grantedKbs', { n: p.granted_kb_ids.length })}</Badge></p>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <div role="group" aria-label={t('agents.promptView')} className="inline-flex rounded-lg border border-line p-0.5">
+                {(['formatted', 'raw'] as const).map((m) => (
+                  <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}
+                    className={`rounded-md px-3 py-1 text-sm font-semibold ${mode === m ? 'bg-brand text-brandfg' : 'text-muted hover:text-ink'}`}>{t(`agents.promptMode.${m}`)}</button>
+                ))}
+              </div>
+              <Button size="sm" onClick={() => { void navigator.clipboard?.writeText(p.system_prompt); setCopied(true) }}>{copied ? t('common.copied') : t('common.copy')}</Button>
+            </div>
+            {mode === 'formatted'
+              ? <PromptView text={p.system_prompt} />
+              : <pre className="overflow-x-auto rounded-lg border border-line bg-bg p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap text-ink">{p.system_prompt}</pre>}
           </>
         )}
       </QueryState>

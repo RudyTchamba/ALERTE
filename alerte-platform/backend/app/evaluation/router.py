@@ -126,7 +126,21 @@ def put_scorecard(exercise_id: str, body: ScorecardPut, p: Principal = Depends(W
                                    body.reviewed_by, p.label or p.token_id)
 
 
-@router.post("/scorecard/exercises/{exercise_id}/assess", tags=["evaluation"])
-def assess_llm(exercise_id: str, p: Principal = Depends(Write)):
-    raise AppError("évaluation par juge LLM non disponible (phase P1) : saisie manuelle uniquement",
-                   status_code=501, code="scorecard.llm_judge_unavailable")
+@router.post("/scorecard/exercises/{exercise_id}/assess", status_code=202, tags=["evaluation"])
+def assess_llm(exercise_id: str, p: Principal = Depends(Write), session: Session = Depends(get_session),
+               ctx: AppContext = Depends(get_ctx)):
+    """Juge IA (tâche de fond) : propose une réponse par critère, preuves contrôlées, « à relire » par un humain.
+    Les réponses saisies par un humain ne sont jamais écrasées ; les lacunes ne sont jamais lues (indépendance)."""
+    guard(ctx, session, p, exercise_id)
+    if ctx.services.get("agents") is None:
+        raise AppError("module agents indisponible", status_code=503, code="scorecard.llm_judge_unavailable")
+    ws = p.workspace_id
+
+    def job(jc: Any) -> dict[str, Any]:
+        from . import judge
+        with jc.session() as s:
+            events = service.read_events(s, exercise_id)
+            return judge.run(ctx, s, ws, exercise_id, events, progress=jc.update)
+
+    jid = ctx.jobs.submit("scorecard.assess", job, workspace_id=ws, payload={"exercise_id": exercise_id})
+    return {"job": {"id": jid, "status": "queued"}, "job_id": jid}

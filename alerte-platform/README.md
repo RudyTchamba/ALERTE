@@ -1,5 +1,7 @@
 # ALERTE Platform
 
+> **Competition README (EN):** [../README.md](../README.md)
+
 Plateforme **générique** de simulation d'exercices de crise multi-agents. Des agents IA (ou des humains) jouent les **institutions réelles** d'un pays, chacune
 bornée par ses **mandats** et par les **documents** auxquels elle a légitimement accès. Les **lacunes institutionnelles** (responsabilité orpheline,
 chevauchement de mandats, procédure absente, absence de supervision humaine de l'IA…) **émergent** des documents, du registre de mandats, des événements
@@ -168,7 +170,7 @@ Deux terminaux distincts.
 ```bash
 cd alerte-platform/backend
 source .venv/bin/activate            # Windows : .\.venv\Scripts\Activate.ps1
-python -m uvicorn app.main:app_factory --factory --reload --port 8000
+python -m uvicorn app.main:app_factory --factory --reload --timeout-graceful-shutdown 3 --port 8000
 ```
 
 Le premier démarrage crée `backend/data/` et applique les migrations (`schéma=alembic` dans le journal).
@@ -182,7 +184,7 @@ npm run dev
 ```
 
 **Arrêt propre** : `Ctrl+C` dans chaque terminal (uvicorn termine ses requêtes en cours ; les jobs actifs passent à `interrupted` et sont signalés au prochain démarrage).
-Option tout-en-un : `python3 scripts/dev.py` lance les deux et les arrête ensemble avec `Ctrl+C`.
+Option tout-en-un : `python3 scripts/dev.py` lance les deux et les arrête ensemble avec `Ctrl+C` ; ajoutez `--host` pour exposer le frontend sur le réseau local (téléphones des joueurs, QR code du mode présentation).
 
 Mode « un seul processus » : `cd frontend && npm run build`, puis le backend sert aussi l'interface sur `http://localhost:8000/`.
 
@@ -265,18 +267,18 @@ Mise à jour : 2026-11-23. Résultats mesurés : backend 517 tests collectés (s
 | Fonctionnalité | IMPL | FIX | RÉEL | Remarques |
 |---|:-:|:-:|:-:|---|
 | Espaces, jetons, rôles, pays, institutions | ✔ | ✔ | n/a | |
-| Ledger chaîné, vérification, ancres, export | ✔ | ✔ | n/a | *tamper-evident*, pas infalsifiable |
+| Ledger chaîné, vérification, ancres, export | ✔ | ✔ | n/a | ancres signées Ed25519, clé publique sur `GET /ledger/public-key` ; *tamper-evident*, pas infalsifiable |
 | Import de documents TXT/PDF/OCR, découpage, qualité | ✔ | ✔ | n/a | OCR `fra`/`ara` : dépend des données Tesseract installées |
 | Indexation lexicale FTS5 | ✔ | ✔ | n/a | |
 | **Embeddings BGE-M3 + recherche hybride** | ✔ | ✔ | **✔** | `pytest -m model` : 1 test réussi via Ollama (FR + AR) ; indexation réelle 5/5 chunks de la démo. LIM : corpus minuscule, qualité de classement non mesurée |
 | Périmètre de recherche strict (permissions) | ✔ | ✔ | n/a | tests de canaris, re-vérification SQL |
-| Export / import de KB | ✔ | ✔ | n/a | pas de signature Ed25519 (prévu) |
+| Export / import de KB | ✔ | ✔ | n/a | archives signées Ed25519 (`signature.json`), signature falsifiée refusée à l'import |
 | Mandats, actions, revue du registre | ✔ | ✔ | n/a | pas d'extraction de mandats par LLM |
 | Agents : boucle, outils, citations vérifiées | ✔ | ✔ | **partiel** | un run réel avec `qwen2.5:1.5b-instruct` (Ollama) : chemin fournisseur, outils et garde-fous exécutés pour de vrai ; **qualité du raisonnement non validée** (voir ci-dessous) |
 | Simulation, SSE, sièges humains, préparation | ✔ | ✔ | n/a | |
 | Détection de lacunes (règles G1–G10) | ✔ | ✔ | n/a | seuils de recherche négative non calibrés sur de vrais scores |
 | Rapports MD/JSON/CSV/XLSX/PDF, versions immuables | ✔ | ✔ | n/a | PDF : rendu vérifié (latin + arabe) |
-| Évaluation T1–T6, scorecard | ✔ | ✔ | — | évaluation automatique LLM du scorecard : **501** (non implémentée) |
+| Évaluation T1–T6, scorecard | ✔ | ✔ | **✔** | juge IA du scorecard (tâche de fond) : preuves contrôlées, jamais les lacunes, réponses « à relire » ; essai réel EX-019 (qwen2.5:7b) : 12 réponses fondées, 99 « non évalué » |
 | Migrations Alembic | ✔ | ✔ | n/a | testé sur venv vierge |
 | Frontend (20 routes) | ✔ | ✔ | n/a | contrôlé dans Chrome : aucune erreur console, axe sans violation, pas de débordement mobile sur les pages testées. Interface en anglais et français ; LIM : certains messages renvoyés par le backend restent en français |
 | **Chaîne complète via HTTP** (démo) | ✔ | ✔ | partiel | `scripts/seed_demo.py` : embeddings réels, agents `scripted` |

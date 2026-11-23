@@ -58,6 +58,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Whoami
+         * @description Identité du jeton appelant : rôle, espace, et portée éventuelle (exercice, siège). Aucun secret.
+         */
+        get: operations["whoami_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/current": {
         parameters: {
             query?: never;
@@ -262,6 +282,48 @@ export interface paths {
         };
         /** List Anchors */
         get: operations["list_anchors_api_v1_exercises__exercise_id__anchors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ledger/public-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Key
+         * @description Clé publique Ed25519 de l'instance (PUBLIQUE, sans jeton) : vérification externe des ancres signées.
+         *     Message signé : `ALERTE-ANCHOR-v1|<exercise_id>|<seq>|<hash>` ; signature en base64.
+         */
+        get: operations["public_key_api_v1_ledger_public_key_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exercises/{exercise_id}/llm-calls/{seq}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Llm Call Detail
+         * @description Prompt et réponse BRUTS d'un appel au modèle (blobs adressés par contenu), avec contrôle d'intégrité.
+         *     Accès borné à l'exercice et aux rôles d'audit : jamais un blob arbitraire par son empreinte.
+         */
+        get: operations["llm_call_detail_api_v1_exercises__exercise_id__llm_calls__seq__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1527,6 +1589,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises/{exercise_id}/public-alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Alerts
+         * @description Ce que reçoit la population : alertes diffusées (CAP 1.2, status=Exercise), bloquées, délai d'alerte.
+         */
+        get: operations["public_alerts_api_v1_exercises__exercise_id__public_alerts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises/{exercise_id}/inbox": {
         parameters: {
             query?: never;
@@ -1873,6 +1955,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/gaps/{gap_id}/reform-drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Reform Drafts */
+        get: operations["list_reform_drafts_api_v1_gaps__gap_id__reform_drafts_get"];
+        put?: never;
+        /**
+         * Create Reform Draft
+         * @description L'IA rédige un article qui comble la lacune ; citations vérifiées ; ancré dans le registre (empreinte SHA-256).
+         */
+        post: operations["create_reform_draft_api_v1_gaps__gap_id__reform_drafts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verify/reform/{sha256}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Reform Draft
+         * @description PUBLIC (sans jeton) : qui détient le document imprimé (donc son empreinte) peut vérifier son authenticité,
+         *     son intégrité et celle du registre de l'exercice. Rien d'autre n'est exposé.
+         */
+        get: operations["verify_reform_draft_api_v1_verify_reform__sha256__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/evaluation/exercises/{exercise_id}": {
         parameters: {
             query?: never;
@@ -2022,7 +2146,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Assess Llm */
+        /**
+         * Assess Llm
+         * @description Juge IA (tâche de fond) : propose une réponse par critère, preuves contrôlées, « à relire » par un humain.
+         *     Les réponses saisies par un humain ne sont jamais écrasées ; les lacunes ne sont jamais lues (indépendance).
+         */
         post: operations["assess_llm_api_v1_scorecard_exercises__exercise_id__assess_post"];
         delete?: never;
         options?: never;
@@ -4168,6 +4296,15 @@ export interface components {
             head_seq: number | null;
             /** Head Hash */
             head_hash: string | null;
+            /**
+             * Signatures Checked
+             * @default 0
+             */
+            signatures_checked?: number;
+            /** Signatures Ok */
+            signatures_ok?: boolean | null;
+            /** Signature Key Id */
+            signature_key_id?: string | null;
         };
         /** WorkspaceCreate */
         WorkspaceCreate: {
@@ -4288,6 +4425,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    whoami_api_v1_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -4880,6 +5039,58 @@ export interface operations {
             header?: never;
             path: {
                 exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_key_api_v1_ledger_public_key_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    llm_call_detail_api_v1_exercises__exercise_id__llm_calls__seq__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: string;
+                seq: number;
             };
             cookie?: never;
         };
@@ -8138,6 +8349,37 @@ export interface operations {
             };
         };
     };
+    public_alerts_api_v1_exercises__exercise_id__public_alerts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     inbox_api_v1_exercises__exercise_id__inbox_get: {
         parameters: {
             query?: {
@@ -8885,6 +9127,99 @@ export interface operations {
             };
         };
     };
+    list_reform_drafts_api_v1_gaps__gap_id__reform_drafts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_reform_draft_api_v1_gaps__gap_id__reform_drafts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_reform_draft_api_v1_verify_reform__sha256__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sha256: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_metrics_api_v1_evaluation_exercises__exercise_id__get: {
         parameters: {
             query?: never;
@@ -9287,7 +9622,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };

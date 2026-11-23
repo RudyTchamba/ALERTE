@@ -82,8 +82,9 @@ def chain_hash(prev_hash: str, canonical: bytes) -> str:
 class Ledger:
     """Écriture/lecture/vérification. Instancié avec le dossier des ancres (fichiers JSONL d'ajout seul)."""
 
-    def __init__(self, anchors_dir: Path | None = None) -> None:
+    def __init__(self, anchors_dir: Path | None = None, signer: Any = None) -> None:
         self.anchors_dir = Path(anchors_dir) if anchors_dir else None
+        self.signer = signer  # AnchorSigner (Ed25519) ou None
 
     # ------------------------------------------------------------------ écriture
     def append(self, session: Session, exercise_id: str, type: str, actor: str, payload: dict[str, Any], *,
@@ -121,12 +122,13 @@ class Ledger:
         if head is None:
             return None
         seq, h = head
-        anchor = LedgerAnchor(exercise_id=exercise_id, seq=seq, hash=h, kind=kind)
+        sig = self.signer.sign(exercise_id, seq, h) if self.signer else None
+        anchor = LedgerAnchor(exercise_id=exercise_id, seq=seq, hash=h, kind=kind, signature=sig)
         session.add(anchor)
         session.flush()
         if self.anchors_dir:
             self.anchors_dir.mkdir(parents=True, exist_ok=True)
-            line = json.dumps({"exercise_id": exercise_id, "seq": seq, "hash": h, "kind": kind,
+            line = json.dumps({"exercise_id": exercise_id, "seq": seq, "hash": h, "kind": kind, "signature": sig,
                                "at": _iso_now()}, ensure_ascii=False, sort_keys=True)
             with (self.anchors_dir / f"{exercise_id}.jsonl").open("a", encoding="utf-8", newline="\n") as fh:
                 fh.write(line + "\n")
@@ -149,7 +151,8 @@ class Ledger:
         """Renvoie {ok, checked, first_bad_seq, reason, anchor_mismatch, truncated_after_anchor, head_seq, head_hash}."""
         result: dict[str, Any] = {"ok": True, "checked": 0, "first_bad_seq": None, "reason": None,
                                   "anchor_mismatch": False, "truncated_after_anchor": False,
-                                  "head_seq": None, "head_hash": None}
+                                  "head_seq": None, "head_hash": None,
+                                  "signatures_checked": 0, "signatures_ok": None, "signature_key_id": None}
 
         def bad(seq: int | None, reason: str) -> dict[str, Any]:
             if result["ok"]:
@@ -178,8 +181,17 @@ class Ledger:
             expected_seq = ev.seq + 1
             result["head_seq"], result["head_hash"] = ev.seq, ev.hash
 
-        anchors: list[tuple[int, str]] = [(a.seq, a.hash) for a in session.scalars(
-            select(LedgerAnchor).where(LedgerAnchor.exercise_id == exercise_id))]
+        db_anchors = list(session.scalars(select(LedgerAnchor).where(LedgerAnchor.exercise_id == exercise_id)))
+        anchors: list[tuple[int, str]] = [(a.seq, a.hash) for a in db_anchors]
+        signed = [a for a in db_anchors if a.signature]
+        if signed and self.signer is not None:
+            result["signature_key_id"] = self.signer.key_id()
+            result["signatures_checked"] = len(signed)
+            result["signatures_ok"] = True
+            for a in signed:
+                if not self.signer.verify(exercise_id, a.seq, a.hash, a.signature):
+                    result["signatures_ok"] = False
+                    bad(a.seq, "signature d'ancre invalide (ancre modifiée ou clé différente)")
         anchors += [(a["seq"], a["hash"]) for a in self._file_anchors(exercise_id)]
         head_seq = result["head_seq"] or 0
         for seq, h in anchors:

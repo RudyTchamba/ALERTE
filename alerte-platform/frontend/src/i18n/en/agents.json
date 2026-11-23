@@ -4,7 +4,7 @@
   "roleKind": "Role", "roleKindHint": "AI system: its outputs are scripted by the scenario, never produced by a model.", "roleKinds": { "institution": "Institution", "ai_system": "AI system under test", "legal_adviser": "Legal adviser" },
   "model": "Model profile", "noProfile": "no model profile", "tools": "Tools", "mission": "Mission", "instructions": "Instructions", "instructionsHint": "Free text: tone, constraints, language. Never mention expected gaps.",
   "maxSteps": "Max steps per activation", "maxSearch": "Max searches", "maxLegal": "Max adviser calls per inject", "limitInvalid": "Invalid value.",
-  "promptPreview": "Prompt preview", "promptHint": "The system prompt assembled by the backend, without any secret. It never contains gaps or hints about gaps.", "mandatesIncluded": "{{n}} mandates", "grantedKbs": "{{n}} knowledge bases",
+  "promptPreview": "Prompt preview", "promptHint": "The system prompt assembled by the backend, without any secret. It never contains gaps or hints about gaps.", "promptView": "Prompt display", "promptMode": { "formatted": "Formatted", "raw": "Raw text" }, "mandatesIncluded": "{{n}} mandates", "grantedKbs": "{{n}} knowledge bases",
   "clone": "Clone", "cloned": "Agent cloned",
   "profiles": "Model profiles", "profilesHint": "Provider and model settings. The endpoint is referenced by name; no URL or key is entered or shown here.", "newProfile": "New model profile", "noProfiles": "No model profile",
   "provider": "Provider", "modelName": "Model", "endpointRef": "Endpoint reference", "endpointRefHint": "Name of the server configuration, not a URL.", "temperature": "Temperature", "maxTokens": "Max tokens", "timeout": "Timeout (s)",

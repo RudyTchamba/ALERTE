@@ -84,8 +84,10 @@ def main() -> int:
     up = api.call("POST", f"/knowledge-bases/{kb}/documents", files={"file": ("loi-2021-12.txt", LAW.encode())},
                   data={"title": "Loi 2021-12 (exemple)", "jurisdiction": "DEM"})
     api.wait_job(up["job"]["id"])
-    emb = api.call("POST", f"/knowledge-bases/{kb}/embed", json={})
-    if emb and emb.get("job"):
+    emb = api.call("POST", f"/knowledge-bases/{kb}/embed", json={}, ok=(200, 201, 202, 503))
+    if emb and emb.get("error"):
+        print("AVERTISSEMENT : serveur d'embeddings non configuré — la démo continue en recherche lexicale seule (mode dégradé).")
+    elif emb and emb.get("job"):
         api.wait_job(emb["job"]["id"])
     chunks = api.call("GET", f"/documents/{up['document']['id']}/versions/1/chunks")["items"]
     art12 = next(c for c in chunks if c["article"] and "12" in c["article"])

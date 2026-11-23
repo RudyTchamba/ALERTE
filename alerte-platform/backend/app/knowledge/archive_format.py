@@ -100,6 +100,10 @@ def safe_source_name(code: str, version_no: int, ext: str, used: set[str]) -> st
 
 
 # --------------------------------------------------------------------------- écriture
+def archive_message(manifest_sha256: str) -> bytes:
+    return f"ALERTE-KB-ARCHIVE-v1|{manifest_sha256}".encode()
+
+
 class ArchiveWriter:
     def __init__(self, out: Path) -> None:
         self._z = zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=6)
@@ -125,8 +129,9 @@ class ArchiveWriter:
                 out.write(buf)
         self.files.append({"path": name, "sha256": h.hexdigest(), "bytes": n, "records": None})
 
-    def finish(self, manifest: dict) -> str:
-        """Écrit bag-info.txt, manifest.json (JSON canonique) et manifest.sha256 ; renvoie l'empreinte du manifest."""
+    def finish(self, manifest: dict, signer: Any = None) -> str:
+        """Écrit bag-info.txt, manifest.json (JSON canonique), manifest.sha256 et, si une clé est fournie,
+        signature.json (Ed25519 sur `ALERTE-KB-ARCHIVE-v1|<sha256 du manifest>`) ; renvoie l'empreinte du manifest."""
         kb = manifest["kb"]
         info = (f"Bag-Software-Agent: {manifest['exporter']['name']} {manifest['exporter']['version']}\n"
                 f"Source-Organization: ALERTE\nExternal-Description: KB {kb['code']} - {kb['name']}\n"
@@ -138,6 +143,10 @@ class ArchiveWriter:
         sha = hashlib.sha256(data).hexdigest()
         self._z.writestr(self._info("manifest.json"), data)
         self._z.writestr(self._info("manifest.sha256"), f"{sha}  manifest.json\n".encode())
+        if signer is not None:
+            sig = {"algorithm": "Ed25519", "key_id": signer.key_id(), "public_key_pem": signer.public_pem(),
+                   "manifest_sha256": sha, "signature": signer.sign_bytes(archive_message(sha))}
+            self._z.writestr(self._info("signature.json"), canonical_bytes(sig))
         self._z.close()
         return sha
 
@@ -159,6 +168,7 @@ class ParsedArchive:
     sources: dict[str, int]                      # nom dans le zip -> taille
     embeddings: tuple[list[str], np.ndarray] | None = None
     warnings: list[str] = field(default_factory=list)
+    signature: dict | None = None  # {valid, key_id} si signature.json présent (une signature invalide est refusée)
 
 
 def _check_name(name: str) -> None:
@@ -268,6 +278,18 @@ def open_and_validate(path: Path) -> ParsedArchive:
         listed = {f["path"]: f for f in manifest["files"]}
         if len(listed) != len(manifest["files"]):
             raise ArchiveError("kb.import.integrity_failed", "fichier listé deux fois dans le manifest")
+        signature = None
+        if "signature.json" in by_name:
+            from ..audit.signing import verify_with_public_pem
+            try:
+                sj = json.loads(_read_member(z, by_name["signature.json"]))
+            except ValueError as exc:
+                raise ArchiveError("kb.import.integrity_failed", "signature.json illisible") from exc
+            ok, kid = (verify_with_public_pem(str(sj.get("public_key_pem", "")), archive_message(msha), str(sj.get("signature", "")))
+                       if sj.get("manifest_sha256") == msha else (False, None))
+            if not ok:
+                raise ArchiveError("kb.import.integrity_failed", "signature Ed25519 de l'archive invalide")
+            signature = {"valid": True, "key_id": kid, "algorithm": "Ed25519"}
         content = {n for n in by_name if not n.endswith("/") and n not in ("manifest.json", "manifest.sha256", "signature.json")}
         if content != set(listed):
             raise ArchiveError("kb.import.integrity_failed", "fichiers de l'archive ≠ fichiers du manifest",
@@ -337,4 +359,4 @@ def open_and_validate(path: Path) -> ParsedArchive:
                 raise ArchiveError("kb.import.integrity_failed", "index d'embeddings incohérent avec les chunks")
             emb = (ids, mat)
         sources = {n: by_name[n].file_size for n in listed if n.startswith("data/sources/")}
-    return ParsedArchive(manifest, msha, kb, docs, chunks, sources, emb, list(manifest["warnings"]))
+    return ParsedArchive(manifest, msha, kb, docs, chunks, sources, emb, list(manifest["warnings"]), signature)

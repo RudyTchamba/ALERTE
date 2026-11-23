@@ -7,7 +7,7 @@ import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
 import type { ImportInfo, JobRef } from '@/api/loose'
 import type { Kb } from '@/api/loose'
-import { Button, Card, Field, Select, Input, useToast } from '@/components/ui'
+import { Badge, Button, Card, Field, Select, Input, useToast } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { JobProgress } from './JobProgress'
 
@@ -38,6 +38,8 @@ export function ImportArchive({ kbId }: { kbId?: string }) {
   const errs = (report?.errors as unknown[] | undefined) ?? []
   const warns = (report?.warnings as unknown[] | undefined) ?? []
   const ok = info.data?.status === 'validated' && errs.length === 0
+  const summary = report?.summary as { signature?: { valid: boolean; key_id: string | null } | null; signed_by_this_instance?: boolean } | undefined
+  const msg = (e: unknown) => typeof e === 'string' ? e : ((e as { message?: string }).message ?? JSON.stringify(e))
 
   return (
     <Card>
@@ -50,9 +52,12 @@ export function ImportArchive({ kbId }: { kbId?: string }) {
       {imp && <div className="mt-3"><JobProgress jobId={imp.jobId} label={t('kb.validating')} onFinished={(s) => { if (s.status === 'done') setValidated(true) }} /></div>}
       {info.data && (
         <div className="mt-3 text-sm" role="status">
-          <p className="font-semibold">{ok ? t('kb.importValid') : t('kb.importInvalid')}</p>
-          {errs.length > 0 && <ul className="list-disc pl-5 text-danger">{errs.map((e, i) => <li key={i}>{typeof e === 'string' ? e : JSON.stringify(e)}</li>)}</ul>}
-          {warns.length > 0 && <ul className="list-disc pl-5 text-warn">{warns.map((e, i) => <li key={i}>{typeof e === 'string' ? e : JSON.stringify(e)}</li>)}</ul>}
+          <p className="flex flex-wrap items-center gap-2 font-semibold">{ok ? t('kb.importValid') : t('kb.importInvalid')}
+            {ok && (summary?.signature?.valid
+              ? <Badge tone="ok">{summary.signed_by_this_instance ? t('kb.signedHere') : t('kb.signedOther', { key: summary.signature.key_id })}</Badge>
+              : <Badge tone="warn">{t('kb.unsigned')}</Badge>)}</p>
+          {errs.length > 0 && <ul className="list-disc pl-5 text-danger">{errs.map((e, i) => <li key={i}>{msg(e)}</li>)}</ul>}
+          {warns.length > 0 && <ul className="list-disc pl-5 text-warn">{warns.map((e, i) => <li key={i}>{msg(e)}</li>)}</ul>}
           {ok && (
             <div className="mt-3 grid gap-3 md:grid-cols-3">
               <Field label={t('kb.importMode')}>

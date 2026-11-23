@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Quote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from '@/api/client'
@@ -13,6 +14,20 @@ import { useSeatToken } from './seatSession'
 import { useExerciseStream } from './useExerciseStream'
 
 type Citation = { chunk_id: string; article: string; quote: string }
+type Hit = SeatSearch['hits'][number]
+
+/**
+ * Passage à citer : la première phrase de l'extrait (≥ 20 caractères, ≤ 240), recopiée telle quelle.
+ * Le contrôle normalise la casse, la ponctuation et les espaces : tout fragment contigu du texte réel est accepté.
+ */
+export function quoteFrom(text: string): string {
+  const flat = text.replace(/\s+/g, ' ').trim()
+  const body = flat.replace(/^(article|art\.?)\s+[\w-]+(er)?\s*[.:–—-]?\s*/i, '') || flat
+  const sentence = body.match(/^.{20,}?[.;:](?=\s|$)/)?.[0] ?? body
+  if (sentence.length <= 240) return sentence
+  const cut = sentence.slice(0, 240)
+  return cut.slice(0, cut.lastIndexOf(' ') > 40 ? cut.lastIndexOf(' ') : 240)
+}
 
 export function PlayerPage() {
   const { t } = useTranslation()
@@ -35,6 +50,18 @@ function Seat({ card, token }: { card: SeatCard; token: string }) {
   const { state, status } = useExerciseStream(card.exercise.id, { authToken: token })
   useEffect(() => { if (state.lastSeq) void qc.invalidateQueries({ queryKey: [...keys.seatTask, token] }) }, [state.lastSeq, qc, token])
   const tk = task.data?.task
+  const toast = useToast()
+  // Citations de la décision en cours : remises à zéro à chaque nouvelle tâche ; remplies par « Citer cet extrait ».
+  const [cites, setCites] = useState<{ task: string | null; items: Citation[] }>({ task: null, items: [] })
+  const current = cites.task === (tk?.id ?? null) ? cites.items : []
+  const setCurrent = (items: Citation[]) => setCites({ task: tk?.id ?? null, items })
+  const cite = (h: Hit) => {
+    const text = String(h.text ?? h.excerpt ?? h.snippet ?? '')
+    if (current.some((c) => c.chunk_id === h.chunk_id)) return
+    setCurrent([...current, { chunk_id: h.chunk_id, article: h.article ?? '', quote: quoteFrom(text) }])
+    toast.push(t('room.citationAdded'))
+    document.getElementById('decision-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   return (
     <>
       <NoAiBanner aiMode={card.exercise.ai_mode} />
@@ -53,9 +80,9 @@ function Seat({ card, token }: { card: SeatCard; token: string }) {
             <p className="mt-2 text-xs text-muted">{t('room.deadline')}: {fmtDateTime(tk.deadline_at)} ({tk.fallback})</p></Card></Section>
           <Section title={t('room.inbox')}>{tk.inbox.length === 0 ? <p className="text-sm text-muted">{t('room.emptyInbox')}</p> : <ul className="flex flex-col gap-2">{tk.inbox.map((i, k) => <li key={k} className="rounded border border-line bg-surface p-2 text-sm">{String(i.title ?? '')} {String(i.body ?? i.text ?? JSON.stringify(i))}</li>)}</ul>}</Section>
           <Section title={t('room.board')}>{tk.board.length === 0 ? <p className="text-sm text-muted">{t('room.noMessages')}</p> : <ul className="flex flex-col gap-2">{(tk.board as BoardMessage[]).map((b) => <li key={b.msg_id} className="rounded border border-line bg-surface p-2 text-sm"><Badge tone="neutral">{b.msg_type}</Badge> <strong>{b.from}</strong> → {b.to}: {b.body}</li>)}</ul>}</Section>
-          <SearchAndAdvice token={token} />
+          <SearchAndAdvice token={token} onCite={(h) => cite(h)} />
           <PostForm card={card} taskId={tk.id} token={token} />
-          <DecisionForm card={card} taskId={tk.id} token={token} />
+          <DecisionForm key={tk.id} card={card} taskId={tk.id} token={token} cites={current} setCites={setCurrent} />
         </>
       )}
     </>
@@ -86,7 +113,7 @@ function Generic({ v }: { v: unknown }) {
   return <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">{Object.entries(v as Record<string, unknown>).map(([k, x]) => <div key={k} className="contents"><dt className="font-medium text-muted">{k}</dt><dd><Generic v={x} /></dd></div>)}</dl>
 }
 
-function SearchAndAdvice({ token }: { token: string }) {
+function SearchAndAdvice({ token, onCite }: { token: string; onCite: (h: Hit) => void }) {
   const { t } = useTranslation()
   const [q, setQ] = useState('')
   const [question, setQuestion] = useState('')
@@ -101,7 +128,7 @@ function SearchAndAdvice({ token }: { token: string }) {
       </form>
       {search.error && <p role="alert" className="text-sm text-danger">{errorMessage(search.error, t)}</p>}
       {search.data?.warning && <p className="text-sm text-warn">{search.data.warning}</p>}
-      <ul className="mb-4 flex flex-col gap-2" aria-live="polite">{search.data?.hits.map((h) => <li key={h.chunk_id} className="rounded border border-line bg-surface p-2 text-sm"><p className="font-medium">{h.title ?? h.doc_code ?? h.doc_title} {h.article ? `· ${h.article}` : ''} {h.page ? `· p.${h.page}` : ''}{typeof h.score === 'number' ? ` · ${t('kb.score')} ${h.score.toFixed(3)}` : ''}</p><p>{h.excerpt ?? h.snippet ?? h.text}</p><p className="text-xs text-muted">chunk <Mono>{h.chunk_id}</Mono></p></li>)}</ul>
+      <ul className="mb-4 flex flex-col gap-2" aria-live="polite">{search.data?.hits.map((h) => <li key={h.chunk_id} className="rounded border border-line bg-surface p-2 text-sm"><p className="font-medium">{h.title ?? h.doc_code ?? h.doc_title} {h.article ? `· ${h.article}` : ''} {h.page ? `· p.${h.page}` : ''}{typeof h.score === 'number' ? ` · ${t('kb.score')} ${h.score.toFixed(3)}` : ''}</p><p>{h.excerpt ?? h.snippet ?? h.text}</p><p className="text-xs text-muted">chunk <Mono>{h.chunk_id}</Mono></p><Button size="sm" variant="primary" className="mt-2" onClick={() => onCite(h)} icon={<Quote className="h-4 w-4" aria-hidden />}>{t('room.citeThis')}</Button></li>)}</ul>
       <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); if (question.trim()) legal.mutate(question) }}>
         <Field label={t('room.askAdviser')} className="min-w-52 flex-1" hint={t('room.adviserHint')}><Input value={question} onChange={(e) => setQuestion(e.target.value)} /></Field>
         <Button type="submit" loading={legal.isPending}>{t('room.ask')}</Button>
@@ -150,12 +177,11 @@ function PostForm({ card, taskId, token }: { card: SeatCard; taskId: string; tok
   )
 }
 
-function DecisionForm({ card, taskId, token }: { card: SeatCard; taskId: string; token: string }) {
+function DecisionForm({ card, taskId, token, cites, setCites }: { card: SeatCard; taskId: string; token: string; cites: Citation[]; setCites: (c: Citation[]) => void }) {
   const { t } = useTranslation()
   const toast = useToast()
   const qc = useQueryClient()
   const [v, setV] = useState({ action: '', action_code: '', outcome: 'act', confidence: 'medium', evidence_tag: 'documented', rationale: '', options: '' })
-  const [cites, setCites] = useState<Citation[]>([])
   const decide = useApiMutation(() => api.post('/seats/me/decision', {
     action: v.action, action_code: v.action_code || null, outcome: v.outcome, confidence: v.confidence, evidence_tag: v.evidence_tag, rationale: v.rationale,
     options_considered: v.options.split('\n').map((x) => x.trim()).filter(Boolean), legal_basis: v.outcome === 'no_legal_basis_found' ? [] : cites.map((c) => ({ chunk_id: c.chunk_id, article: c.article || null, quote: c.quote })), gap_flags: [],
@@ -163,8 +189,12 @@ function DecisionForm({ card, taskId, token }: { card: SeatCard; taskId: string;
     onSuccess: () => { toast.push(t('room.decisionRecorded')); void qc.invalidateQueries({ queryKey: [...keys.seatTask, token] }) },
   })
   const kb = card.knowledge_bases.length
+  // Même règle que le serveur : une base légale est obligatoire, sauf issue « aucune base légale trouvée ».
+  const complete = cites.filter((c) => c.chunk_id.trim() && c.quote.trim())
+  const needsBasis = v.outcome !== 'no_legal_basis_found' && complete.length === 0
   return (
     <Section title={t('room.decisionTitle')}>
+      <span id="decision-form" className="block scroll-mt-4" />
       <p className="mb-2 text-sm text-muted">{t('room.decisionHint')}</p>
       <form key={taskId} className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); decide.mutate(undefined) }}>
         <Field label={t('room.action')} required className="sm:col-span-2"><Input maxLength={500} value={v.action} onChange={(e) => setV({ ...v, action: e.target.value })} /></Field>
@@ -177,6 +207,7 @@ function DecisionForm({ card, taskId, token }: { card: SeatCard; taskId: string;
         {v.outcome !== 'no_legal_basis_found' && (
           <fieldset className="rounded border border-line p-3 sm:col-span-2"><legend className="px-1 text-sm font-semibold">{t('room.legalBasis')}</legend>
             <p className="mb-2 text-xs text-muted">{t('room.legalBasisHint', { kb })}</p>
+            {cites.length === 0 && <p className="mb-2 rounded bg-brandsoft p-2 text-xs font-semibold text-brand">{t('room.citeHint')}</p>}
             {cites.map((c, i) => (
               <div key={i} className="mb-2 grid gap-2 sm:grid-cols-[1fr_6rem_auto]">
                 <Input aria-label="chunk_id" placeholder="chunk_id" value={c.chunk_id} onChange={(e) => setCites(cites.map((x, j) => j === i ? { ...x, chunk_id: e.target.value } : x))} />
@@ -188,7 +219,10 @@ function DecisionForm({ card, taskId, token }: { card: SeatCard; taskId: string;
             <Button size="sm" onClick={() => setCites([...cites, { chunk_id: '', article: '', quote: '' }])}>{t('room.addCitation')}</Button>
           </fieldset>
         )}
-        <div className="sm:col-span-2"><Button type="submit" variant="primary" disabled={!v.action.trim() || !v.rationale.trim()} loading={decide.isPending}>{t('room.submitDecision')}</Button></div>
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          {needsBasis && <p role="status" className="rounded border border-warn bg-warnsoft p-2 text-sm text-warn">{t('room.needBasis')}</p>}
+          <Button type="submit" variant="primary" className="self-start" disabled={!v.action.trim() || !v.rationale.trim() || needsBasis} loading={decide.isPending}>{t('room.submitDecision')}</Button>
+        </div>
       </form>
       <ErrorList err={decide.error} />
     </Section>

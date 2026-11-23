@@ -9,8 +9,8 @@ export function ProgressBar({ pct, label }: { pct: number; label: string }) {
   return (
     <div className="w-full">
       <div className="mb-1 flex justify-between text-xs text-muted"><span>{label}</span><span>{v} %</span></div>
-      <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={v} className="h-2 w-full overflow-hidden rounded bg-surface2">
-        <div className="h-full bg-brand transition-all" style={{ width: `${v}%` }} />
+      <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={v} className="h-2 w-full overflow-hidden rounded-full bg-surface2">
+        <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${v}%` }} />
       </div>
     </div>
   )

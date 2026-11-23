@@ -43,6 +43,18 @@ class AgentsService:
         """Conseiller juridique pour un siège humain (voir `AgentRuntime.ask_legal`)."""
         return self._runtime.ask_legal(seat_ctx, question)
 
+    def draft_completion(self, messages, *, schema=None, max_tokens: int = 1500):  # noqa: ANN001, ANN201
+        """Appel de rédaction (hors simulation, ex. projet de texte) avec le modèle configuré de l'espace.
+        Fournisseur injectable pour les tests via `ctx.services["reform_llm"]`. Modèle indisponible -> 503."""
+        from ..core.errors import AppError
+        from .providers import ProviderUnavailable, provider_for
+        try:
+            prov = self._ctx.services.get("reform_llm") or provider_for(
+                {"provider": "openai_compat", "max_tokens": max_tokens}, self._ctx.settings, blobs=self._ctx.blobs)
+            return prov.complete(messages, schema=schema, temperature=0.0, max_tokens=max_tokens)
+        except ProviderUnavailable as exc:
+            raise AppError(f"modèle indisponible : {exc}", code="reform.model_unavailable", status_code=503) from exc
+
     @property
     def citation_checker(self) -> CitationChecker:
         return CitationChecker(self._ctx)

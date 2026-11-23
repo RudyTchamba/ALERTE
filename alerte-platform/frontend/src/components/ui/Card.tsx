@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import { InfoTip } from './InfoTip'
 
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('rounded-lg border border-line bg-surface p-4 shadow-sm', className)} {...p} />
+  return <div className={cn('panel p-5', className)} {...p} />
 }
 
 export function PageHeader({ title, description, actions, term }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; term?: string }) {
@@ -20,9 +20,9 @@ export function PageHeader({ title, description, actions, term }: { title: React
 
 export function Section({ title, actions, children, className }: { title: ReactNode; actions?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn('mb-6', className)}>
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">{title}</h2>
+    <section className={cn('mb-8', className)}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2.5 text-lg font-bold"><span aria-hidden className="h-5 w-1 rounded-full bg-brand" />{title}</h2>
         {actions}
       </div>
       {children}

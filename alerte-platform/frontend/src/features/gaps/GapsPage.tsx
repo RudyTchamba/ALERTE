@@ -10,6 +10,7 @@ import type { Exercise, GapCompare, RefSuggestion } from '@/api/loose'
 import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast, useEnumLabel, Mono } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { fmtDateTime, fmtPct } from '@/lib/format'
+import { ReformSection } from '@/features/reform/ReformSection'
 import { natureTags } from './nature'
 
 const SEV: Record<number, 'danger' | 'warn' | 'info'> = { 3: 'danger', 2: 'warn', 1: 'info' }
@@ -23,17 +24,50 @@ export const SeverityBadge = ({ s }: { s: number }) => {
   return <Badge tone={SEV[s] ?? 'neutral'}>{t(`gaps.severity.${s}`, String(s))}</Badge>
 }
 
+const LATEST = '__latest__'
+const SEV_BORDER: Record<number, string> = { 3: 'border-l-danger', 2: 'border-l-warn', 1: 'border-l-info' }
+const SEV_TEXT: Record<number, string> = { 3: 'text-danger', 2: 'text-warn', 1: 'text-info' }
+
+/** Synthèse cliquable : combien de lacunes, de quelle gravité, combien restent à relire. */
+function GapSummary({ gaps, severity, onSeverity }: { gaps: Gap[]; severity: string; onSeverity: (v: string) => void }) {
+  const { t } = useTranslation()
+  const pending = gaps.filter((g) => g.validation_status === 'proposed').length
+  return (
+    <div className="mb-3 grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="panel px-4 py-3"><p className="eyebrow">{t('gaps.summary.total')}</p><p className="text-2xl font-black tabular">{gaps.length}</p></div>
+      {[3, 2, 1].map((s) => {
+        const n = gaps.filter((g) => g.severity === s).length
+        const on = severity === String(s)
+        return (
+          <button key={s} type="button" aria-pressed={on} onClick={() => onSeverity(on ? '' : String(s))}
+            className={`panel px-4 py-3 text-left transition-colors hover:border-muted ${on ? '!border-brand bg-brandsoft/40' : ''}`}>
+            <span className="eyebrow block">{t(`gaps.severity.${s}`)}</span>
+            <span className={`text-2xl font-black tabular ${n ? SEV_TEXT[s] : 'text-muted'}`}>{n}</span>
+          </button>
+        )
+      })}
+      <div className="panel px-4 py-3"><p className="eyebrow">{t('gaps.summary.pending')}</p><p className="text-2xl font-black text-brand tabular">{pending}</p></div>
+    </div>
+  )
+}
+
 export function GapsPage() {
   const { gapId } = useParams()
   const { t } = useTranslation()
   const enumLabel = useEnumLabel()
-  const [f, setF] = useState({ exercise: '', institution: '', code: '', severity: '', status: '', basis: '', origin: '', category: '', include_stale: false })
+  const [f, setF] = useState({ exercise: LATEST, institution: '', code: '', severity: '', status: '', basis: '', origin: '', category: '', include_stale: false })
   const [tab, setTab] = useState<'list' | 'compare'>('list')
   const exs = useApiQuery<Exercise[]>(keys.exercises(), '/exercises')
   const insts = useApiQuery<Institution[]>(keys.institutions(undefined, true), '/institutions', { query: { include_archived: true } })
-  const q = useApiQuery<Gap[]>(keys.gaps(f), '/gaps', { query: { ...f, include_stale: f.include_stale || undefined } })
+  // Par défaut : le dernier exercice joué (sinon les mêmes lacunes se répètent pour chaque exercice).
+  const latestId = (exs.data ?? []).filter((x) => x.started_at).sort((x, y) => (y.started_at ?? '').localeCompare(x.started_at ?? ''))[0]?.id ?? ''
+  const eff = { ...f, exercise: f.exercise === LATEST ? latestId : f.exercise }
+  const q = useApiQuery<Gap[]>(keys.gaps(eff), '/gaps', { query: { ...eff, include_stale: f.include_stale || undefined } })
+  // La synthèse ignore le filtre de gravité, pour garder les trois compteurs visibles quand on en sélectionne un.
+  const all = useApiQuery<Gap[]>(keys.gaps({ ...eff, severity: '' }), '/gaps', { query: { ...eff, severity: '', include_stale: f.include_stale || undefined } })
   const set = (k: keyof typeof f, v: string | boolean) => setF({ ...f, [k]: v })
   const iname = (id: string) => insts.data?.find((i) => i.id === id)?.code ?? id.slice(-6)
+  const active = Object.entries(f).filter(([k, v]) => k !== 'exercise' && v !== '' && v !== false).length
 
   return (
     <>
@@ -42,10 +76,14 @@ export function GapsPage() {
       {tab === 'compare' ? <Compare exercises={exs.data ?? []} /> : (
         <div className={gapId ? 'grid grid-cols-1 gap-4 [&>*]:min-w-0 xl:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]' : ''}>
           <div>
-            <Card className="mb-3">
+            <div className="mb-3 flex flex-wrap items-end gap-3">
+              <Field label={t('gaps.exercise')} className="w-full max-w-md"><Select value={eff.exercise} onChange={(e) => set('exercise', e.target.value)}><option value="">{t('common.all')}</option>{exs.data?.map((x) => <option key={x.id} value={x.id}>{x.code} — {x.title}</option>)}</Select></Field>
+            </div>
+            <GapSummary gaps={all.data ?? q.data ?? []} severity={f.severity} onSeverity={(v) => set('severity', v)} />
+            <details className="panel mb-3 p-4 [&[open]>summary]:mb-3">
+              <summary className="cursor-pointer text-sm font-semibold">{t('gaps.filters')}{active > 0 && <span className="ml-2 rounded bg-brandsoft px-1.5 text-xs text-brand">{t('gaps.activeFilters', { n: active })}</span>}</summary>
               <h2 className="sr-only">{t('common.filter')}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <Field label={t('gaps.exercise')}><Select value={f.exercise} onChange={(e) => set('exercise', e.target.value)}><option value="">{t('common.all')}</option>{exs.data?.map((x) => <option key={x.id} value={x.id}>{x.code}</option>)}</Select></Field>
                 <Field label={t('geo.institution')}><Select value={f.institution} onChange={(e) => set('institution', e.target.value)}><option value="">{t('common.all')}</option>{insts.data?.map((x) => <option key={x.id} value={x.id}>{x.code}</option>)}</Select></Field>
                 <Field label={t('gaps.code')}><Input value={f.code} placeholder="G1" onChange={(e) => set('code', e.target.value)} /></Field>
                 <Field label={t('gaps.categoryF')}><Input value={f.category} onChange={(e) => set('category', e.target.value)} /></Field>
@@ -55,14 +93,14 @@ export function GapsPage() {
                 <Field label={t('gaps.originF')}><Select value={f.origin} onChange={(e) => set('origin', e.target.value)}><option value="">{t('common.all')}</option>{['rule', 'coordinator_signal', 'agent_hypothesis', 'imported'].map((s) => <option key={s} value={s}>{s}</option>)}</Select></Field>
               </div>
               <label className="mt-2 inline-flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4" checked={f.include_stale} onChange={(e) => set('include_stale', e.target.checked)} />{t('gaps.includeStale')}</label>
-            </Card>
+            </details>
             <QueryState q={q} what="(/gaps)">
               {(rows) => rows.length === 0 ? <EmptyState title={t('gaps.empty')} hint={t('gaps.emptyHint')} action={<Link to="/room">{t('journey.steps.room.title')}</Link>} /> : (
                 <Table caption={t('gaps.title')}>
                   <THead><Tr><Th>{t('gaps.code')}</Th><Th>{t('gaps.gapTitle')}</Th><Th>{t('gaps.severityF')}</Th><Th>{t('gaps.nature.label')}</Th><Th>{t('geo.institutions')}</Th><Th>{t('gaps.confidence')}</Th></Tr></THead>
                   <TBody>{rows.map((g) => (
                     <Tr key={g.id} className={g.id === gapId ? 'bg-brandsoft' : ''}>
-                      <Td className="font-mono">{g.code}</Td>
+                      <Td className={`border-l-4 font-mono font-bold ${SEV_BORDER[g.severity] ?? 'border-l-transparent'}`}>{g.code}</Td>
                       <Td><Link to={`/gaps/${g.id}`} aria-current={g.id === gapId ? 'true' : undefined} className="font-medium">{g.title}</Link>{!g.is_current && <> <Badge tone="neutral">{t('gaps.stale')}</Badge></>}</Td>
                       <Td><SeverityBadge s={g.severity} /></Td><Td><NatureBadges g={g} /></Td>
                       <Td className="text-xs">{(g.institution_ids as string[]).map(iname).join(', ') || '—'}</Td><Td>{enumLabel(g.confidence)}</Td>
@@ -233,6 +271,8 @@ function GapView({ g, institutions }: { g: GapDetail; institutions: Institution[
             <ul className="text-sm">{suggestions.data!.map((s) => <li key={s.reference_id} className="flex items-center gap-2">{s.jurisdiction} — {s.instrument} <Badge tone="neutral">{s.fit_score.toFixed(2)}</Badge><Button size="sm" onClick={() => assoc.mutate(s.reference_id)}>{t('gaps.associate')}</Button></li>)}</ul></div>
         )}
       </Section>
+
+      <ReformSection gapId={g.id} />
 
       <ImprovementActions g={g} institutions={institutions} />
 

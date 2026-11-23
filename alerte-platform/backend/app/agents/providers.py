@@ -351,14 +351,36 @@ class ProfileSpec:
                    timeout_s=get("timeout_s"), extra=get("extra"))
 
 
+def _env_file_value(name: str) -> str | None:
+    """Valeur d'une variable déclarée dans le fichier `.env` du backend (relu s'il change) : permet aux profils de
+    modèle de désigner un serveur supplémentaire (ex. ALERTE_LLM_AWS_BASE_URL) sans redémarrer l'application."""
+    from pathlib import Path
+
+    from dotenv import dotenv_values
+    path = Path(".env")
+    try:
+        mtime = path.stat().st_mtime
+    except OSError:
+        return None
+    if _ENV_CACHE.get("mtime") != mtime:
+        _ENV_CACHE.update(mtime=mtime, values=dotenv_values(path))
+    v = (_ENV_CACHE.get("values") or {}).get(name)
+    return v.strip() if isinstance(v, str) and v.strip() else None
+
+
+_ENV_CACHE: dict[str, Any] = {}
+
+
 def resolve_config(name: str, settings: Settings) -> str | None:
-    """Résout un NOM de configuration : variable d'environnement, puis champ `Settings` (ALERTE_X → x)."""
+    """Résout un NOM de configuration : variable d'environnement, champ `Settings` (ALERTE_X → x), puis `.env`."""
     val = os.environ.get(name)
     if val:
         return val
     if name.upper().startswith("ALERTE_"):
         v = getattr(settings, name[len("ALERTE_"):].lower(), None)
-        return str(v) if v else None
+        if v:
+            return str(v)
+        return _env_file_value(name)
     return None
 
 

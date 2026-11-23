@@ -43,6 +43,13 @@ def create_workspace(body: WorkspaceCreate, request: Request, session: Session =
     return WorkspaceCreated(workspace=WorkspaceOut.model_validate(ws), owner_token=plain)
 
 
+@router.get("/auth/me", tags=["workspaces"])
+def whoami(p: Principal = Depends(Any_)) -> dict:
+    """Identité du jeton appelant : rôle, espace, et portée éventuelle (exercice, siège). Aucun secret."""
+    return {"workspace_id": p.workspace_id, "role": p.role, "token_id": p.token_id, "label": p.label,
+            "exercise_id": p.exercise_id, "seat_id": p.seat_id}
+
+
 @router.get("/workspaces/current", response_model=WorkspaceOut, tags=["workspaces"])
 def current_workspace(p: Principal = Depends(Any_), session: Session = Depends(get_session)) -> WorkspaceOut:
     return WorkspaceOut.model_validate(service.get_workspace(session, p.workspace_id))

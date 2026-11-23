@@ -2,6 +2,17 @@
   "title": "Evaluation & scorecard", "description": "Measured quality of an exercise (T1-T6) and the 13-dimension AI-readiness scorecard. A metric that cannot be computed is shown as “not computed”, never as zero.", "pick": "Choose an exercise to see its metrics.",
   "metrics": "Metrics T1 to T6", "metric": "Metric", "threshold": "Target", "value": "Value", "source": "Source / detail", "met": "Target met", "notMet": "Target not met", "noVerdict": "No verdict", "run": "Compute", "rerun": "Recompute", "ran": "Metric computed",
   "params": "Parameters for some metrics", "t1Kb": "T1: knowledge base tested", "t3Scenario": "T3: scenario (sealed fixtures)", "t5Clones": "T5: cloned exercise ids (comma-separated)",
-  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Criteria are answered from documents and the run, independently of the gap list. A dimension with no assessed criterion is “not assessed”: it is not a score of 0.", "llmJudge": "LLM assessment (P1)", "overall": "Overall {{score}} / 5 (assessed dimensions only)", "assessedN": "{{n}} of {{total}} dimensions assessed", "dimension": "Dimension", "score": "Score", "criteria": "Criteria", "criteriaN": "{{n}} criteria", "reviewedBy": "Reviewed by", "saveAnswers": "Save {{n}} answer(s)",
-  "answers": { "yes": "Yes", "partial": "Partial", "no": "No", "not_assessed": "Not assessed" }, "radarLabel": "Radar chart of the scorecard dimensions"
+  "scorecard": "Scorecard (13 dimensions)", "scorecardHint": "Criteria are answered from documents and the run, independently of the gap list. A dimension with no assessed criterion is “not assessed”: it is not a score of 0.", "llmJudge": "AI assessment", "overall": "Overall {{score}} / 5 (assessed dimensions only)", "assessedN": "{{n}} of {{total}} dimensions assessed", "dimension": "Dimension", "score": "Score", "criteria": "Criteria", "criteriaN": "{{n}} criteria", "reviewedBy": "Reviewed by", "saveAnswers": "Save {{n}} answer(s)",
+  "answers": { "yes": "Yes", "partial": "Partial", "no": "No", "not_assessed": "Not assessed" }, "radarLabel": "Radar chart of the scorecard dimensions",
+  "judgeHint": "The AI judge proposes an answer per criterion from the exercise facts (ledger events, documents), never from the gaps. Every answer must cite its evidence, otherwise it stays “not assessed”. Your own answers are never overwritten.",
+  "judgeRunning": "AI assessment",
+  "judgeDone": "AI assessment finished: answers to review.",
+  "judgeFailed": "AI assessment failed:",
+  "toReview": "{{n}} AI-proposed answer(s) to review.",
+  "toReviewHint": "Check them in the table, correct if needed, then validate with your name.",
+  "validateAll": "Validate {{n}} answer(s)",
+  "aiToReview": "AI — to review",
+  "aiReviewed": "AI — validated by {{who}}",
+  "manualNote": "manual entry",
+  "dims": {"data_marketplace": "Data/model marketplace", "generated_content": "Generated content", "cross_domain": "Cross-domain correlation", "contextualization": "Regional context", "ai_integration": "AI in workflows", "human_interface": "Human interface", "strategy_alignment": "Strategy alignment", "collaboration": "Collaboration with AI", "human_impact": "Human impact", "ai_policies": "AI & policies", "ai_inclusion": "AI for inclusion", "granular_priorities": "Granular priorities", "digital_infrastructure": "Digital infrastructure"}
 }

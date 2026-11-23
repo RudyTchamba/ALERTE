@@ -440,7 +440,16 @@ class ExerciseRunner:
                 except (_Paused, _Exit):
                     pass
                 except _StopRequested:
-                    self._finalize(states.STOPPED)
+                    # Un échec de la finalisation (ex. base verrouillée) ne doit pas tuer le fil : sinon le gestionnaire
+                    # croit le moteur vivant et l'exercice reste figé « en cours ». On passe par _on_crash (interrompu,
+                    # reprise possible).
+                    try:
+                        self._finalize(states.STOPPED)
+                    except (RunnerKilled, RunnerAborted):
+                        raise
+                    except Exception as exc:  # noqa: BLE001
+                        log.exception("finalisation en échec", extra={"exercise_id": self.ex_id})
+                        self._on_crash(exc)
                 except (RunnerKilled, RunnerAborted):
                     raise
                 except Exception as exc:  # noqa: BLE001 - arrêt anormal : ERROR + interrupted (reprise possible)
@@ -718,8 +727,12 @@ class ExerciseRunner:
             with s.begin_nested():
                 fn(s, self.ex_id, *args)
         except Exception as exc:  # noqa: BLE001 - un échec du moteur de lacunes ne bloque pas l'exercice
-            self.w.append(s, self.ex_id, "ERROR", "system", {"component": "gap_engine", "message": str(exc)[:300],
-                                                             "next_action": "continue"})
+            try:  # consigner l'échec, sans que l'échec de cette écriture (même cause, ex. base verrouillée) ne se propage
+                with s.begin_nested():
+                    self.w.append(s, self.ex_id, "ERROR", "system", {"component": "gap_engine", "message": str(exc)[:300],
+                                                                     "next_action": "continue"})
+            except Exception:  # noqa: BLE001
+                log.exception("impossible de consigner l'échec du moteur de lacunes", extra={"exercise_id": self.ex_id})
 
     # ------------------------------------------------------------------ fin
     def _finalize(self, final_state: str) -> None:
@@ -939,6 +952,15 @@ def decision_dicts(s: Session, ex_id: str, seat_id: str) -> list[dict]:
                                .order_by(Decision.ledger_seq))]
 
 
+def _with_language(inject: dict, snap: dict) -> dict:
+    """Copie de l'inject avec la langue du scénario (consigne de langue pour les agents)."""
+    out = dict(inject)
+    lang = (snap.get("scenario") or {}).get("language")
+    if lang and not out.get("language"):
+        out["language"] = lang
+    return out
+
+
 def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo], si: SeatInfo, u: Unit, rnd: int,
                        key: str, budget_left: int | None = None, purpose: str = "agent") -> SeatContext:
     inst = next((i for i in snap["institutions"] if i["id"] == si.institution_id), {"id": si.institution_id})
@@ -951,7 +973,7 @@ def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo]
     return SeatContext(
         exercise_id=ex_id, workspace_id=snap["workspace_id"], seat_id=si.id, seat_code=si.code,
         institution={k: inst.get(k) for k in ("id", "code", "name", "kind")}, agent=agent,
-        scope=scope_for_seat(snap, si.code, purpose), inject=dict(u.inject), round=rnd,
+        scope=scope_for_seat(snap, si.code, purpose), inject=_with_language(u.inject, snap), round=rnd,
         inbox=[inbox_dict(i) for i in items], board=board_dicts(s, ex_id),
         own_decisions=decision_dicts(s, ex_id, si.id),
         mandates=[m for m in snap["mandates"] if m.get("institution_id") == si.institution_id],

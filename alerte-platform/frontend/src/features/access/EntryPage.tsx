@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Landmark, Radio, SearchCheck } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -55,8 +56,11 @@ export function EntryPage() {
     }
   })
 
+  const steps: { k: 'prepare' | 'play' | 'analyze'; icon: typeof Landmark }[] = [
+    { k: 'prepare', icon: Landmark }, { k: 'play', icon: Radio }, { k: 'analyze', icon: SearchCheck },
+  ]
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <FictionalBanner />
       <main id="main" className="mx-auto max-w-4xl p-4 lg:p-8">
         <h1 className="mb-1 flex items-center gap-3 text-3xl font-extrabold"><LogoMark className="h-9 w-9" />{t('common.appName')}</h1>
@@ -72,35 +76,23 @@ export function EntryPage() {
         </section>
         {params.get('expired') && <p role="alert" className="mb-4 rounded-md border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}
 
-        {created ? (
-          <Card>
-            <h2 className="mb-2 text-xl font-bold">{t('access.workspaceCreated', { name: created.workspace.name })}</h2>
-            <OneTimeSecret value={created.owner_token} title={t('access.ownerToken')} />
-            <label className="mt-4 flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} className="h-4 w-4" />
-              {t('access.savedConfirm')}
-            </label>
-            <div className="mt-3">
-              <Button variant="primary" disabled={!saved} onClick={() => { login(created.owner_token, 'owner'); navigate('/') }}>{t('access.continue')}</Button>
-            </div>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          {params.get('expired') && <p role="alert" className="rounded-lg border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}
+          {created ? (
             <Card>
-              <h2 className="mb-1 text-lg font-bold">{t('access.createTitle')}</h2>
-              <p className="mb-3 text-sm text-muted">{t('access.createHint')}</p>
-              <form onSubmit={onCreate} className="flex flex-col gap-3" noValidate>
-                <Field label={t('access.workspaceName')} required error={cf.formState.errors.name && t('common.required')}>
-                  <Input autoComplete="organization" {...cf.register('name')} />
-                </Field>
-                <Field label={t('access.slug')} hint={t('access.slugHint')} error={cf.formState.errors.slug && t('access.slugInvalid')}>
-                  <Input {...cf.register('slug')} />
-                </Field>
-                {createError && <p role="alert" className="text-sm text-danger">{createError}</p>}
-                <Button type="submit" variant="primary" loading={cf.formState.isSubmitting}>{t('access.createButton')}</Button>
-              </form>
+              <h2 className="mb-2 text-xl font-bold">{t('access.workspaceCreated', { name: created.workspace.name })}</h2>
+              <OneTimeSecret value={created.owner_token} title={t('access.ownerToken')} />
+              <label className="mt-4 flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} className="h-4 w-4" />
+                {t('access.savedConfirm')}
+              </label>
+              <div className="mt-3">
+                <Button variant="primary" disabled={!saved} onClick={() => { login(created.owner_token, 'owner'); navigate('/') }}>{t('access.continue')}</Button>
+              </div>
             </Card>
-            <Card>
+          ) : (
+            <>
+            <Card className="border-brand/40">
               <h2 className="mb-1 text-lg font-bold">{t('access.signInTitle')}</h2>
               <p className="mb-3 text-sm text-muted">{t('access.signInHint')}</p>
               <form onSubmit={onToken} className="flex flex-col gap-3" noValidate>
@@ -112,8 +104,23 @@ export function EntryPage() {
               </form>
               <p className="mt-3 text-xs text-muted">{t('access.seatLinkHint')}</p>
             </Card>
-          </div>
-        )}
+            <Card>
+              <h2 className="mb-1 text-lg font-bold">{t('access.createTitle')}</h2>
+              <p className="mb-3 text-sm text-muted">{t('access.createHint')}</p>
+              <form onSubmit={onCreate} className="flex flex-col gap-3" noValidate>
+                <Field label={t('access.workspaceName')} required error={cf.formState.errors.name && t('common.required')}>
+                  <Input autoComplete="organization" {...cf.register('name')} />
+                </Field>
+                <Field label={t('access.slug')} hint={t('access.slugHint')} error={cf.formState.errors.slug && t('access.slugInvalid')}>
+                  <Input {...cf.register('slug')} />
+                </Field>
+                {createError && <p role="alert" className="text-sm text-danger">{createError}</p>}
+                <Button type="submit" loading={cf.formState.isSubmitting}>{t('access.createButton')}</Button>
+              </form>
+            </Card>
+            </>
+          )}
+        </div>
       </main>
     </div>
   )
