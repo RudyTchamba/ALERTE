@@ -60,7 +60,9 @@ EXPECTED = [
 ap = argparse.ArgumentParser()
 ap.add_argument("--token", required=True)
 ap.add_argument("--api", default="http://localhost:8000")
-ap.add_argument("--rerun", action="store_true", help="rejoue l'exercice Cameroun (IA) et compare ses lacunes à EX-019")
+ap.add_argument("--rerun", action="store_true", help="rejoue l'exercice Cameroun (IA) et compare ses lacunes à --ref")
+ap.add_argument("--ref", default="EX-019", help="exercice de référence (sièges copiés, lacunes comparées)")
+ap.add_argument("--title", default="Crue de l'Extrême-Nord — corpus corrigé (IA)", help="titre du nouvel exercice")
 a = ap.parse_args()
 c = httpx.Client(base_url=a.api.rstrip("/") + "/api/v1", headers={"Authorization": f"Bearer {a.token}"}, timeout=120)
 
@@ -130,12 +132,12 @@ if not a.rerun:
 
 # 5. Rejouer l'exercice avec les mêmes sièges qu'EX-019, puis comparer les lacunes
 exs = call("GET", "/exercises")
-ref = next(e for e in exs if e["code"] == "EX-019")
+ref = next(e for e in exs if e["code"] == a.ref)
 ref_full = call("GET", f"/exercises/{ref['id']}")
 seats = [{"code": s["code"], "institution_id": s["institution_id"], "agent_id": s["agent_id"], "controller": "agent"}
          for s in ref_full["seats"]]
 ex = call("POST", "/exercises", json={"scenario_id": ref["scenario_id"], "ai_mode": "ai", "pace": "auto",
-                                      "title": "Crue de l'Extrême-Nord — corpus corrigé (IA)", "settings": ref_full.get("settings")})
+                                      "title": a.title, "settings": ref_full.get("settings")})
 call("PUT", f"/exercises/{ex['id']}/seats", json={"seats": seats})
 call("POST", f"/exercises/{ex['id']}/ready")
 call("POST", f"/exercises/{ex['id']}/commands", json={"kind": "start"})
@@ -155,7 +157,7 @@ def gap_set(eid: str) -> dict[str, str]:
 
 
 before, after = gap_set(ref["id"]), gap_set(ex["id"])
-print(f"\nlacunes EX-019 : {len(before)} | {ex['code']} : {len(after)}")
+print(f"\nlacunes {a.ref} : {len(before)} | {ex['code']} : {len(after)}")
 for t in sorted(set(before) - set(after)):
     print("  disparue :", t)
 for t in sorted(set(after) - set(before)):

@@ -229,6 +229,8 @@ python3 scripts/dev.py            # backend :8000 + frontend :5173 (add --host t
 
 Open http://localhost:5173/access and create a workspace (the owner token is shown once). To get a ready-made workspace: `cd backend && .venv/bin/python scripts/seed_demo.py` (fictional demo country), or `scripts/seed_cameroon.py` (Cameroon case). API docs: http://localhost:8000/api/v1/docs.
 
+**Larger model on a cloud GPU (optional).** The generation model can run on an AWS GPU instance (vLLM, e.g. Qwen2.5-32B) while the app, data and embeddings stay local; `python3 scripts/llm_target.py local|aws|status` switches between the two without touching anything else. Step-by-step guide: [docs/runbooks/aws-gpu-model.md](alerte-platform/docs/runbooks/aws-gpu-model.md).
+
 Tests:
 
 ```bash
