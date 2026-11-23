@@ -1,0 +1,145 @@
+[
+ {
+  "dimension_id": 1,
+  "name": "Data/Model Marketplace",
+  "score": 3.0,
+  "evidence": [
+   "G10-15 Cross-border: Agreement with a foreign actor processing national data in a crisis",
+   "G4-17 Missing piece: Authorise sending personal data abroad"
+  ]
+ },
+ {
+  "dimension_id": 2,
+  "name": "Generated Content Marketplace",
+  "score": 1.9,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G9-22 Channel unprotected: Stop fake alerts that imitate the official channel"
+  ]
+ },
+ {
+  "dimension_id": 3,
+  "name": "Cross-Domain Correlation Analysis",
+  "score": 2.4,
+  "evidence": [
+   "G2-12 Two in charge: Protect personal data (consent, minimisation, security)",
+   "G5-14 Conflicting goals: Use phone location data for public health",
+   "G2-18 Two in charge: Issue an official weather or flood warning"
+  ]
+ },
+ {
+  "dimension_id": 4,
+  "name": "Contextualization and Regional Impact",
+  "score": 2.5,
+  "evidence": [
+   "G7-08 People left out: Send alerts in the languages people understand",
+   "G7-09 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 5,
+  "name": "Level of Integration of AI in Workflows",
+  "score": 0.0,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G3-02 No procedure: Decide to alert the public",
+   "G3-04 No procedure: Technically send the alert to phones (SMS or cell broadcast)",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable",
+   "G3-07 No procedure: Act on a local, informal warning that contradicts the AI",
+   "G3-10 No procedure: Order the evacuation of a danger zone",
+   "G3-13 No procedure: Protect personal data (consent, minimisation, security)",
+   "G3-16 No procedure: Authorise sending personal data abroad",
+   "G3-19 No procedure: Issue an official weather or flood warning"
+  ]
+ },
+ {
+  "dimension_id": 6,
+  "name": "Human Interface",
+  "score": 2.5,
+  "evidence": [
+   "G7-08 People left out: Send alerts in the languages people understand",
+   "G7-09 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 7,
+  "name": "Strategy Alignment",
+  "score": 0.0,
+  "evidence": [
+   "G3-02 No procedure: Decide to alert the public",
+   "G1-03 Nobody in charge: Order mobile operators to relay a public alert",
+   "G3-04 No procedure: Technically send the alert to phones (SMS or cell broadcast)",
+   "G3-07 No procedure: Act on a local, informal warning that contradicts the AI",
+   "G3-10 No procedure: Order the evacuation of a danger zone",
+   "G1-11 Nobody in charge: Use phone location data for public health",
+   "G2-12 Two in charge: Protect personal data (consent, minimisation, security)",
+   "G3-13 No procedure: Protect personal data (consent, minimisation, security)",
+   "G3-16 No procedure: Authorise sending personal data abroad",
+   "G2-18 Two in charge: Issue an official weather or flood warning",
+   "G3-19 No procedure: Issue an official weather or flood warning",
+   "G1-20 Nobody in charge: Correct or cancel a false alert",
+   "G1-21 Nobody in charge: Explain publicly what went wrong after an error",
+   "G1-23 Nobody in charge: Produce a clear map of who was responsible for each failure"
+  ]
+ },
+ {
+  "dimension_id": 8,
+  "name": "Collaboration with AI",
+  "score": 2.5,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable"
+  ]
+ },
+ {
+  "dimension_id": 9,
+  "name": "Impacts of Humans in AI Integration",
+  "score": 2.5,
+  "evidence": [
+   "G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision",
+   "G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable"
+  ]
+ },
+ {
+  "dimension_id": 10,
+  "name": "AI & Policies",
+  "score": 0.0,
+  "evidence": [
+   "G1-03 Nobody in charge: Order mobile operators to relay a public alert",
+   "G6-05 Nobody answers for harm: Answer for harm caused by a wrong alert",
+   "G1-11 Nobody in charge: Use phone location data for public health",
+   "G5-14 Conflicting goals: Use phone location data for public health",
+   "G10-15 Cross-border: Agreement with a foreign actor processing national data in a crisis",
+   "G4-17 Missing piece: Authorise sending personal data abroad",
+   "G1-20 Nobody in charge: Correct or cancel a false alert",
+   "G1-21 Nobody in charge: Explain publicly what went wrong after an error",
+   "G1-23 Nobody in charge: Produce a clear map of who was responsible for each failure"
+  ]
+ },
+ {
+  "dimension_id": 11,
+  "name": "AI for Inclusion",
+  "score": 2.5,
+  "evidence": [
+   "G7-08 People left out: Send alerts in the languages people understand",
+   "G7-09 People left out: Reach people without phones or network coverage"
+  ]
+ },
+ {
+  "dimension_id": 12,
+  "name": "Granular Priorities",
+  "score": -1.0,
+  "evidence": [
+   "not assessed by this story"
+  ]
+ },
+ {
+  "dimension_id": 13,
+  "name": "Digital Infrastructure",
+  "score": 4.4,
+  "evidence": [
+   "G9-22 Channel unprotected: Stop fake alerts that imitate the official channel"
+  ]
+ }
+]

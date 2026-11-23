@@ -24,5 +24,23 @@
     "agents": "Agents",
     "scenarios": "Scénarios",
     "exercises": "Exercices"
+  },
+  "whatIsWorkspace": "Qu'est-ce qu'un espace de travail ?",
+  "workspaceText": "Un espace de travail (workspace) regroupe toutes les ressources d'un projet ALERTE : pays, institutions, bases de connaissances, mandats, agents, permissions, scénarios, exercices et rapports. Les données de deux espaces restent isolées. Un espace n'est ni un pays, ni un scénario, ni un exercice : c'est le conteneur dans lequel on les construit.",
+  "youAreIn": "Vous êtes dans l'espace « {{name}} » avec le rôle {{role}}.",
+  "start": "Suivez les trois phases ci-dessous, de haut en bas : l'étape en surbrillance est la prochaine à faire.",
+  "journey": "Votre parcours",
+  "done": "Fait",
+  "nextStep": "Prochaine étape",
+  "counts": {
+    "institutions": "{{i}} institution(s) · {{m}} mandat(s), {{v}} validé(s)",
+    "knowledge": "{{k}} base(s), {{p}} publiée(s)",
+    "agents": "{{n}} agent(s)",
+    "access": "{{n}} permission(s) accordée(s)",
+    "scenarios": "{{n}} scénario(s)",
+    "exercises": "{{n}} exercice(s)",
+    "room": "{{n}} exercice(s) démarré(s)",
+    "gaps": "{{n}} lacune(s) détectée(s)",
+    "reports": "{{n}} rapport(s)"
   }
 }

@@ -1,0 +1,92 @@
+{
+  "label": "Où vous en êtes dans le parcours ALERTE",
+  "stepOf": "Étape {{n}} sur {{total}}",
+  "next": "Étape suivante :",
+  "prereq": {
+    "title": "Avant de commencer sur cette page",
+    "fix": "Le créer"
+  },
+  "phases": {
+    "prepare": {
+      "short": "{{n}}. Préparer",
+      "name": "Préparer l'exercice",
+      "desc": "Construire tout ce dont l'exercice a besoin : institutions, documents, mandats, agents, permissions, scénario et sièges."
+    },
+    "conduct": {
+      "short": "{{n}}. Conduire",
+      "name": "Conduire l'exercice",
+      "desc": "Voir arriver les événements, les institutions décider et échanger, et intervenir comme animateur ou comme joueur."
+    },
+    "analyse": {
+      "short": "{{n}}. Analyser",
+      "name": "Analyser les résultats",
+      "desc": "Examiner les lacunes et leurs preuves, les valider, produire les rapports, vérifier le journal et rejouer."
+    }
+  },
+  "steps": {
+    "institutions": {
+      "title": "Pays, institutions et mandats",
+      "what": "Définir qui participe (pays, institutions), ce que chacune peut ou doit faire (mandats) et les actions qu'une crise exige.",
+      "next": "Ajoutez ensuite les documents sur lesquels les institutions s'appuient."
+    },
+    "knowledge": {
+      "title": "Bases de connaissances",
+      "what": "Importer les lois, décrets et plans, contrôler la qualité d'extraction, puis publier une version : les agents ne lisent que les versions publiées.",
+      "next": "Créez ensuite les agents qui joueront les institutions."
+    },
+    "agents": {
+      "title": "Agents",
+      "what": "Créer un agent par institution : mission, instructions, outils et limites (et, pour un exercice avec une vraie IA, un profil de modèle).",
+      "next": "Décidez ensuite quelle base chaque agent peut lire."
+    },
+    "access": {
+      "title": "Accès aux connaissances",
+      "what": "Cocher quel agent peut lire quelle base de connaissances. Un agent ne peut jamais récupérer un texte d'une base qui ne lui est pas accordée.",
+      "next": "Écrivez ou importez ensuite le scénario."
+    },
+    "scenarios": {
+      "title": "Scénarios",
+      "what": "Écrire l'histoire de la crise : événements ordonnés (injects), qui reçoit chacun et ce qu'il exige. Lancer les contrôles.",
+      "next": "Créez ensuite un exercice à partir du scénario."
+    },
+    "exercises": {
+      "title": "Exercices, sièges et préparation",
+      "what": "Créer l'exercice, donner un siège à chaque institution (agent IA ou humain nommé), lancer les contrôles de préparation, puis démarrer.",
+      "next": "Ouvrez ensuite la salle de simulation."
+    },
+    "room": {
+      "title": "Salle de simulation",
+      "what": "Suivre l'exercice en direct : horloge, événements, sièges, décisions, tableau de coordination. Pause, reprise, pas à pas, surprise, arrêt.",
+      "next": "Quand l'exercice est terminé, examinez les lacunes."
+    },
+    "gaps": {
+      "title": "Analyse des lacunes",
+      "what": "Lire chaque lacune avec sa chaîne de preuves, puis la confirmer, la contester ou la rejeter. Rien n'est définitif tant qu'un humain ne l'a pas relu.",
+      "next": "Produisez ensuite le rapport."
+    },
+    "reports": {
+      "title": "Rapports",
+      "what": "Générer un rapport versionné depuis un exercice, le publier, le télécharger, comparer des versions ou des exercices.",
+      "next": "Vérifiez ensuite le journal."
+    },
+    "audit": {
+      "title": "Audit et rejeu",
+      "what": "Vérifier que le journal n'a pas été altéré, lire chaque événement, ouvrir les traces de décision et rejouer l'exercice sans appeler aucun modèle.",
+      "next": "Consultez ensuite l'évaluation."
+    },
+    "evaluation": {
+      "title": "Évaluation et scorecard",
+      "what": "Mesurer l'exercice (T1 à T6) et remplir le scorecard AI Readiness à 13 dimensions. Ce qui n'est pas mesuré est « non calculé », jamais zéro.",
+      "next": "Vous avez terminé le parcours."
+    }
+  },
+  "needs": {
+    "institution": "Au moins une institution (Pays, institutions et mandats).",
+    "agent": "Au moins un agent (Agents).",
+    "kb": "Au moins une base de connaissances (Bases de connaissances).",
+    "publishedKb": "Au moins une base publiée : les agents ne lisent que les versions publiées.",
+    "scenario": "Un scénario avec au moins un événement (Scénarios).",
+    "exercise": "Un exercice (Exercices et sièges).",
+    "finished": "Un exercice terminé : les lacunes et les rapports sont produits à partir d'un exercice déjà joué."
+  }
+}

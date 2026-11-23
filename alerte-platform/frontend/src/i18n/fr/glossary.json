@@ -1,0 +1,72 @@
+{
+  "title": "Glossaire",
+  "description": "Les mots utilisés dans ALERTE, en langage simple.",
+  "about": "Qu'est-ce que « {{term}} » ?",
+  "seeAll": "Voir tout le glossaire",
+  "terms": {
+    "workspace": {
+      "name": "Espace de travail (Workspace)",
+      "def": "Un espace isolé pour un projet, une organisation ou une équipe. Il contient tout : pays, institutions, bases de connaissances, mandats, agents, permissions, scénarios, exercices et rapports. Deux espaces ne voient jamais les données l'un de l'autre. Ce n'est ni un pays, ni un scénario, ni un exercice."
+    },
+    "knowledgeBase": {
+      "name": "Base de connaissances (KB)",
+      "def": "Une bibliothèque de documents (lois, décrets, plans, rapports) découpés en passages interrogeables. Les agents ne lisent que les bases qui leur sont accordées, et seulement leurs versions publiées."
+    },
+    "chunk": {
+      "name": "Chunk (passage)",
+      "def": "Un morceau de document, en général un article, avec sa page, son numéro d'article et sa langue. Les recherches renvoient des chunks et chaque citation en désigne un."
+    },
+    "mandate": {
+      "name": "Mandat",
+      "def": "Une ligne de la carte « qui fait quoi » : une institution peut ou doit faire une action, avec le texte qui le dit. Il est écrit dans un texte, déduit d'un texte, ou supposé. Seul un mandat validé dont la source se résout compte comme documenté."
+    },
+    "registry": {
+      "name": "Revue du registre",
+      "def": "Une déclaration humaine que la liste des mandats d'une institution est complète. Tant qu'elle n'est pas faite, un mandat absent n'est jamais présenté comme une lacune documentée."
+    },
+    "agent": {
+      "name": "Agent",
+      "def": "Une institution virtuelle : une IA (ou un remplaçant scénarisé, étiqueté SANS IA) avec une mission, des outils et des limites. Il ne sait que ce que son institution saurait."
+    },
+    "accessMapping": {
+      "name": "Matrice d'accès",
+      "def": "La grille agents × bases de connaissances : quel agent peut lire quelle base. Elle est appliquée par le serveur à chaque recherche."
+    },
+    "scenario": {
+      "name": "Scénario",
+      "def": "L'histoire de la crise : une liste ordonnée d'événements (injects). Réutilisable pour autant d'exercices que voulu."
+    },
+    "inject": {
+      "name": "Inject (événement)",
+      "def": "Un événement de l'histoire : temps simulé, émetteur, destinataires, texte, ce qu'il exige, étiquettes et type de défaillance facultatif. Il n'est livré qu'à ses destinataires."
+    },
+    "seat": {
+      "name": "Siège",
+      "def": "La place d'une institution dans un exercice, tenue par un agent IA ou par un humain nommé qui reçoit un lien personnel."
+    },
+    "readiness": {
+      "name": "Préparation (readiness)",
+      "def": "Les contrôles avant lancement d'un exercice. Un problème bloquant empêche le lancement ; un avertissement le permet mais est consigné."
+    },
+    "exercise": {
+      "name": "Exercice",
+      "def": "Un déroulé d'un scénario avec un ensemble donné de sièges. Sa configuration est figée au lancement (instantané) et tout ce qui se passe est enregistré."
+    },
+    "gap": {
+      "name": "Lacune (gap)",
+      "def": "Un trou dans les règles trouvé par une règle explicite (G1 à G10), avec ses preuves. Elle reste « proposée » tant qu'un humain ne l'a pas confirmée, contestée ou rejetée."
+    },
+    "ledger": {
+      "name": "Ledger (journal)",
+      "def": "Le registre en ajout seul de l'exercice. Chaque entrée porte une empreinte chaînée à la précédente : toute altération est détectable. Inviolable en apparence (tamper-evident), pas infalsifiable."
+    },
+    "replay": {
+      "name": "Rejeu (replay)",
+      "def": "Reconstruire n'importe quel moment d'un exercice passé à partir de son ledger, sans appeler aucun modèle."
+    },
+    "scripted": {
+      "name": "Scénarisé (SANS IA)",
+      "def": "Un mode de test aux réponses déterministes. Il prouve que la plateforme fonctionne, jamais qu'une IA raisonne bien. Il est étiqueté SANS IA partout."
+    }
+  }
+}

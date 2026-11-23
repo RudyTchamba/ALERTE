@@ -128,7 +128,7 @@ class FakeScenarios:
             raise NotFound("scénario introuvable")
         return copy.deepcopy(self.scenarios[scenario_id])
 
-    def readiness_scenario_checks(self, session, workspace_id, scenario_id):  # noqa: ANN001
+    def readiness_scenario_checks(self, session, workspace_id, scenario_id, max_llm_calls=None):  # noqa: ANN001
         return []
 
 

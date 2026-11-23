@@ -1,0 +1,64 @@
+{
+ "scenario": "ae-core",
+ "title": "Rising Waters, UAE (core drill)",
+ "country": "AE",
+ "language": "en",
+ "brain": {
+  "brain": "offline"
+ },
+ "events": 12,
+ "decisions": 29,
+ "messages": 98,
+ "gaps": 18,
+ "gaps_by_type": {
+  "G1": 3,
+  "G2": 3,
+  "G3": 5,
+  "G6": 1,
+  "G7": 2,
+  "G8": 3,
+  "G9": 1
+ },
+ "confirmed_gaps": 10,
+ "expected_gap_coverage": {
+  "expected": 14,
+  "found": 14,
+  "rate": 1.0,
+  "missed": []
+ },
+ "citations": {
+  "citations": 8,
+  "verified": 8,
+  "rate": 1.0
+ },
+ "no_legal_basis_decisions": 11,
+ "llm_failures_fallback_used": 0,
+ "decisions_by_author": {
+  "rules": 27,
+  "scripted": 2
+ },
+ "ai_calls": 0,
+ "discussion_messages": 0,
+ "seconds": 0.07,
+ "scorecard": {
+  "1": -1.0,
+  "2": 0.7,
+  "3": 2.8,
+  "4": 3.0,
+  "5": 0.0,
+  "6": 3.0,
+  "7": 0.0,
+  "8": 1.2,
+  "9": 1.2,
+  "10": 0.5,
+  "11": 3.0,
+  "12": -1.0,
+  "13": 4.4
+ },
+ "ledger": {
+  "ok": true,
+  "entries": 208,
+  "first_bad_seq": null,
+  "message": "intact: 208 entries, chain verified"
+ }
+}

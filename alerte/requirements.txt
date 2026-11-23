@@ -1,0 +1,19 @@
+# Core: enough to run everything offline (Windows, macOS, Linux; Python 3.10 to 3.13)
+pydantic>=2.5
+PyYAML>=6.0
+numpy>=1.24
+PyMuPDF>=1.24
+streamlit>=1.40
+markdown>=3.5
+python-docx>=1.1
+pytest>=8
+# Reading every document: scans (OCR), tables, pictures with text, Office files
+pytesseract>=0.3.10
+opencv-python-headless>=4.8
+Pillow>=10.0
+python-pptx>=0.6.23
+openpyxl>=3.1
+xlrd>=2.0.1
+rapidfuzz>=3.5
+striprtf>=0.0.26
+# The Tesseract PROGRAM itself is installed separately (setup scripts do it): python -m alerte ocr-setup

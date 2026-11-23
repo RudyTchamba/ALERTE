@@ -1,0 +1,29 @@
+# ALERTE + a local AI model (Ollama), all free and open source.
+#   docker compose up -d
+#   docker compose exec ollama ollama pull qwen2.5:7b-instruct
+#   open http://localhost:8501
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes: [ollama:/root/.ollama]
+    ports: ["11434:11434"]
+    # GPU (NVIDIA): uncomment
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{driver: nvidia, count: all, capabilities: [gpu]}]
+  alerte:
+    build: .
+    depends_on: [ollama]
+    ports: ["8501:8501"]
+    environment:
+      ALERTE_BRAIN: ${ALERTE_BRAIN:-llm}
+      ALERTE_LLM_BASE_URL: http://ollama:11434/v1
+      ALERTE_LLM_MODEL: ${ALERTE_LLM_MODEL:-qwen2.5:7b-instruct}
+      ALERTE_EMBED_BASE_URL: http://ollama:11434
+      ALERTE_SLACK_WEBHOOK_URL: ${ALERTE_SLACK_WEBHOOK_URL:-}
+    volumes:
+      - ./runs:/app/alerte/runs
+      - ./data:/app/alerte/data
+volumes:
+  ollama: {}

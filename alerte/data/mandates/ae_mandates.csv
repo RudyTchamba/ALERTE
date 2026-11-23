@@ -1,0 +1,18 @@
+line_id,country,institution,kind,action,description,source_doc,article,procedure,depends_on,dependency_ready,evidence,assumed_by
+AE-L01,AE,DPC,power,coordinate_response,NCEMA coordinates national emergency management; press and summaries differ on how it shares this role with other authorities,AE-S02,,National framework (official text to obtain),,yes,inferred,
+AE-L02,AE,DPC,power,decide_public_alert,NCEMA coordinates public warnings through the national alert framework (summaries; the text that authorises each alert is not yet found),AE-S02,,National framework (official text to obtain),,yes,inferred,
+AE-L03,AE,ART,power,set_alert_standard,TDRA sets the technical specifications under which operators and handsets deliver UAE-Alert cell broadcast messages; no text found that lets TDRA or anyone oblige operators to relay an alert,AE-S02,,TDRA specifications for handsets and cell broadcast (to verify in full),,yes,inferred,
+AE-L04,AE,OPS,duty,send_mass_alert,Operators transmit cell broadcast alerts to compatible devices in the targeted cells,AE-S02,,TDRA cell broadcast standards,,yes,inferred,
+AE-L05,AE,MET,duty,issue_weather_warning,The National Centre of Meteorology issues weather information and warnings,AE-S05,,,,yes,documented,
+AE-L06,AE,DPC,power,activate_contingency_plan,NCEMA coordinates emergency plans nationally,AE-S02,,,,yes,inferred,
+AE-L07,AE,DPC,power,evacuate_zone,Emergency instructions to the public are coordinated through the national framework,AE-S02,,,,yes,inferred,
+AE-L08,AE,DPA,duty,protect_personal_data,The UAE Data Office supervises the federal personal data protection law,AE-S01,,,,yes,documented,
+AE-L09,AE,MINSANTE,power,access_location_data,"The PDPL lists cases where processing without consent is allowed, including public health cases",AE-S01,,,,yes,inferred,
+AE-L10,AE,DPA,power,authorise_transfer_abroad,Transfers abroad are allowed to adequate countries and in other cases listed by the PDPL,AE-S01,,Adequacy or listed cases (PDPL),,yes,documented,
+AE-L11,AE,ANTIC,power,block_spoofed_alert,The UAE Cybersecurity Council handles national cybersecurity incidents,,,,,yes,assumed,"ALERTE team, 2026-10-07: official mandate text to obtain"
+AE-L12,AE,MINSANTE,duty,cholera_response,"The State must detect, assess, notify and report outbreaks (International Health Regulations)",GL-S14,Article 6,Emirate and federal health authority procedures (to obtain),,yes,inferred,
+AE-L13,AE,CTD,power,act_on_local_warning,Dubai Municipality manages local drainage and public works response,,,,,yes,assumed,"ALERTE team, 2026-10-07: to verify"
+AE-L14,AE,MOI,power,decide_public_alert,Press descriptions name the Ministry of Interior as supervising or issuing public alerts; sources give different launch years and roles,AE-S02,,,,yes,inferred,
+AE-L15,AE,MOI,power,coordinate_response,Civil defence has historically sat under the Ministry of Interior; the 2025 reorganisation moved parts to the Civil Defence Authority inside NCEMA (to verify),AE-S06,,,,yes,inferred,
+AE-L16,AE,ART,duty,multilingual_alerting,TDRA handset specification TS040 requires English and Arabic (per summary); no duty found for other languages or channels,AE-S02,,,,yes,inferred,
+AE-L17,AE,DPC,power,act_on_local_warning,NCEMA coordinates emergency plans nationally and can act on local reports,AE-S02,,,,yes,inferred,

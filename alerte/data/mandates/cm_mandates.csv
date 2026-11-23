@@ -1,0 +1,15 @@
+line_id,country,institution,kind,action,description,source_doc,article,procedure,depends_on,dependency_ready,evidence,assumed_by
+CM-L01,CM,DPC,lead,coordinate_response,"The Civil Protection Directorate (MINAT) coordinates relief, rescue, logistics and auxiliary forces",CM-S01,,"Crisis committees at departmental, regional and national level",,yes,documented,
+CM-L02,CM,COORD,power,coordinate_response,"The National Council for Civil Protection proposes preventive measures, coordinates their implementation and becomes a crisis unit during a declared calamity (Decree 96/054)",CM-S01,,"Converts into a crisis unit once a calamity is declared",,yes,documented,
+CM-L03,CM,DPC,duty,decide_public_alert,"The warning must be disseminated after the activation of emergency plans (Decree 98/031)",CM-S01,,,,yes,documented,
+CM-L04,CM,DPC,power,activate_contingency_plan,"Emergency and rescue plans are organised by Decree 98/031",CM-S01,,"Set by Decree 98/031 (to verify in the official text)",,yes,inferred,
+CM-L05,CM,DPC,power,evacuate_zone,"Administrative authorities order the evacuation of danger zones",CM-S07,,,,yes,inferred,
+CM-L06,CM,MET,duty,issue_weather_warning,"The national meteorology service issues weather forecasts and warnings",,,,,yes,assumed,"ALERTE team, 2026-10-07: organisation decree of the meteorology service to obtain"
+CM-L07,CM,ONR,power,issue_weather_warning,"The National Risk Observatory collects and disseminates information on risks (Order 037/PM)",CM-S01,,,,yes,documented,
+CM-L09,CM,OPS,power,send_mass_alert,"Licensed operators run the networks and can technically send SMS to subscribers",CM-S03,,,,yes,inferred,
+CM-L10,CM,ANTIC,power,block_spoofed_alert,"ANTIC is the national body in charge of electronic security; spoofing and fraudulent links are cybercrimes (Law 2010/012)",CM-S04,,,,yes,inferred,
+CM-L11,CM,CTD,power,act_on_local_warning,"Local councils take part in local civil protection and receive community reports",,,,,yes,assumed,"ALERTE team, 2026-10-07: to verify in Law 2019/024"
+CM-L12,CM,MINSANTE,duty,cholera_response,"The State must detect, assess, notify and report outbreaks (International Health Regulations)",GL-S14,Article 6,"National cholera plan (to obtain)",,yes,inferred,
+CM-L13,CM,DPA,duty,protect_personal_data,"The data protection authority enforces Law 2024/017 with powers of investigation, audit and coercion",CM-S02,,,,yes,documented,
+CM-L14,CM,OPS,duty,protect_personal_data,"Controllers, including operators, must secure personal data and respect consent",CM-S02,,,,yes,documented,
+CM-L15,CM,DPA,power,authorise_transfer_abroad,"Transfers of personal data abroad require the prior authorisation of the data protection authority",CM-S02,,,"APDP able to grant authorisations quickly in a crisis",unknown,documented,

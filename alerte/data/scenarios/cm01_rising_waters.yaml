@@ -1,0 +1,211 @@
+id: cm01
+title: "Rising Waters (Cameroon)"
+country: CM
+language: en
+fictional_notice: "Fictional exercise. Not a real alert. HydroSense and all numbers in the events are invented; places and institutions are real."
+summary: >
+  A fictional AI system, HydroSense, forecasts floods and drafts alerts. Act 1 (Douala): a false
+  alarm sent to every phone. Act 2 (Far North): a missed flood because sensors were down, a
+  French-only alert, areas without coverage. Act 3: cholera, a request for phone location data,
+  and a vendor processing data abroad.
+ai_system: HYDRO
+roles_file: roles/cm.yaml
+events:
+  - id: 1
+    act: 1
+    sim_time: "D1 06:00"
+    to: [MET]
+    sender: SENSORS
+    severity: 2
+    failure_mode: ""
+    required_actions: [issue_weather_warning]
+    expected_gaps: [G2]
+    realism_source: [CM-S07]
+    text:
+      en: "Rain gauges in Douala record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday."
+      fr: "Les pluviomètres de Douala enregistrent 80 mm en 3 heures. La prévision nationale annonce de fortes pluies jusqu'à midi."
+  - id: 2
+    act: 1
+    sim_time: "D1 06:20"
+    to: [MET, HYDRO]
+    sender: HYDRO
+    severity: 3
+    failure_mode: false_alarm
+    required_actions: [validate_ai_forecast]
+    expected_gaps: [G8]
+    realism_source: [SCN-01, GL-S06]
+    text:
+      en: "HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: 'URGENT: major flood in Douala within 6 hours. Move to high ground now.'"
+      fr: "HydroSense : alerte ROUGE, crue du Wouri attendue dans 6 heures, probabilité 70 %. Projet de SMS : 'URGENT : grave inondation à Douala dans 6 heures. Rejoignez immédiatement les hauteurs.'"
+  - id: 3
+    act: 1
+    sim_time: "D1 06:45"
+    to: [DPC]
+    sender: MET
+    severity: 3
+    failure_mode: over_trust
+    required_actions: [decide_public_alert]
+    expected_gaps: [G3]
+    realism_source: [CM-S01]
+    text:
+      en: "Email from the weather service: 'HydroSense issues a RED flood alert for Douala (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet."
+      fr: "Courriel du service météorologique : 'HydroSense emet une alerte ROUGE inondation pour Douala (ci-jointe). Merci de prendre les mesures nécessaires.' Aucun prévisionniste n'a encore vérifié le résultat de l'IA."
+  - id: 4
+    act: 1
+    sim_time: "D1 07:10"
+    to: [OPS]
+    sender: DPC
+    severity: 3
+    failure_mode: over_trust
+    required_actions: [compel_operator_alert, send_mass_alert]
+    expected_gaps: [G1, G3]
+    realism_source: [CM-S03, GL-S04, GL-S01]
+    text:
+      en: "Phone call from civil protection: 'Send the HydroSense SMS to every phone number in Douala, now.' No written order, no legal reference, nothing said about cost."
+      fr: "Appel de la protection civile : 'Envoyez tout de suite le SMS de HydroSense à tous les numéros de Douala.' Aucun ordre écrit, aucune référence juridique, rien sur le coût."
+  - id: 5
+    act: 1
+    sim_time: "D1 08:30"
+    to: [DPC, CTD, ART]
+    sender: MEDIA
+    severity: 3
+    failure_mode: false_alarm
+    required_actions: [liability_alert_harm]
+    expected_gaps: [G6]
+    realism_source: [GL-S06]
+    public: true
+    text:
+      en: "Social media: panic in Douala after the SMS. Traffic jams on the main roads; 14 people injured in a crowd near a market. Families ask who will pay for medical costs."
+      fr: "Réseaux sociaux : panique à Douala apres le SMS. Embouteillages sur les grands axes ; 14 blesses dans une bousculade près d'un marché. Des familles demandent qui paiera les frais médicaux."
+  - id: 6
+    act: 1
+    sim_time: "D1 12:00"
+    to: [MET, DPC, OPS, ART, CTD]
+    sender: MEDIA
+    severity: 2
+    failure_mode: false_alarm
+    required_actions: [correct_false_alert, public_communication_after_error]
+    expected_gaps: [G1]
+    realism_source: [GL-S06, GL-S10]
+    public: true
+    text:
+      en: "No flood. The Wouri stays at a normal level. Journalists ask who sent the SMS and why no correction was sent."
+      fr: "Aucune inondation. Le Wouri reste a un niveau normal. Des journalistes demandent qui a envoyé le SMS et pourquoi aucun correctif n'a été envoyé."
+  - id: 7
+    act: 1
+    sim_time: "D1 15:00"
+    to: [ANTIC, ART]
+    sender: OPS
+    severity: 2
+    failure_mode: spoofing
+    required_actions: [block_spoofed_alert]
+    expected_gaps: [G9]
+    realism_source: [CM-S04]
+    text:
+      en: "A fake follow-up SMS spreads: 'Dam broken, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+      fr: "Un faux SMS de suite circule : 'Barrage rompu, évacuez maintenant, inscrivez-vous pour l'aide ici : [lien frauduleux]'. Il imite l'alerte précédente."
+  - id: 8
+    act: 2
+    sim_time: "D11 04:00"
+    to: [MET, HYDRO]
+    sender: HYDRO
+    severity: 3
+    failure_mode: missed_event
+    required_actions: [report_sensor_outage, validate_ai_forecast]
+    expected_gaps: [G8]
+    realism_source: [SCN-01, CM-S06]
+    text:
+      en: "HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been offline for 48 hours.)"
+      fr: "HydroSense : JAUNE, faible risque de crue sur le Logone. (Non affiché sur le tableau de bord : 3 des 7 capteurs du fleuve sont hors service depuis 48 heures.)"
+  - id: 9
+    act: 2
+    sim_time: "D11 09:00"
+    to: [CTD]
+    sender: FIELD
+    severity: 3
+    failure_mode: missed_event
+    required_actions: [act_on_local_warning]
+    expected_gaps: [G3]
+    realism_source: [CM-S06]
+    text:
+      en: "A village chief near Kousseri calls the council: 'The water is rising fast, people are moving to the school.' The AI still says low risk."
+      fr: "Un chef de village près de Kousseri appelle la commune : 'L'eau monte vite, les gens se réfugient à l'école.' L'IA indique toujours un risque faible."
+  - id: 10
+    act: 2
+    sim_time: "D11 11:30"
+    to: [DPC, OPS]
+    sender: DPC
+    severity: 3
+    failure_mode: language_exclusion
+    required_actions: [multilingual_alerting, reach_unconnected]
+    expected_gaps: [G7]
+    realism_source: [GL-S08, GL-S09]
+    text:
+      en: "The alert is approved and sent by SMS, in French only. About 30% of the affected area has no mobile coverage; many residents speak Arabic Choa, Fulfulde or Kotoko."
+      fr: "L'alerte est validée et envoyée par SMS, en français seulement. Environ 30 % de la zone touchée n'a pas de couverture mobile ; beaucoup d'habitants parlent l'arabe choa, le fulfulde ou le kotoko."
+  - id: 11
+    act: 2
+    sim_time: "D11 18:00"
+    to: [MET, DPC, OPS, ART, MINSANTE, CTD]
+    sender: FIELD
+    severity: 3
+    failure_mode: ""
+    required_actions: [coordinate_response, activate_contingency_plan, evacuate_zone]
+    expected_gaps: [G3]
+    realism_source: [CM-S06, CM-S01]
+    text:
+      en: "About 40,000 people are displaced in Logone-et-Chari. Schools and health centres are flooded."
+      fr: "Environ 40 000 personnes sont déplacées dans le Logone-et-Chari. Des écoles et des centres de santé sont inondés."
+  - id: 12
+    act: 3
+    sim_time: "D25 10:00"
+    to: [MINSANTE]
+    sender: FIELD
+    severity: 3
+    failure_mode: ""
+    required_actions: [cholera_response]
+    expected_gaps: []
+    realism_source: [CM-S06, GL-S14]
+    text:
+      en: "First suspected cholera cases in two displacement sites near Kousseri and Maroua."
+      fr: "Premiers cas suspects de choléra dans deux sites de deplaces près de Kousseri et de Maroua."
+  - id: 13
+    act: 3
+    sim_time: "D26 09:00"
+    to: [MINSANTE, OPS, DPA]
+    sender: MINSANTE
+    severity: 3
+    failure_mode: privacy_breach
+    required_actions: [access_location_data, protect_personal_data]
+    expected_gaps: [G1, G5]
+    realism_source: [CM-S02, GL-S03]
+    text:
+      en: "The health ministry asks operators for anonymised location data of phones that were in the flooded areas, to follow movements of possibly exposed people."
+      fr: "Le ministère de la santé demande aux opérateurs les données de localisation anonymisées des téléphones présents dans les zones inondées, pour suivre les déplacements des personnes potentiellement exposées."
+  - id: 14
+    act: 3
+    sim_time: "D26 14:00"
+    to: [DPA, MINSANTE, HYDRO]
+    sender: HYDRO
+    severity: 3
+    failure_mode: data_abroad
+    required_actions: [authorise_transfer_abroad, cross_border_agreement]
+    expected_gaps: [G4, G10]
+    realism_source: [CM-S02, SCN-01, GL-S11]
+    text:
+      en: "The HydroSense vendor offers to analyse the location data on its cloud servers outside Cameroon, 'within 24 hours'."
+      fr: "Le fournisseur de HydroSense propose d'analyser les données de localisation sur ses serveurs cloud hors du Cameroun, 'sous 24 heures'."
+  - id: 15
+    act: 3
+    sim_time: "D27 10:00"
+    to: [MET, DPC, OPS, ART, MINSANTE, DPA, CTD, ANTIC]
+    sender: PARLIAMENT
+    severity: 2
+    failure_mode: ""
+    required_actions: [accountability_report]
+    expected_gaps: [G1]
+    realism_source: []
+    public: true
+    text:
+      en: "Members of parliament request a report: 'Who was responsible for each failure: the false alarm, the late alert, and the data request?'"
+      fr: "Des parlementaires demandent un rapport : 'Qui était responsable de chaque défaillance : la fausse alerte, l'alerte tardive et la demande de données ?'"

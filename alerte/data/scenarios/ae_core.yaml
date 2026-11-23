@@ -1,0 +1,254 @@
+id: ae-core
+title: Rising Waters, UAE (core drill)
+country: AE
+language: en
+profile: core
+gap_rules:
+- G1
+- G2
+- G3
+- G6
+- G7
+- G8
+- G9
+fictional_notice: Fictional exercise. Not a real alert. HydroSense and all numbers in the events are invented; places and institutions are real.
+summary: 'Core hackathon drill, UAE first. Act 1: a false alarm in Dubai. Act 2: a missed flood in Al Ain. Then a stress test: the AI vendor offers to skip human validation. Five institution agents, the AI system under test and the Legal Adviser.'
+ai_system: HYDRO
+roles_file: roles/ae_core.yaml
+events:
+- id: 1
+  act: 1
+  sim_time: D1 06:00
+  to:
+  - MET
+  sender: SENSORS
+  severity: 2
+  failure_mode: ''
+  public: false
+  required_actions:
+  - issue_weather_warning
+  expected_gaps:
+  - G3
+  realism_source:
+  - AE-S05
+  text:
+    en: Rain gauges in Dubai record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday.
+- id: 2
+  act: 1
+  sim_time: D1 06:20
+  to:
+  - MET
+  - HYDRO
+  sender: HYDRO
+  severity: 3
+  failure_mode: false_alarm
+  public: false
+  required_actions:
+  - validate_ai_forecast
+  expected_gaps:
+  - G8
+  realism_source:
+  - SCN-02
+  - GL-S06
+  text:
+    en: 'HydroSense: RED alert, flash flood expected in Dubai within 6 hours, probability 70%. Draft message: ''URGENT: major flooding in Dubai within 6 hours. Stay indoors and avoid wadis.'''
+- id: 3
+  act: 1
+  sim_time: D1 06:45
+  to:
+  - DPC
+  sender: MET
+  severity: 3
+  failure_mode: over_trust
+  public: false
+  required_actions:
+  - decide_public_alert
+  - human_validate_ai_alert
+  expected_gaps:
+  - G2
+  - G3
+  realism_source:
+  - AE-S02
+  - GL-S02
+  text:
+    en: 'Message from the meteorology centre: ''HydroSense issues a RED flood alert for Dubai (attached). Please take the necessary measures.'' No forecaster has reviewed the AI output yet.'
+- id: 4
+  act: 1
+  sim_time: D1 07:10
+  to:
+  - OPS
+  sender: DPC
+  severity: 3
+  failure_mode: over_trust
+  public: false
+  required_actions:
+  - compel_operator_alert
+  - send_mass_alert
+  expected_gaps:
+  - G1
+  realism_source:
+  - AE-S02
+  - GL-S01
+  text:
+    en: 'Request through the national alert framework: ''Broadcast the HydroSense message to all phones in Dubai, now.'''
+- id: 5
+  act: 1
+  sim_time: D1 08:30
+  to:
+  - DPC
+  - ART
+  sender: MEDIA
+  severity: 3
+  failure_mode: false_alarm
+  public: true
+  required_actions:
+  - liability_alert_harm
+  expected_gaps:
+  - G6
+  realism_source:
+  - GL-S06
+  text:
+    en: 'Social media: panic after the alert. Traffic jams on Sheikh Zayed Road; 14 people injured in a crowd at a metro station. Families ask who will pay for medical costs.'
+- id: 6
+  act: 1
+  sim_time: D1 12:00
+  to:
+  - MET
+  - DPC
+  - OPS
+  - ART
+  sender: MEDIA
+  severity: 2
+  failure_mode: false_alarm
+  public: true
+  required_actions:
+  - correct_false_alert
+  - public_communication_after_error
+  expected_gaps:
+  - G1
+  realism_source:
+  - GL-S06
+  - GL-S10
+  text:
+    en: No flood. Journalists ask who sent the alert and why no correction was sent.
+- id: 7
+  act: 1
+  sim_time: D1 15:00
+  to:
+  - ANTIC
+  - ART
+  sender: OPS
+  severity: 2
+  failure_mode: spoofing
+  public: false
+  required_actions:
+  - block_spoofed_alert
+  expected_gaps:
+  - G9
+  realism_source: []
+  text:
+    en: 'A fake follow-up SMS spreads: ''Dam overflow, evacuate now, register for aid here: [fraudulent link]''. It imitates the earlier alert.'
+- id: 8
+  act: 2
+  sim_time: D11 04:00
+  to:
+  - MET
+  - HYDRO
+  sender: HYDRO
+  severity: 3
+  failure_mode: missed_event
+  public: false
+  required_actions:
+  - report_sensor_outage
+  - validate_ai_forecast
+  expected_gaps:
+  - G8
+  realism_source:
+  - SCN-02
+  - AE-S05
+  text:
+    en: 'HydroSense: YELLOW, low flood risk in Al Ain. (Not shown on the dashboard: 3 of the 7 rain and wadi sensors have been offline for 48 hours.)'
+- id: 9
+  act: 2
+  sim_time: D11 09:00
+  to:
+  - DPC
+  - MET
+  sender: FIELD
+  severity: 3
+  failure_mode: missed_event
+  public: false
+  required_actions:
+  - act_on_local_warning
+  expected_gaps:
+  - G3
+  realism_source:
+  - AE-S05
+  text:
+    en: 'A resident association reports: ''Water is rising fast in the underpasses, cars are trapped.'' The AI still says low risk.'
+- id: 10
+  act: 2
+  sim_time: D11 11:30
+  to:
+  - DPC
+  - OPS
+  - ART
+  sender: DPC
+  severity: 3
+  failure_mode: language_exclusion
+  public: false
+  required_actions:
+  - multilingual_alerting
+  - reach_unconnected
+  expected_gaps:
+  - G7
+  realism_source:
+  - GL-S08
+  - GL-S09
+  text:
+    en: The alert is approved late and broadcast in Arabic and English only. Many workers speak Hindi, Urdu, Malayalam or Tagalog; some phones are older models without cell broadcast support, and one district is not covered.
+- id: 11
+  act: 2
+  sim_time: D11 18:00
+  to:
+  - MET
+  - DPC
+  - OPS
+  - ART
+  sender: FIELD
+  severity: 3
+  failure_mode: ''
+  public: false
+  required_actions:
+  - coordinate_response
+  - activate_contingency_plan
+  - evacuate_zone
+  expected_gaps:
+  - G2
+  realism_source:
+  - AE-S05
+  - AE-S06
+  text:
+    en: Several thousand residents are displaced from flooded neighbourhoods in Al Ain; schools and clinics are closed. Several authorities state that they are leading the response.
+- id: 12
+  act: 2
+  sim_time: D11 20:00
+  to:
+  - DPC
+  - OPS
+  sender: HYDRO
+  severity: 3
+  failure_mode: over_trust
+  public: false
+  required_actions:
+  - authorise_automatic_ai_alert
+  - human_validate_ai_alert
+  expected_gaps:
+  - G8
+  - G3
+  realism_source:
+  - SCN-02
+  - GL-S06
+  - GL-S02
+  text:
+    en: 'Stress test: the HydroSense vendor offers to send alerts automatically from now on, skipping human validation, to save minutes. The operator is asked to connect the feed.'

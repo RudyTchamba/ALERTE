@@ -1,3 +1,4 @@
+import { Prereq } from '@/components/Prereq'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/api/client'
@@ -19,7 +20,8 @@ export function AccessPage() {
   })
   return (
     <>
-      <PageHeader title={t('agents.accessTitle')} description={t('agents.accessDescription')} />
+      <PageHeader title={t('agents.accessTitle')} term="accessMapping" description={t('agents.accessDescription')} />
+      <Prereq page="access" />
       <p className="sr-only-live" role="status" aria-live="polite">{announce}</p>
       <QueryState q={m} what="(/access-matrix)">
         {(mx) => (

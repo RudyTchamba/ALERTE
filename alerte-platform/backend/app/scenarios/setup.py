@@ -20,8 +20,9 @@ class ScenariosService:
     def export_scenario_snapshot(self, session, workspace_id, scenario_id):  # noqa: ANN001, ANN201
         return service.export_snapshot(session, workspace_id, scenario_id, self._mandates())
 
-    def readiness_scenario_checks(self, session, workspace_id, scenario_id):  # noqa: ANN001, ANN201
-        return service.readiness_checks(session, workspace_id, scenario_id, self._mandates(), self._ctx.settings.max_llm_calls)
+    def readiness_scenario_checks(self, session, workspace_id, scenario_id, max_llm_calls=None):  # noqa: ANN001, ANN201
+        cap = max_llm_calls or self._ctx.settings.max_llm_calls
+        return service.readiness_checks(session, workspace_id, scenario_id, self._mandates(), cap)
 
     def lint(self, session, workspace_id, scenario_id):  # noqa: ANN001, ANN201
         return service.lint(session, workspace_id, scenario_id, self._mandates(), self._ctx.settings.max_llm_calls)

@@ -4,7 +4,9 @@ import { keys } from '@/api/keys'
 import { useApiQuery } from '@/api/hooks'
 import type { Exercise, Ready } from '@/api/loose'
 import { useAuth } from '@/app/auth'
-import { Badge, Card, EmptyState, PageHeader, QueryState, Section, StatusBadge, Table, TBody, Td, Th, THead, Tr } from '@/components/ui'
+import { CheckCircle2, Circle } from 'lucide-react'
+import { PHASES, STEPS, stepsOf } from '@/app/journey'
+import { Badge, Card, EmptyState, InfoTip, PageHeader, QueryState, Section, StatusBadge, Table, TBody, Td, Th, THead, Tr } from '@/components/ui'
 import { fmtDateTime } from '@/lib/format'
 import { ApiError } from '@/api/client'
 
@@ -12,34 +14,76 @@ export function exercisePath(e: Pick<Exercise, 'id' | 'state'>): string {
   return ['running', 'paused', 'interrupted', 'completed', 'stopped', 'archived'].includes(e.state) ? `/room/${e.id}` : `/studio/exercises/${e.id}`
 }
 
-function SetupChecklist() {
+type Row = Record<string, unknown>
+
+/** Le parcours en trois phases, avec l'état RÉEL de l'espace de travail (compteurs lus sur le serveur) et la prochaine étape. */
+function JourneyChecklist() {
   const { t } = useTranslation()
-  const insts = useApiQuery<unknown[]>(keys.institutions(undefined, false), '/institutions')
-  const kbs = useApiQuery<unknown[]>(keys.kbs(false), '/knowledge-bases')
-  const agents = useApiQuery<unknown[]>(keys.agents(false), '/agents')
-  const scenarios = useApiQuery<unknown[]>(keys.scenarios, '/scenarios')
-  const exercises = useApiQuery<unknown[]>(keys.exercises(), '/exercises')
-  const steps = [
-    { to: '/studio/countries', k: 'institutions', q: insts }, { to: '/studio/knowledge', k: 'knowledge', q: kbs },
-    { to: '/studio/agents', k: 'agents', q: agents }, { to: '/studio/scenarios', k: 'scenarios', q: scenarios },
-    { to: '/studio/exercises', k: 'exercises', q: exercises },
+  const insts = useApiQuery<Row[]>(keys.institutions(undefined, false), '/institutions')
+  const mandates = useApiQuery<Row[]>(keys.mandates(), '/mandates')
+  const kbs = useApiQuery<{ overview?: { published_version_no?: number | null } }[]>(keys.kbs(false), '/knowledge-bases')
+  const agents = useApiQuery<Row[]>(keys.agents(false), '/agents')
+  const matrix = useApiQuery<{ grants: Row[] }>(keys.accessMatrix, '/access-matrix')
+  const scenarios = useApiQuery<Row[]>(keys.scenarios, '/scenarios')
+  const exercises = useApiQuery<{ state: string }[]>(keys.exercises(), '/exercises')
+  const gaps = useApiQuery<Row[]>(keys.gaps(), '/gaps')
+  const reports = useApiQuery<Row[]>(keys.reports, '/reports')
+  const n = (q: { data?: unknown[] }) => q.data?.length
+  const published = kbs.data?.filter((k) => k.overview?.published_version_no).length
+  const validated = mandates.data?.filter((m) => m.validation === 'validated').length
+  const started = exercises.data?.filter((e) => ['running', 'paused', 'interrupted', 'completed', 'stopped', 'archived'].includes(e.state)).length
+  const rows: { step: string; detail: string | null; done: boolean | undefined }[] = [
+    { step: 'institutions', detail: insts.data ? t('home.counts.institutions', { i: n(insts), m: n(mandates) ?? 0, v: validated ?? 0 }) : null, done: insts.data ? insts.data.length > 0 : undefined },
+    { step: 'knowledge', detail: kbs.data ? t('home.counts.knowledge', { k: n(kbs), p: published ?? 0 }) : null, done: kbs.data ? (published ?? 0) > 0 : undefined },
+    { step: 'agents', detail: agents.data ? t('home.counts.agents', { n: n(agents) }) : null, done: agents.data ? agents.data.length > 0 : undefined },
+    { step: 'access', detail: matrix.data ? t('home.counts.access', { n: matrix.data.grants.length }) : null, done: matrix.data ? matrix.data.grants.length > 0 : undefined },
+    { step: 'scenarios', detail: scenarios.data ? t('home.counts.scenarios', { n: n(scenarios) }) : null, done: scenarios.data ? scenarios.data.length > 0 : undefined },
+    { step: 'exercises', detail: exercises.data ? t('home.counts.exercises', { n: n(exercises) }) : null, done: exercises.data ? exercises.data.length > 0 : undefined },
+    { step: 'room', detail: exercises.data ? t('home.counts.room', { n: started ?? 0 }) : null, done: exercises.data ? (started ?? 0) > 0 : undefined },
+    { step: 'gaps', detail: gaps.data ? t('home.counts.gaps', { n: n(gaps) }) : null, done: gaps.data ? gaps.data.length > 0 : undefined },
+    { step: 'reports', detail: reports.data ? t('home.counts.reports', { n: n(reports) }) : null, done: reports.data ? reports.data.length > 0 : undefined },
   ]
+  const firstTodo = rows.findIndex((r) => r.done === false)
   return (
-    <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      {steps.map((s, i) => {
-        const n = s.q.data?.length
-        const done = typeof n === 'number' && n > 0
-        return (
-          <li key={s.to}>
-            <Card>
-              <p className="text-xs font-semibold text-muted uppercase">{t('home.step', { n: i + 1 })}</p>
-              <Link to={s.to} className="font-semibold no-underline hover:underline">{t(`home.setupItems.${s.k}`)}</Link>
-              <p className="mt-1 text-sm">{s.q.isPending ? '…' : <Badge tone={done ? 'ok' : 'neutral'}>{done ? t('home.count', { n }) : t('home.todo')}</Badge>}</p>
-            </Card>
-          </li>
-        )
-      })}
-    </ol>
+    <div className="grid gap-4 lg:grid-cols-3">
+      {PHASES.map((p, pi) => (
+        <Card key={p}>
+          <h3 className="text-base font-bold">{t(`journey.phases.${p}.short`, { n: 'ABC'[pi] })} — {t(`journey.phases.${p}.name`)}</h3>
+          <p className="mb-2 text-sm text-muted">{t(`journey.phases.${p}.desc`)}</p>
+          <ol className="flex flex-col gap-2">
+            {rows.filter((r) => stepsOf(p).some((s) => s.id === r.step)).map((r) => {
+              const step = STEPS.find((s) => s.id === r.step)!
+              const isNext = rows.indexOf(r) === firstTodo
+              return (
+                <li key={r.step} className={isNext ? 'rounded-md border border-brand bg-brandsoft p-2' : 'p-2'}>
+                  <div className="flex items-start gap-2">
+                    {r.done ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok" aria-label={t('home.done')} /> : <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-label={t('home.todo')} />}
+                    <div className="min-w-0">
+                      <Link to={step.to} className="font-semibold">{t(`journey.steps.${r.step}.title`)}</Link>
+                      {isNext && <Badge tone="info">{t('home.nextStep')}</Badge>}
+                      <p className="text-sm text-muted">{r.detail ?? '…'}</p>
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+        </Card>
+      ))}
+    </div>
+  )
+}
+
+function WorkspaceExplainer() {
+  const { t } = useTranslation()
+  const { workspace, role } = useAuth()
+  return (
+    <section aria-label={t('home.whatIsWorkspace')} className="mb-6 rounded-md border border-line bg-surface p-4">
+      <h2 className="text-lg font-semibold">{t('home.whatIsWorkspace')}<InfoTip term="workspace" /></h2>
+      <p className="mt-1 max-w-3xl text-sm">{t('home.workspaceText')}</p>
+      <p className="mt-2 text-sm text-muted">{t('home.youAreIn', { name: workspace?.name ?? '', role: role ?? '' })}</p>
+      <p className="mt-2 text-sm">{t('home.start')} <Link to="/help/glossary">{t('glossary.seeAll')}</Link></p>
+    </section>
   )
 }
 
@@ -67,7 +111,8 @@ export function HomePage() {
     <>
       <PageHeader title={t('home.title', { name: workspace?.name ?? '' })} description={t('home.description')} />
       <Section title={t('home.system')}><ProviderStatus /></Section>
-      <Section title={t('home.setup')}><SetupChecklist /></Section>
+      <WorkspaceExplainer />
+      <Section title={t('home.journey')}><JourneyChecklist /></Section>
       <Section title={t('home.exercises')}>
         <QueryState q={q} what="(/exercises)">
           {(rows) => rows.length === 0 ? <EmptyState title={t('home.noExercises')} hint={t('home.noExercisesHint')} action={<Link to="/studio/exercises">{t('nav.exercises')}</Link>} /> : (

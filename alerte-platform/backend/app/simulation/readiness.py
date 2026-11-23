@@ -105,17 +105,18 @@ def compute_readiness(ctx: Any, session: Session, ex: Exercise, seats: list[Seat
             _chk(out, BLOCKING, "inject.no_recipient", "inject sans destinataire", ref)
         for r in rec:
             try:
-                workspaces.get_institution(session, ws, r)
+                rinst = workspaces.get_institution(session, ws, r)
             except NotFound:
                 _chk(out, BLOCKING, "inject.unknown_recipient", f"destinataire inexistant : {r}", ref)
                 continue
             if r not in seat_inst:
-                _chk(out, BLOCKING, "inject.recipient_without_seat", f"destinataire sans siège : {r}", ref)
+                _chk(out, BLOCKING, "inject.recipient_without_seat", f"destinataire sans siège : {getattr(rinst, 'code', r)}", ref)
         for d in i.get("demands", []):
             if d.get("action_code") and not mandates.action_exists(session, ws, d["action_code"]):
                 _chk(out, BLOCKING, "inject.unknown_action", f"action inconnue : {d['action_code']}", ref)
     if scen and hasattr(scenarios, "readiness_scenario_checks"):
-        for c in scenarios.readiness_scenario_checks(session, ws, ex.scenario_id):
+        cap_ex = int(ex.settings.get("max_llm_calls") or ctx.settings.max_llm_calls)  # le budget de l'EXERCICE prime sur le défaut serveur
+        for c in scenarios.readiness_scenario_checks(session, ws, ex.scenario_id, cap_ex):
             if c.get("ok") is True:  # `scenarios` renvoie aussi les contrôles réussis ; seuls les échecs comptent
                 continue
             _chk(out, c.get("level", WARNING), c.get("code") or c.get("id", "scenario.check"), c.get("message", ""),

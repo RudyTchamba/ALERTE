@@ -1,0 +1,793 @@
+[
+ {
+  "seat": "MET",
+  "event_id": 1,
+  "sim_time": "D1 06:00",
+  "situation": "Event 1 at D1 06:00: Rain gauges in Douala record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday.",
+  "known": [
+   "Rain gauges in Douala record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday."
+  ],
+  "unknown": [],
+  "options": [
+   "Issue an official weather or flood warning",
+   "Ask COORD to issue an official weather or flood warning"
+  ],
+  "decision": "Act: Issue an official weather or flood warning (no written procedure found; acting on general powers)",
+  "action": "issue_weather_warning",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No procedure, deadline or form for: issue an official weather or flood warning"
+  ],
+  "reasoning_summary": "Mandate line CM-L06 (assumed): The national meteorology service issues weather forecasts and warnings. Assumed by ALERTE team, 2026-10-07: organisation decree of the meteorology service to obtain",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 2,
+  "sim_time": "D1 06:20",
+  "situation": "Event 2 at D1 06:20: HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: 'URGENT: major flood in Douala within 6 hours. Move to high ground now.'",
+  "known": [
+   "HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: 'URGENT: major flood in Douala within 6 hours. Move to high ground now.'"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to check and validate an AI-generated forecast before it is used for a public decision. Flagging a gap."
+  ],
+  "decision": "No legal basis found to check and validate an AI-generated forecast before it is used for a public decision. Flagging a gap.",
+  "action": "validate_ai_forecast",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to check and validate an AI-generated forecast before it is used for a public decision"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "HYDRO",
+  "event_id": 2,
+  "sim_time": "D1 06:20",
+  "situation": "Event 2 at D1 06:20: HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: 'URGENT: major flood in Douala within 6 hours. Move to high ground now.'",
+  "known": [
+   "HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: 'URGENT: major flood in Douala within 6 hours. Move to high ground now.'"
+  ],
+  "unknown": [],
+  "options": [],
+  "decision": "Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.",
+  "action": "",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "The AI system under test has no legal power; it only informs.",
+  "author": "scripted",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 3,
+  "sim_time": "D1 06:45",
+  "situation": "Event 3 at D1 06:45: Message from the meteorology directorate: 'HydroSense issues a RED flood alert for Douala (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet.",
+  "known": [
+   "Message from the meteorology directorate: 'HydroSense issues a RED flood alert for Douala (attached). Please take the necessary measures.' No forecaster has reviewed the AI output yet."
+  ],
+  "unknown": [
+   "Has a human expert validated this information?"
+  ],
+  "options": [
+   "Decide to alert the public",
+   "Ask COORD to decide to alert the public"
+  ],
+  "decision": "Act: Decide to alert the public (no written procedure found; acting on general powers)",
+  "action": "decide_public_alert",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S01",
+    "chunk_id": "cm-s01-0005",
+    "article": "Early warning and public alerting",
+    "quote": "98/031 requires that the warning be disseminated after the activation of emergency plans, but no dedicated regulation governs the early warning system or public alerting mechanisms.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No institution holds the power or duty to approve an AI-drafted alert through a human validation step before release",
+   "No procedure, deadline or form for: decide to alert the public"
+  ],
+  "reasoning_summary": "Mandate line CM-L03 (documented): The warning must be disseminated after the activation of emergency plans (Decree 98/031)",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 4,
+  "sim_time": "D1 07:10",
+  "situation": "Event 4 at D1 07:10: Request from the civil protection directorate: 'Send the HydroSense SMS to all phones in Douala, now.'",
+  "known": [
+   "Request from the civil protection directorate: 'Send the HydroSense SMS to all phones in Douala, now.'"
+  ],
+  "unknown": [
+   "Has a human expert validated this information?"
+  ],
+  "options": [
+   "Technically send the alert to phones (SMS or cell broadcast)",
+   "Ask COORD to technically send the alert to phones (SMS or cell broadcast)"
+  ],
+  "decision": "Act: Technically send the alert to phones (SMS or cell broadcast) (no written procedure found; acting on general powers)",
+  "action": "send_mass_alert",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S03",
+    "chunk_id": "cm-s03-0002",
+    "article": "Operators",
+    "quote": "Licensed mobile network operators run the networks and can technically send messages (SMS) to their subscribers.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No institution holds the power or duty to order mobile operators to relay a public alert",
+   "No procedure, deadline or form for: technically send the alert to phones (SMS or cell broadcast)"
+  ],
+  "reasoning_summary": "Mandate line CM-L09 (inferred): Licensed operators run the networks and can technically send SMS to subscribers",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 5,
+  "sim_time": "D1 08:30",
+  "situation": "Event 5 at D1 08:30: Social media: panic after the alert. Roads blocked; 14 people injured in a crowd. Families ask who will pay for medical costs.",
+  "known": [
+   "Social media: panic after the alert. Roads blocked; 14 people injured in a crowd. Families ask who will pay for medical costs."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.",
+  "action": "liability_alert_harm",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to answer for harm caused by a wrong alert"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 5,
+  "sim_time": "D1 08:30",
+  "situation": "Event 5 at D1 08:30: Social media: panic after the alert. Roads blocked; 14 people injured in a crowd. Families ask who will pay for medical costs.",
+  "known": [
+   "Social media: panic after the alert. Roads blocked; 14 people injured in a crowd. Families ask who will pay for medical costs."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.",
+  "action": "liability_alert_harm",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to answer for harm caused by a wrong alert"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 6,
+  "sim_time": "D1 12:00",
+  "situation": "Event 6 at D1 12:00: No flood. Journalists ask who sent the alert and why no correction was sent.",
+  "known": [
+   "No flood. Journalists ask who sent the alert and why no correction was sent."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to correct or cancel a false alert. Flagging a gap."
+  ],
+  "decision": "No legal basis found to correct or cancel a false alert. Flagging a gap.",
+  "action": "correct_false_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to correct or cancel a false alert",
+   "No institution holds the power or duty to explain publicly what went wrong after an error"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ANTIC",
+  "event_id": 7,
+  "sim_time": "D1 15:00",
+  "situation": "Event 7 at D1 15:00: A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert.",
+  "known": [
+   "A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+  ],
+  "unknown": [],
+  "options": [
+   "Stop fake alerts that imitate the official channel",
+   "Ask COORD to stop fake alerts that imitate the official channel"
+  ],
+  "decision": "Act: Stop fake alerts that imitate the official channel (no written procedure found; acting on general powers)",
+  "action": "block_spoofed_alert",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S04",
+    "chunk_id": "cm-s04-0001",
+    "article": "Institutions",
+    "quote": "The National Agency for Information and Communication Technologies (ANTIC) is the national body in charge of electronic security (the exact article must be verified in the official text, document CM-04).",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: stop fake alerts that imitate the official channel"
+  ],
+  "reasoning_summary": "Mandate line CM-L10 (inferred): ANTIC is the national body in charge of electronic security; spoofing and fraudulent links are cybercrimes (Law 2010/012)",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 7,
+  "sim_time": "D1 15:00",
+  "situation": "Event 7 at D1 15:00: A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert.",
+  "known": [
+   "A fake follow-up SMS spreads: 'Dam overflow, evacuate now, register for aid here: [fraudulent link]'. It imitates the earlier alert."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask ANTIC to stop fake alerts that imitate the official channel"
+  ],
+  "decision": "Ask ANTIC to stop fake alerts that imitate the official channel",
+  "action": "block_spoofed_alert",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 8,
+  "sim_time": "D11 04:00",
+  "situation": "Event 8 at D11 04:00: HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been offline for 48 hours.)",
+  "known": [
+   "HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been offline for 48 hours.)"
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to report that sensors feeding the AI are down and the forecast is unreliable. Flagging a gap."
+  ],
+  "decision": "No legal basis found to report that sensors feeding the AI are down and the forecast is unreliable. Flagging a gap.",
+  "action": "report_sensor_outage",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to report that sensors feeding the AI are down and the forecast is unreliable",
+   "No institution holds the power or duty to check and validate an AI-generated forecast before it is used for a public decision"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "HYDRO",
+  "event_id": 8,
+  "sim_time": "D11 04:00",
+  "situation": "Event 8 at D11 04:00: HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been offline for 48 hours.)",
+  "known": [
+   "HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been offline for 48 hours.)"
+  ],
+  "unknown": [],
+  "options": [],
+  "decision": "Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.",
+  "action": "",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "The AI system under test has no legal power; it only informs.",
+  "author": "scripted",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 9,
+  "sim_time": "D11 09:00",
+  "situation": "Event 9 at D11 09:00: A village chief calls the sub-prefecture: 'The river is rising fast, houses are flooding.' The AI still says low risk.",
+  "known": [
+   "A village chief calls the sub-prefecture: 'The river is rising fast, houses are flooding.' The AI still says low risk."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to act on a local, informal warning that contradicts the AI. Flagging a gap."
+  ],
+  "decision": "No legal basis found to act on a local, informal warning that contradicts the AI. Flagging a gap.",
+  "action": "act_on_local_warning",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 9,
+  "sim_time": "D11 09:00",
+  "situation": "Event 9 at D11 09:00: A village chief calls the sub-prefecture: 'The river is rising fast, houses are flooding.' The AI still says low risk.",
+  "known": [
+   "A village chief calls the sub-prefecture: 'The river is rising fast, houses are flooding.' The AI still says low risk."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to act on a local, informal warning that contradicts the AI. Flagging a gap."
+  ],
+  "decision": "No legal basis found to act on a local, informal warning that contradicts the AI. Flagging a gap.",
+  "action": "act_on_local_warning",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Event 10 at D11 11:30: The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage.",
+  "known": [
+   "The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to send alerts in the languages people understand. Flagging a gap."
+  ],
+  "decision": "No legal basis found to send alerts in the languages people understand. Flagging a gap.",
+  "action": "multilingual_alerting",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to send alerts in the languages people understand",
+   "No institution holds the power or duty to reach people without phones or network coverage"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Event 10 at D11 11:30: The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage.",
+  "known": [
+   "The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to send alerts in the languages people understand. Flagging a gap."
+  ],
+  "decision": "No legal basis found to send alerts in the languages people understand. Flagging a gap.",
+  "action": "multilingual_alerting",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to send alerts in the languages people understand",
+   "No institution holds the power or duty to reach people without phones or network coverage"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 10,
+  "sim_time": "D11 11:30",
+  "situation": "Event 10 at D11 11:30: The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage.",
+  "known": [
+   "The alert is approved late and sent by SMS in French only. Many villagers speak Fulfulde, Arabic choa or Kanuri; large areas have no network coverage."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to send alerts in the languages people understand. Flagging a gap."
+  ],
+  "decision": "No legal basis found to send alerts in the languages people understand. Flagging a gap.",
+  "action": "multilingual_alerting",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to send alerts in the languages people understand",
+   "No institution holds the power or duty to reach people without phones or network coverage"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "MET",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [],
+  "options": [
+   "Coordinate the multi-sector response",
+   "Ask COORD to coordinate the multi-sector response"
+  ],
+  "decision": "Act: Coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S01",
+    "chunk_id": "cm-s01-0001",
+    "article": "Civil Protection Directorate (MINAT / DPC)",
+    "quote": "It coordinates relief, rescue, logistics and auxiliary forces, and manages aid from public authorities, international organisations and private donors.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "high",
+  "gap_flags": [],
+  "reasoning_summary": "Mandate line CM-L01 (documented): The Civil Protection Directorate (MINAT) coordinates relief, rescue, logistics and auxiliary forces",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [],
+  "options": [
+   "Activate the emergency and rescue plan",
+   "Ask COORD to activate the emergency and rescue plan"
+  ],
+  "decision": "Act: Activate the emergency and rescue plan",
+  "action": "activate_contingency_plan",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S01",
+    "chunk_id": "cm-s01-0000",
+    "article": "Cameroon disaster management law: summary of the IFRC legal mapping (2021) / Leg",
+    "quote": "98/031 (9 March 1998) organises emergency and rescue plans.",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [],
+  "reasoning_summary": "Mandate line CM-L04 (inferred): Emergency and rescue plans are organised by Decree 98/031",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [],
+  "options": [
+   "Order the evacuation of a danger zone",
+   "Ask COORD to order the evacuation of a danger zone"
+  ],
+  "decision": "Act: Order the evacuation of a danger zone (no written procedure found; acting on general powers)",
+  "action": "evacuate_zone",
+  "legal_basis": [
+   {
+    "doc_id": "CM-S07",
+    "chunk_id": "cm-s07-0001",
+    "article": "Warnings",
+    "quote": "The housing minister said she had asked local authorities to evacuate people from riverbeds, but that \"nobody heeded that call\".",
+    "verified": true,
+    "check_note": "verified (source is a summary)"
+   }
+  ],
+  "no_legal_basis": false,
+  "confidence": "medium",
+  "gap_flags": [
+   "No procedure, deadline or form for: order the evacuation of a danger zone"
+  ],
+  "reasoning_summary": "Mandate line CM-L05 (inferred): Administrative authorities order the evacuation of danger zones",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "ART",
+  "event_id": 11,
+  "sim_time": "D11 18:00",
+  "situation": "Event 11 at D11 18:00: Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response.",
+  "known": [
+   "Thousands of people are displaced in the Far North; schools and health centres are flooded. Several authorities state that they are leading the response."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "Ask DPC to coordinate the multi-sector response"
+  ],
+  "decision": "Ask DPC to coordinate the multi-sector response",
+  "action": "coordinate_response",
+  "legal_basis": [],
+  "no_legal_basis": false,
+  "confidence": "low",
+  "gap_flags": [],
+  "reasoning_summary": "This seat holds none of the required actions; it asks the institutions listed in the map.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "DPC",
+  "event_id": 12,
+  "sim_time": "D11 20:00",
+  "situation": "Event 12 at D11 20:00: Stress test: the HydroSense vendor offers to send alerts automatically from now on, skipping human validation, to save minutes. The operator is asked to connect the feed.",
+  "known": [
+   "Stress test: the HydroSense vendor offers to send alerts automatically from now on, skipping human validation, to save minutes. The operator is asked to connect the feed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to authorise automatic release of AI-drafted alerts without human validation. Flagging a gap."
+  ],
+  "decision": "No legal basis found to authorise automatic release of AI-drafted alerts without human validation. Flagging a gap.",
+  "action": "authorise_automatic_ai_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to authorise automatic release of AI-drafted alerts without human validation",
+   "No institution holds the power or duty to approve an AI-drafted alert through a human validation step before release"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ },
+ {
+  "seat": "OPS",
+  "event_id": 12,
+  "sim_time": "D11 20:00",
+  "situation": "Event 12 at D11 20:00: Stress test: the HydroSense vendor offers to send alerts automatically from now on, skipping human validation, to save minutes. The operator is asked to connect the feed.",
+  "known": [
+   "Stress test: the HydroSense vendor offers to send alerts automatically from now on, skipping human validation, to save minutes. The operator is asked to connect the feed."
+  ],
+  "unknown": [
+   "Which institution is legally in charge?"
+  ],
+  "options": [
+   "No legal basis found to authorise automatic release of AI-drafted alerts without human validation. Flagging a gap."
+  ],
+  "decision": "No legal basis found to authorise automatic release of AI-drafted alerts without human validation. Flagging a gap.",
+  "action": "authorise_automatic_ai_alert",
+  "legal_basis": [],
+  "no_legal_basis": true,
+  "confidence": "low",
+  "gap_flags": [
+   "No institution holds the power or duty to authorise automatic release of AI-drafted alerts without human validation",
+   "No institution holds the power or duty to approve an AI-drafted alert through a human validation step before release"
+  ],
+  "reasoning_summary": "No institution in the map holds this action; the seat cannot act lawfully and flags a gap.",
+  "author": "rules",
+  "statement": "",
+  "outside_role": false
+ }
+]

@@ -1,15 +1,16 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import { InfoTip } from './InfoTip'
 
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('rounded-lg border border-line bg-surface p-4 shadow-sm', className)} {...p} />
 }
 
-export function PageHeader({ title, description, actions }: { title: ReactNode; description?: ReactNode; actions?: ReactNode }) {
+export function PageHeader({ title, description, actions, term }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; term?: string }) {
   return (
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <h1 className="text-2xl font-bold">{title}{term && <InfoTip term={term} />}</h1>
         {description && <p className="mt-1 max-w-3xl text-sm text-muted">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}

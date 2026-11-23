@@ -1,0 +1,92 @@
+{
+  "label": "Where you are in the ALERTE journey",
+  "stepOf": "Step {{n}} of {{total}}",
+  "next": "Next step:",
+  "prereq": {
+    "title": "Before you start on this page",
+    "fix": "Create it"
+  },
+  "phases": {
+    "prepare": {
+      "short": "{{n}}. Prepare",
+      "name": "Prepare the exercise",
+      "desc": "Build everything the drill needs: institutions, documents, mandates, agents, permissions, scenario and seats."
+    },
+    "conduct": {
+      "short": "{{n}}. Conduct",
+      "name": "Run the exercise",
+      "desc": "Watch the events arrive, the institutions decide and exchange, and step in as facilitator or as a player."
+    },
+    "analyse": {
+      "short": "{{n}}. Analyse",
+      "name": "Analyse the results",
+      "desc": "Review the gaps with their evidence, validate them, produce reports, check the logbook and replay."
+    }
+  },
+  "steps": {
+    "institutions": {
+      "title": "Countries, institutions and mandates",
+      "what": "Define who takes part (country, institutions), what each may or must do (mandates) and the actions a crisis requires.",
+      "next": "Then add the documents the institutions rely on."
+    },
+    "knowledge": {
+      "title": "Knowledge bases",
+      "what": "Import the laws, decrees and plans, check their extraction quality, then publish a version: agents only read published versions.",
+      "next": "Then create the agents that will play the institutions."
+    },
+    "agents": {
+      "title": "Agents",
+      "what": "Create one agent per institution: mission, instructions, tools and limits (and, for a real-AI drill, a model profile).",
+      "next": "Then decide which knowledge base each agent may read."
+    },
+    "access": {
+      "title": "Knowledge access",
+      "what": "Tick which agent may read which knowledge base. An agent can never retrieve text from a base that is not ticked for it.",
+      "next": "Then write or import the scenario."
+    },
+    "scenarios": {
+      "title": "Scenarios",
+      "what": "Write the crisis story: ordered events (injects), who receives each one and what it requires. Run the checks.",
+      "next": "Then create an exercise from the scenario."
+    },
+    "exercises": {
+      "title": "Exercises, seats and readiness",
+      "what": "Create the exercise, give each institution a seat (AI agent or named human), run the readiness checks and launch.",
+      "next": "Then open the Simulation Room."
+    },
+    "room": {
+      "title": "Simulation Room",
+      "what": "Follow the exercise live: clock, events, seats, decisions, coordination board. Pause, resume, step, add a surprise, stop.",
+      "next": "When it has finished, review the gaps."
+    },
+    "gaps": {
+      "title": "Gap analysis",
+      "what": "Read each gap with its chain of evidence, then confirm, dispute or reject it. Nothing is final until a human has reviewed it.",
+      "next": "Then produce the report."
+    },
+    "reports": {
+      "title": "Reports",
+      "what": "Generate a versioned report from an exercise, publish it, download it, compare versions or exercises.",
+      "next": "Then verify the logbook."
+    },
+    "audit": {
+      "title": "Audit and replay",
+      "what": "Check that the logbook has not been altered, read every event, open decision traces and replay the exercise without calling any model.",
+      "next": "Then look at the evaluation."
+    },
+    "evaluation": {
+      "title": "Evaluation and scorecard",
+      "what": "Measure the exercise (T1 to T6) and fill the 13-dimension AI Readiness scorecard. Unmeasured is shown as « not computed », never zero.",
+      "next": "You have completed the journey."
+    }
+  },
+  "needs": {
+    "institution": "At least one institution (Countries, institutions and mandates).",
+    "agent": "At least one agent (Agents).",
+    "kb": "At least one knowledge base (Knowledge bases).",
+    "publishedKb": "At least one published knowledge base: agents only read published versions.",
+    "scenario": "A scenario with at least one event (Scenarios).",
+    "exercise": "An exercise (Exercises and seats).",
+    "finished": "A finished exercise: gaps and reports are produced from an exercise that has run."
+  }
+}

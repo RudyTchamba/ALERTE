@@ -1,3 +1,4 @@
+import { Prereq } from '@/components/Prereq'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -17,9 +18,10 @@ export function ExercisesPage() {
   const q = useApiQuery<Exercise[]>(keys.exercises(), '/exercises')
   return (
     <>
-      <PageHeader title={t('exercises.title')} description={t('exercises.description')} actions={<Button variant="primary" onClick={() => setCreating({})}>{t('exercises.new')}</Button>} />
+      <PageHeader title={t('exercises.title')} term="exercise" description={t('exercises.description')} actions={<Button variant="primary" onClick={() => setCreating({})}>{t('exercises.new')}</Button>} />
+      <Prereq page="exercises" />
       <QueryState q={q} what="(/exercises)">
-        {(rows) => rows.length === 0 ? <EmptyState title={t('home.noExercises')} hint={t('home.noExercisesHint')} /> : (
+        {(rows) => rows.length === 0 ? <EmptyState title={t('home.noExercises')} hint={t('home.noExercisesHint')} action={<Link to="/studio/scenarios">{t('journey.steps.scenarios.title')}</Link>} /> : (
           <Table caption={t('exercises.title')}>
             <THead><Tr><Th>{t('common.code')}</Th><Th>{t('home.exTitle')}</Th><Th>{t('common.status')}</Th><Th>{t('home.mode')}</Th><Th>{t('home.started')}</Th><Th><span className="sr-only">{t('common.actions')}</span></Th></Tr></THead>
             <TBody>{rows.map((e) => (

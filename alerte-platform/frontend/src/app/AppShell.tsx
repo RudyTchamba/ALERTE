@@ -5,6 +5,7 @@ import { Menu, LogOut, Info } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { LANGS, setLanguage, type Lang } from '@/i18n'
 import { Button, LogoMark, Select } from '@/components/ui'
+import { JourneyBar } from '@/components/JourneyBar'
 import { useAuth } from './auth'
 import { useTheme, type Theme } from './theme'
 
@@ -19,8 +20,8 @@ export function FictionalBanner() {
 }
 
 const NAV: { group: string; items: { to: string; key: string; end?: boolean }[] }[] = [
+  { group: '', items: [{ to: '/', key: 'home', end: true }] },
   { group: 'studio', items: [
-    { to: '/', key: 'home', end: true },
     { to: '/studio/countries', key: 'countries' },
     { to: '/studio/knowledge', key: 'knowledge' },
     { to: '/studio/agents', key: 'agents' },
@@ -36,7 +37,7 @@ const NAV: { group: string; items: { to: string; key: string; end?: boolean }[] 
     { to: '/evaluation', key: 'evaluation' },
     { to: '/about/architecture', key: 'architecture' },
   ] },
-  { group: 'settings', items: [{ to: '/settings/tokens', key: 'tokens' }] },
+  { group: 'settings', items: [{ to: '/settings/tokens', key: 'tokens' }, { to: '/help/glossary', key: 'glossary' }] },
 ]
 
 export function AppShell() {
@@ -76,7 +77,7 @@ export function AppShell() {
         <nav id="main-nav" aria-label={t('nav.main')} className={cn('w-60 shrink-0 border-r border-line bg-surface p-3 lg:block', open ? 'block' : 'hidden')}>
           {NAV.map((g) => (
             <div key={g.group} className="mb-4">
-              <p className="mb-1 px-2 text-xs font-bold tracking-wider text-muted uppercase">{t(`nav.${g.group}`)}</p>
+              {g.group && <p className="mb-1 px-2 text-xs font-bold tracking-wider text-muted uppercase">{t(`nav.${g.group}`)}</p>}
               <ul>
                 {g.items.map((i) => (
                   <li key={i.to}>
@@ -90,7 +91,7 @@ export function AppShell() {
             </div>
           ))}
         </nav>
-        <main id="main" tabIndex={-1} className="min-w-0 flex-1 p-4 lg:p-6"><Outlet /></main>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 p-4 lg:p-6"><JourneyBar /><Outlet /></main>
       </div>
     </div>
   )

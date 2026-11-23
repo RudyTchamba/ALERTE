@@ -59,6 +59,7 @@ export const routes: RouteObject[] = [
           { path: '/audit/:exerciseId', element: page(() => import('@/features/audit/AuditPage'), 'AuditPage') },
           { path: '/evaluation', element: page(() => import('@/features/evaluation/EvaluationPage'), 'EvaluationPage') },
           { path: '/about/architecture', element: page(() => import('@/features/about/ArchitecturePage'), 'ArchitecturePage') },
+          { path: '/help/glossary', element: page(() => import('@/features/help/GlossaryPage'), 'GlossaryPage') },
           { path: '/settings/tokens', element: page(() => import('@/features/access/TokensPage'), 'TokensPage') },
           { path: '*', element: <Navigate to="/" replace /> },
         ],

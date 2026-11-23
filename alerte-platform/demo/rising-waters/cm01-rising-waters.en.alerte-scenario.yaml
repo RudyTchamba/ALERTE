@@ -1,0 +1,333 @@
+format: alerte-scenario
+format_version: 1
+scenario:
+  code: CM-01
+  title: Rising Waters — Cameroon
+  language: en
+  version: 1
+  country:
+    name: Cameroun
+    iso2: CM
+    languages:
+    - fr
+    - en
+  description: 'A fictional AI system, HydroSense, forecasts floods and drafts alerts. Act 1 (Douala): a false alarm sent
+    to every phone. Act 2 (Far North): a missed flood because sensors were down, a French-only alert, areas without coverage.
+    Act 3: cholera, a request for phone location data, and a vendor processing data abroad.  — Fictional exercise. Not a real
+    alert. HydroSense and all numbers in the events are invented; places and institutions are real.'
+injects:
+- seq: 1
+  sim_time: D1 06:00
+  title: D1 06:00 — Rain gauges in Douala record 80 mm in 3 hours
+  body: Rain gauges in Douala record 80 mm in 3 hours. The national forecast says heavy rain will continue until midday.
+  from_actor: SENSORS
+  fault_mode: none
+  recipients:
+  - MET
+  tags: []
+  demands:
+  - action_code: issue_weather_warning
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 1 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S07'
+- seq: 2
+  sim_time: D1 06:20
+  title: 'D1 06:20 — HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%'
+  body: 'HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: ''URGENT: major flood
+    in Douala within 6 hours. Move to high ground now.'''
+  from_actor: HYDRO
+  fault_mode: false_alarm
+  recipients:
+  - MET
+  - HYDRO
+  tags:
+  - ai_output_used_in_decision
+  - life_risk
+  - time_critical
+  demands:
+  - action_code: validate_ai_forecast
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 2 (pas une obligation officielle).
+  system_output:
+    source: HydroSense (système d'IA FICTIF)
+    statement: 'HydroSense: RED alert, Wouri river flood expected within 6 hours, probability 70%. Draft SMS: ''URGENT: major
+      flood in Douala within 6 hours. Move to high ground now.'''
+  source_note: 'Inspiré de (références du prototype) : SCN-01, GL-S06'
+- seq: 3
+  sim_time: D1 06:45
+  title: 'D1 06:45 — Email from the weather service: ''HydroSense issues a RED flood alert for Douala (attached)'
+  body: 'Email from the weather service: ''HydroSense issues a RED flood alert for Douala (attached). Please take the necessary
+    measures.'' No forecaster has reviewed the AI output yet.'
+  from_actor: MET
+  fault_mode: over_trust
+  recipients:
+  - DPC
+  tags:
+  - life_risk
+  - public_communication
+  - time_critical
+  demands:
+  - action_code: decide_public_alert
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 3 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S01'
+- seq: 4
+  sim_time: D1 07:10
+  title: 'D1 07:10 — Phone call from civil protection: ''Send the HydroSense SMS to every phone number in Douala'
+  body: 'Phone call from civil protection: ''Send the HydroSense SMS to every phone number in Douala, now.'' No written order,
+    no legal reference, nothing said about cost.'
+  from_actor: DPC
+  fault_mode: over_trust
+  recipients:
+  - OPS
+  tags:
+  - life_risk
+  - public_communication
+  - time_critical
+  demands:
+  - action_code: compel_operator_alert
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 4 (pas une obligation officielle).
+  - action_code: send_mass_alert
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 4 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S03, GL-S04, GL-S01'
+- seq: 5
+  sim_time: D1 08:30
+  title: 'D1 08:30 — Social media: panic in Douala after the SMS'
+  body: 'Social media: panic in Douala after the SMS. Traffic jams on the main roads; 14 people injured in a crowd near a
+    market. Families ask who will pay for medical costs.'
+  from_actor: MEDIA
+  fault_mode: false_alarm
+  recipients:
+  - DPC
+  - CTD
+  - ART
+  tags:
+  - harm_possible
+  - life_risk
+  - time_critical
+  demands:
+  - action_code: liability_alert_harm
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 5 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : GL-S06'
+- seq: 6
+  sim_time: D1 12:00
+  title: D1 12:00 — No flood
+  body: No flood. The Wouri stays at a normal level. Journalists ask who sent the SMS and why no correction was sent.
+  from_actor: MEDIA
+  fault_mode: false_alarm
+  recipients:
+  - MET
+  - DPC
+  - OPS
+  - ART
+  - CTD
+  tags:
+  - public_communication
+  demands:
+  - action_code: correct_false_alert
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 6 (pas une obligation officielle).
+  - action_code: public_communication_after_error
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 6 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : GL-S06, GL-S10'
+- seq: 7
+  sim_time: D1 15:00
+  title: 'D1 15:00 — A fake follow-up SMS spreads: ''Dam broken, evacuate now, register for aid here: [fraudulen'
+  body: 'A fake follow-up SMS spreads: ''Dam broken, evacuate now, register for aid here: [fraudulent link]''. It imitates
+    the earlier alert.'
+  from_actor: OPS
+  fault_mode: spoofing
+  recipients:
+  - ANTIC
+  - ART
+  tags:
+  - channel_abuse
+  demands:
+  - action_code: block_spoofed_alert
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 7 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S04'
+- seq: 8
+  sim_time: D11 04:00
+  title: 'D11 04:00 — HydroSense: YELLOW, low flood risk on the Logone'
+  body: 'HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have been
+    offline for 48 hours.)'
+  from_actor: HYDRO
+  fault_mode: missed_event
+  recipients:
+  - MET
+  - HYDRO
+  tags:
+  - ai_output_used_in_decision
+  - harm_possible
+  - life_risk
+  - time_critical
+  demands:
+  - action_code: report_sensor_outage
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 8 (pas une obligation officielle).
+  - action_code: validate_ai_forecast
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 8 (pas une obligation officielle).
+  system_output:
+    source: HydroSense (système d'IA FICTIF)
+    statement: 'HydroSense: YELLOW, low flood risk on the Logone. (Not shown on the dashboard: 3 of the 7 river sensors have
+      been offline for 48 hours.)'
+  source_note: 'Inspiré de (références du prototype) : SCN-01, CM-S06'
+- seq: 9
+  sim_time: D11 09:00
+  title: 'D11 09:00 — A village chief near Kousseri calls the council: ''The water is rising fast, people are mov'
+  body: 'A village chief near Kousseri calls the council: ''The water is rising fast, people are moving to the school.'' The
+    AI still says low risk.'
+  from_actor: FIELD
+  fault_mode: missed_event
+  recipients:
+  - CTD
+  tags:
+  - harm_possible
+  - life_risk
+  - time_critical
+  demands:
+  - action_code: act_on_local_warning
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 9 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S06'
+- seq: 10
+  sim_time: D11 11:30
+  title: D11 11:30 — The alert is approved and sent by SMS, in French only
+  body: The alert is approved and sent by SMS, in French only. About 30% of the affected area has no mobile coverage; many
+    residents speak Arabic Choa, Fulfulde or Kotoko.
+  from_actor: DPC
+  fault_mode: language_error
+  recipients:
+  - DPC
+  - OPS
+  tags:
+  - life_risk
+  - public_communication
+  - time_critical
+  demands:
+  - action_code: multilingual_alerting
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 10 (pas une obligation officielle).
+  - action_code: reach_unconnected
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 10 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : GL-S08, GL-S09'
+- seq: 11
+  sim_time: D11 18:00
+  title: D11 18:00 — About 40,000 people are displaced in Logone-et-Chari
+  body: About 40,000 people are displaced in Logone-et-Chari. Schools and health centres are flooded.
+  from_actor: FIELD
+  fault_mode: none
+  recipients:
+  - MET
+  - DPC
+  - OPS
+  - ART
+  - MINSANTE
+  - CTD
+  tags:
+  - life_risk
+  - time_critical
+  demands:
+  - action_code: coordinate_response
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 11 (pas une obligation officielle).
+  - action_code: activate_contingency_plan
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 11 (pas une obligation officielle).
+  - action_code: evacuate_zone
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 11 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S06, CM-S01'
+- seq: 12
+  sim_time: D25 10:00
+  title: D25 10:00 — First suspected cholera cases in two displacement sites near Kousseri and Maroua
+  body: First suspected cholera cases in two displacement sites near Kousseri and Maroua.
+  from_actor: FIELD
+  fault_mode: none
+  recipients:
+  - MINSANTE
+  tags:
+  - life_risk
+  demands:
+  - action_code: cholera_response
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 12 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S06, GL-S14'
+- seq: 13
+  sim_time: D26 09:00
+  title: D26 09:00 — The health ministry asks operators for anonymised location data of phones that were in the
+  body: The health ministry asks operators for anonymised location data of phones that were in the flooded areas, to follow
+    movements of possibly exposed people.
+  from_actor: MINSANTE
+  fault_mode: privacy_breach
+  recipients:
+  - MINSANTE
+  - OPS
+  - DPA
+  tags:
+  - harm_possible
+  - life_risk
+  - rights_risk
+  demands:
+  - action_code: access_location_data
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 13 (pas une obligation officielle).
+  - action_code: protect_personal_data
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 13 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S02, GL-S03'
+- seq: 14
+  sim_time: D26 14:00
+  title: D26 14:00 — The HydroSense vendor offers to analyse the location data on its cloud servers outside Cam
+  body: The HydroSense vendor offers to analyse the location data on its cloud servers outside Cameroon, 'within 24 hours'.
+  from_actor: HYDRO
+  fault_mode: data_leaves_country
+  recipients:
+  - DPA
+  - MINSANTE
+  - HYDRO
+  tags:
+  - foreign_actor
+  - harm_possible
+  - life_risk
+  - rights_risk
+  demands:
+  - action_code: authorise_transfer_abroad
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 14 (pas une obligation officielle).
+  - action_code: cross_border_agreement
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 14 (pas une obligation officielle).
+  system_output:
+    source: HydroSense (système d'IA FICTIF)
+    statement: The HydroSense vendor offers to analyse the location data on its cloud servers outside Cameroon, 'within 24
+      hours'.
+  source_note: 'Inspiré de (références du prototype) : CM-S02, SCN-01, GL-S11'
+- seq: 15
+  sim_time: D27 10:00
+  title: 'D27 10:00 — Members of parliament request a report: ''Who was responsible for each failure: the false a'
+  body: 'Members of parliament request a report: ''Who was responsible for each failure: the false alarm, the late alert,
+    and the data request?'''
+  from_actor: PARLIAMENT
+  fault_mode: none
+  recipients:
+  - MET
+  - DPC
+  - OPS
+  - ART
+  - MINSANTE
+  - DPA
+  - CTD
+  - ANTIC
+  tags: []
+  demands:
+  - action_code: accountability_report
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 15 (pas une obligation officielle).

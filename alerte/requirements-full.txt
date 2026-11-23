@@ -1,0 +1,6 @@
+# Optional extras
+-r requirements.txt
+# Export the knowledge base to ChromaDB, the vector store used by the ITU reference code
+chromadb>=0.5
+# Meaning-based search on CPU without a server (multilingual model, downloads once)
+fastembed>=0.3

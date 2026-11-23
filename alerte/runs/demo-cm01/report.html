@@ -1,0 +1,862 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>ALERTE report: Rising Waters (Cameroon)</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1000px;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1d1d1f;background:#fff}table{border-collapse:collapse;width:100%;font-size:.9rem}td,th{border:1px solid #ddd;padding:.35rem .5rem;vertical-align:top}th{background:#f3f3f3}blockquote{border-left:4px solid #c0392b;margin:0;padding:.3rem 1rem;background:#fdf2f0}h3{margin-top:2rem}code{background:#f3f3f3;padding:0 .2rem}@media (prefers-color-scheme: dark){body{background:#151515;color:#eee}th{background:#262626}td,th{border-color:#444}blockquote{background:#2a1714}code{background:#262626}a{color:#8ab4f8}}</style></head><body><h1>ALERTE report: Rising Waters (Cameroon)</h1>
+<blockquote>
+<p><strong>Fictional exercise. Not a real alert. HydroSense and all numbers in the events are invented; places and institutions are real.</strong></p>
+</blockquote>
+<p>Run <code>cm01-offline-20261110-101335-4a39</code> · country CM · brain: offline · 15 events · 43 decisions · 23 gaps (15 confirmed by text) · 0.08 s</p>
+<h2>Summary</h2>
+<ul>
+<li>Gaps by type: G1 Nobody in charge (5), G2 Two in charge (2), G3 No procedure (7), G4 Missing piece (1), G5 Conflicting goals (1), G6 Nobody answers for harm (1), G7 People left out (2), G8 AI unchecked (2), G9 Channel unprotected (1), G10 Cross-border (1)</li>
+<li>Planned gaps found (test T3): 17 of 17 (100%)</li>
+<li>Quotes verified (test T2): 10 of 10 (100%)</li>
+<li>Decisions with no legal basis found: 22</li>
+<li>Who wrote the decisions: rule engine (no AI) 40, scripted (HydroSense) 3</li>
+</ul>
+<h2>Gap report</h2>
+<h3>G8-01 · AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision</h3>
+<ul>
+<li><strong>Type:</strong> G8 AI unchecked · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 2, 8, first at D1 06:20</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to check and validate an AI-generated forecast before it is used for a public decision</li>
+<li><strong>Institutions concerned:</strong> HYDRO, MET</li>
+<li><strong>Texts checked:</strong> CM-S03, CM-S04, CM-S05</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'validate_ai_forecast'; drill:MET@2</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, guard against over-reliance, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> Cameroon could require a named forecaster to validate AI forecasts before public use, without adopting the whole AI Act.</li>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. Recommended second-person verification before any live alert is released. <em>Fit for Cameroon:</em> A simple procedure rule, cheap to adopt.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-02 · No procedure: Decide to alert the public</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 3, first at D1 06:45</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: decide to alert the public</li>
+<li><strong>Institutions concerned:</strong> DPC</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S04</li>
+<li><strong>Evidence:</strong> CM-L03: DPC duty, procedure: none found (documented)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Japan</em>: <a href="https://www.city.inagi.tokyo.jp/en/kurashi/iza/1002270/1010142/1012096.html">J-Alert</a>. For some hazards the national government pushes alerts automatically, removing delays in local decisions. <em>Fit for Cameroon:</em> Useful for fast-onset hazards.</li>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">47 CFR Part 10 (Wireless Emergency Alerts)</a>. Only authorised alerting authorities may originate alerts. <em>Fit for Cameroon:</em> Cameroon could name the authorised originators per hazard.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> A named person validating an AI-drafted alert before release can be required without adopting the whole Act.</li>
+</ul>
+</li>
+</ul>
+<h3>G1-03 · Nobody in charge: Order mobile operators to relay a public alert</h3>
+<ul>
+<li><strong>Type:</strong> G1 Nobody in charge · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 4, first at D1 07:10</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to order mobile operators to relay a public alert</li>
+<li><strong>Institutions concerned:</strong> OPS</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'compel_operator_alert'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/dir/2018/1972/oj">Directive (EU) 2018/1972 (European Electronic Communications Code), Article 110</a>. Mobile operators must relay public warnings from the national public warning system to the end-users concerned. <em>Fit for Cameroon:</em> A decree or ART decision could create the same duty; Cameroon would need to name the authority that originates the warning.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Free Mobile Disaster Alerts Act (2014), Sections 4 and 6</a>. Operators must send free alerts with content from named agencies; fines and franchise suspension for non-compliance. <em>Fit for Cameroon:</em> Close to Cameroon's situation (a developing country with frequent hazards); requires naming content providers and setting penalties.</li>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">47 CFR Part 10 (Wireless Emergency Alerts) and WARN Act, Part 10</a>. Separates who originates alerts (authorised authorities), the national gateway, and the operators who transmit them. <em>Fit for Cameroon:</em> Participation is voluntary in the US; a mandatory duty (EU, Philippines) may suit Cameroon better.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-04 · No procedure: Technically send the alert to phones (SMS or cell broadcast)</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 4, first at D1 07:10</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: technically send the alert to phones (SMS or cell broadcast)</li>
+<li><strong>Institutions concerned:</strong> OPS</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S04</li>
+<li><strong>Evidence:</strong> CM-L09: OPS power, procedure: none found (inferred)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. One alert created once and shared across TV, radio, SMS, apps, sirens and social media by three coordinated agencies. <em>Fit for Cameroon:</em> An African example; requires an agreed alert format and roles between the weather service, disaster agency and regulator.</li>
+<li><em>International</em>: <a href="https://www.itu.int/rec/T-REC-X.1303">Recommendation ITU-T X.1303 (CAP 1.2)</a>. Standard format for alerts, with status, urgency, severity, area, several languages, and update or cancel messages. <em>Fit for Cameroon:</em> Free to adopt; supported by ITU under Early Warnings for All.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> A named person validating an AI-drafted alert before release can be required without adopting the whole Act.</li>
+</ul>
+</li>
+</ul>
+<h3>G6-05 · Nobody answers for harm: Answer for harm caused by a wrong alert</h3>
+<ul>
+<li><strong>Type:</strong> G6 Nobody answers for harm · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 5, first at D1 08:30</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to answer for harm caused by a wrong alert</li>
+<li><strong>Institutions concerned:</strong> ART, CTD, DPC</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S04, CM-S05, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'liability_alert_harm'; drill:DPC@5; drill:CTD@5; drill:ART@5</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">WARN Act (2006)</a>. Limits the liability of operators that transmit alerts in good faith. <em>Fit for Cameroon:</em> Protects operators but does not say who compensates victims; Cameroon would need to decide both.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 26 and 73</a>. Sets obligations for AI providers and deployers, including monitoring and serious-incident reporting, which help establish who failed. <em>Fit for Cameroon:</em> Liability for damages itself is left to other EU and national rules.</li>
+</ul>
+</li>
+</ul>
+<h3>G8-06 · AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable</h3>
+<ul>
+<li><strong>Type:</strong> G8 AI unchecked · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 8, first at D11 04:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to report that sensors feeding the AI are down and the forecast is unreliable</li>
+<li><strong>Institutions concerned:</strong> HYDRO, MET</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S02, CM-S05, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'report_sensor_outage'; drill:MET@8</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 12 and 13</a>. Automatic logging and instructions describing accuracy, limits and the conditions under which the system works as intended. <em>Fit for Cameroon:</em> A purchase contract can require the vendor to show data-quality warnings on the dashboard.</li>
+<li><em>United States</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI Risk Management Framework 1.0</a>. Measure and monitor AI systems in operation, including data quality. <em>Fit for Cameroon:</em> Voluntary method.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-07 · No procedure: Act on a local, informal warning that contradicts the AI</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 9, first at D11 09:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: act on a local, informal warning that contradicts the AI</li>
+<li><strong>Institutions concerned:</strong> CTD</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S05, CM-S06</li>
+<li><strong>Evidence:</strong> CM-L11: CTD power, procedure: none found (assumed); drill:CTD@9</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>International</em>: <a href="https://wmo.int/resources/wmo-bulletin/wmo-bulletin-vol-72-1-2023/overview-of-early-warnings-all-executive-action-plan-2023-2027">Early Warnings for All</a>. People-centred warning systems include community observations and feedback. <em>Fit for Cameroon:</em> Formalise a channel from village chiefs to the crisis committee.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> A named person validating an AI-drafted alert before release can be required without adopting the whole Act.</li>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. Recommended second-person verification before any live alert is released and pre-scripted correction procedures. <em>Fit for Cameroon:</em> A simple procedure rule, cheap to adopt.</li>
+</ul>
+</li>
+</ul>
+<h3>G7-08 · People left out: Send alerts in the languages people understand</h3>
+<ul>
+<li><strong>Type:</strong> G7 People left out · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 10, first at D11 11:30</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to send alerts in the languages people understand</li>
+<li><strong>Institutions concerned:</strong> DPC, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S03, CM-S05, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'multilingual_alerting'; drill:DPC@10; drill:OPS@10</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>International</em>: <a href="https://www.itu.int/rec/T-REC-X.1303">Recommendation ITU-T X.1303 (CAP 1.2)</a>. One alert can carry several info blocks, each in a different language. <em>Fit for Cameroon:</em> Pre-translated templates for local languages.</li>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Alerts reach people through many channels, including radio and sirens. <em>Fit for Cameroon:</em> An African example.</li>
+<li><em>Japan</em>: <a href="https://www.city.inagi.tokyo.jp/en/kurashi/iza/1002270/1010142/1012096.html">J-Alert, National Instantaneous Warning System</a>. Triggers municipal radio and outdoor loudspeakers automatically, reaching people without phones. <em>Fit for Cameroon:</em> Loudspeakers and radio reach people phones miss.</li>
+</ul>
+</li>
+</ul>
+<h3>G7-09 · People left out: Reach people without phones or network coverage</h3>
+<ul>
+<li><strong>Type:</strong> G7 People left out · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 10, first at D11 11:30</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to reach people without phones or network coverage</li>
+<li><strong>Institutions concerned:</strong> DPC, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S03, CM-S04, CM-S05</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'reach_unconnected'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Japan</em>: <a href="https://www.city.inagi.tokyo.jp/en/kurashi/iza/1002270/1010142/1012096.html">J-Alert, National Instantaneous Warning System</a>. Automatically triggers municipal radio and outdoor loudspeakers, reaching people without phones. <em>Fit for Cameroon:</em> Community radio and loudspeakers exist in many Cameroonian towns.</li>
+<li><em>International</em>: <a href="https://wmo.int/resources/wmo-bulletin/wmo-bulletin-vol-72-1-2023/overview-of-early-warnings-all-executive-action-plan-2023-2027">Early Warnings for All (ITU pillar)</a>. Uses AI and satellite imagery to map unconnected populations, and promotes multi-channel alerting. <em>Fit for Cameroon:</em> ITU support is available to Cameroon.</li>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Alerts reach people through many channels, including radio and sirens. <em>Fit for Cameroon:</em> Channels that do not need a smartphone widen reach.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-10 · No procedure: Order the evacuation of a danger zone</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 11, first at D11 18:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: order the evacuation of a danger zone</li>
+<li><strong>Institutions concerned:</strong> DPC</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03</li>
+<li><strong>Evidence:</strong> CM-L05: DPC power, procedure: none found (inferred)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Japan</em>: <a href="https://www.city.inagi.tokyo.jp/en/kurashi/iza/1002270/1010142/1012096.html">J-Alert</a>. Pre-defined local channels carry evacuation instructions. <em>Fit for Cameroon:</em> Pre-defined evacuation areas speed decisions.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> A named person validating an AI-drafted alert before release can be required without adopting the whole Act.</li>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. Recommended second-person verification before any live alert is released and pre-scripted correction procedures. <em>Fit for Cameroon:</em> A simple procedure rule, cheap to adopt.</li>
+</ul>
+</li>
+</ul>
+<h3>G1-11 · Nobody in charge: Use phone location data for public health</h3>
+<ul>
+<li><strong>Type:</strong> G1 Nobody in charge · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 13, first at D26 09:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to use phone location data for public health</li>
+<li><strong>Institutions concerned:</strong> DPA, MINSANTE, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S03, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'access_location_data'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR) and Directive 2002/58/EC, GDPR Articles 6(1)(e), 9(2)(i), Recital 46; ePrivacy Article 9</a>. Allows processing for public health and humanitarian emergencies on a legal basis with safeguards; location data must be anonymised or based on consent unless restricted by law. <em>Fit for Cameroon:</em> Cameroon's Law 2024/017 could be complemented by an emergency-use rule with safeguards and an end date.</li>
+<li><em>International</em>: <a href="https://www.who.int/publications/i/item/9789240029200">WHO, Ethics and governance of AI for health (2021)</a>. Protect autonomy and ensure accountability when health data and AI are used. <em>Fit for Cameroon:</em> Guidance, not binding.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Free Mobile Disaster Alerts Act (2014), Sections 4 and 6</a>. Operators must send free alerts with content from named agencies; fines and franchise suspension for non-compliance. <em>Fit for Cameroon:</em> Requires naming content providers and setting penalties.</li>
+</ul>
+</li>
+</ul>
+<h3>G2-12 · Two in charge: Protect personal data (consent, minimisation, security)</h3>
+<ul>
+<li><strong>Type:</strong> G2 Two in charge · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 13, first at D26 09:00</li>
+<li><strong>What is missing:</strong> Several institutions hold 'protect personal data (consent, minimisation, security)' and no text says who leads</li>
+<li><strong>Institutions concerned:</strong> DPA, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S04</li>
+<li><strong>Evidence:</strong> CM-L13: DPA duty (documented); CM-L14: OPS duty (documented); drill: DPA+OPS@13 both acted</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR), Article 6</a>. Lists the lawful bases for processing, including vital interests and public interest. <em>Fit for Cameroon:</em> Useful model for an emergency basis.</li>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Clear roles: the weather service issues, the disaster centre coordinates, the ICT authority disseminates, with one common alert format. <em>Fit for Cameroon:</em> Naming one lead per step avoids two bodies claiming the same decision.</li>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">47 CFR Part 10 (Wireless Emergency Alerts)</a>. Separates who originates alerts (authorised authorities), the national gateway, and the operators who transmit them. <em>Fit for Cameroon:</em> A list of authorised originators per hazard settles who may decide.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-13 · No procedure: Protect personal data (consent, minimisation, security)</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 13, first at D26 09:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: protect personal data (consent, minimisation, security)</li>
+<li><strong>Institutions concerned:</strong> DPA, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S04</li>
+<li><strong>Evidence:</strong> CM-L13: DPA duty, procedure: none found (documented); CM-L14: OPS duty, procedure: none found (documented)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR), Article 6</a>. Lists the lawful bases for processing, including vital interests and public interest. <em>Fit for Cameroon:</em> Useful model for an emergency basis.</li>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. Recommended second-person verification before any live alert is released and pre-scripted correction procedures. <em>Fit for Cameroon:</em> A simple procedure rule, cheap to adopt.</li>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Written roles between the weather service, disaster agency and regulator, and one message format. <em>Fit for Cameroon:</em> Writing the procedure down is the first step.</li>
+</ul>
+</li>
+</ul>
+<h3>G5-14 · Conflicting goals: Use phone location data for public health</h3>
+<ul>
+<li><strong>Type:</strong> G5 Conflicting goals · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 13, first at D26 09:00</li>
+<li><strong>What is missing:</strong> 'use phone location data for public health' conflicts with 'protect personal data (consent, minimisation, security)'</li>
+<li><strong>Institutions concerned:</strong> DPA, MINSANTE, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S03, CM-S06</li>
+<li><strong>Evidence:</strong> Event 13 requires both 'access_location_data' and 'protect_personal_data'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR) and Directive 2002/58/EC, GDPR Articles 6(1)(e), 9(2)(i), Recital 46; ePrivacy Article 9</a>. Allows processing for public health and humanitarian emergencies on a legal basis with safeguards; location data must be anonymised or based on consent unless restricted by law. <em>Fit for Cameroon:</em> Cameroon's Law 2024/017 could be complemented by an emergency-use rule with safeguards and an end date.</li>
+<li><em>International</em>: <a href="https://www.who.int/publications/i/item/9789240029200">WHO, Ethics and governance of AI for health (2021)</a>. Protect autonomy and ensure accountability when health data and AI are used. <em>Fit for Cameroon:</em> Guidance, not binding.</li>
+</ul>
+</li>
+</ul>
+<h3>G10-15 · Cross-border: Agreement with a foreign actor processing national data in a crisis</h3>
+<ul>
+<li><strong>Type:</strong> G10 Cross-border · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 14, first at D26 14:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to agreement with a foreign actor processing national data in a crisis</li>
+<li><strong>Institutions concerned:</strong> DPA, HYDRO, MINSANTE</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S02</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'cross_border_agreement'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR), Article 46</a>. Standard contractual clauses bind foreign processors to protection rules. <em>Fit for Cameroon:</em> Cameroon could require standard clauses in every AI purchase contract.</li>
+<li><em>African Union</em>: <a href="https://au.int/en/treaties/african-union-convention-cyber-security-and-personal-data-protection">Malabo Convention (2014)</a>. Sets conditions for transfers outside member states. <em>Fit for Cameroon:</em> Regional baseline.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-16 · No procedure: Authorise sending personal data abroad</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 14, first at D26 14:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: authorise sending personal data abroad</li>
+<li><strong>Institutions concerned:</strong> DPA</li>
+<li><strong>Texts checked:</strong> CM-S02</li>
+<li><strong>Evidence:</strong> CM-L15: DPA power, procedure: none found (documented)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR), Articles 45, 46 and 49</a>. Transfers allowed with adequacy, safeguards, or derogations for important public interest and vital interests, without case-by-case prior authorisation. <em>Fit for Cameroon:</em> Cameroon's prior-authorisation model needs a fast emergency track if the authority is not ready.</li>
+<li><em>African Union</em>: <a href="https://au.int/en/treaties/african-union-convention-cyber-security-and-personal-data-protection">Malabo Convention (2014)</a>. Requires an independent national data protection authority and adequate protection before transfers to non-member states. <em>Fit for Cameroon:</em> Regional baseline for Cameroon.</li>
+<li><em>United Arab Emirates</em>: <a href="https://uaelegislation.gov.ae/en/legislations/1972">Federal Decree by Law No. (45) of 2021 (PDPL)</a>. Transfers allowed to adequate countries and in listed cases, without prior authorisation for each transfer. <em>Fit for Cameroon:</em> The UAE twin shows a lighter procedure.</li>
+</ul>
+</li>
+</ul>
+<h3>G4-17 · Missing piece: Authorise sending personal data abroad</h3>
+<ul>
+<li><strong>Type:</strong> G4 Missing piece · <strong>Severity:</strong> 3 (risk to life or rights) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 14, first at D26 14:00</li>
+<li><strong>What is missing:</strong> 'authorise sending personal data abroad' depends on something not confirmed ready: APDP able to grant authorisations quickly in a crisis</li>
+<li><strong>Institutions concerned:</strong> DPA</li>
+<li><strong>Texts checked:</strong> CM-S02</li>
+<li><strong>Evidence:</strong> CM-L15: depends on 'APDP able to grant authorisations quickly in a crisis' (ready: unknown)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Regulation (EU) 2016/679 (GDPR), Articles 45, 46 and 49</a>. Transfers allowed with adequacy, safeguards, or derogations for important public interest and vital interests, without case-by-case prior authorisation. <em>Fit for Cameroon:</em> Cameroon's prior-authorisation model needs a fast emergency track if the authority is not ready.</li>
+<li><em>African Union</em>: <a href="https://au.int/en/treaties/african-union-convention-cyber-security-and-personal-data-protection">Malabo Convention (2014)</a>. Requires an independent national data protection authority and adequate protection before transfers to non-member states. <em>Fit for Cameroon:</em> Regional baseline for Cameroon.</li>
+<li><em>United Arab Emirates</em>: <a href="https://uaelegislation.gov.ae/en/legislations/1972">Federal Decree by Law No. (45) of 2021 (PDPL)</a>. Transfers allowed to adequate countries and in listed cases, without prior authorisation for each transfer. <em>Fit for Cameroon:</em> The UAE twin shows a lighter procedure.</li>
+</ul>
+</li>
+</ul>
+<h3>G2-18 · Two in charge: Issue an official weather or flood warning</h3>
+<ul>
+<li><strong>Type:</strong> G2 Two in charge · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 1, first at D1 06:00</li>
+<li><strong>What is missing:</strong> Several institutions hold 'issue an official weather or flood warning' and no text says who leads</li>
+<li><strong>Institutions concerned:</strong> MET, ONR</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S04, CM-S06</li>
+<li><strong>Evidence:</strong> CM-L06: MET duty (assumed); CM-L07: ONR power (documented); drill:MET@1</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Clear roles: the meteorological service issues, the disaster centre coordinates, the ICT authority disseminates. <em>Fit for Cameroon:</em> An African example.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Section 4</a>. Names the agencies whose information makes up the alerts. <em>Fit for Cameroon:</em> Naming one lead per hazard avoids overlaps.</li>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">47 CFR Part 10 (Wireless Emergency Alerts)</a>. Separates who originates alerts (authorised authorities), the national gateway, and the operators who transmit them. <em>Fit for Cameroon:</em> A list of authorised originators per hazard settles who may decide.</li>
+</ul>
+</li>
+</ul>
+<h3>G3-19 · No procedure: Issue an official weather or flood warning</h3>
+<ul>
+<li><strong>Type:</strong> G3 No procedure · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 1, first at D1 06:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: issue an official weather or flood warning</li>
+<li><strong>Institutions concerned:</strong> MET, ONR</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S04, CM-S06</li>
+<li><strong>Evidence:</strong> CM-L06: MET duty, procedure: none found (assumed); CM-L07: ONR power, procedure: none found (documented); drill:MET@1</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>Mauritius</em>: <a href="https://www.preventionweb.net/quick/96844">Common Alerting Protocol adoption (2023)</a>. Clear roles: the meteorological service issues, the disaster centre coordinates, the ICT authority disseminates. <em>Fit for Cameroon:</em> An African example.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Section 4</a>. Names the agencies whose information makes up the alerts. <em>Fit for Cameroon:</em> Naming one lead per hazard avoids overlaps.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 14 and 26</a>. High-risk AI must allow effective human oversight, and deployers must assign competent people to oversee it. <em>Fit for Cameroon:</em> A named person validating an AI-drafted alert before release can be required without adopting the whole Act.</li>
+</ul>
+</li>
+</ul>
+<h3>G1-20 · Nobody in charge: Correct or cancel a false alert</h3>
+<ul>
+<li><strong>Type:</strong> G1 Nobody in charge · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 6, first at D1 12:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to correct or cancel a false alert</li>
+<li><strong>Institutions concerned:</strong> ART, CTD, DPC, MET, OPS</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S02, CM-S04, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'correct_false_alert'; drill:MET@6; drill:DPC@6; drill:OPS@6; drill:ART@6; drill:CTD@6</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. No correction procedure existed; 38 minutes passed before a correction reached phones. Pre-scripted correction messages were recommended. <em>Fit for Cameroon:</em> Cameroon can prepare correction templates before any AI alert goes live.</li>
+<li><em>International</em>: <a href="https://www.itu.int/rec/T-REC-X.1303">Recommendation ITU-T X.1303 (CAP 1.2)</a>. Update and cancel message types let a wrong alert be corrected or withdrawn in a standard way. <em>Fit for Cameroon:</em> Free to adopt.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/dir/2018/1972/oj">Directive (EU) 2018/1972 (European Electronic Communications Code), Article 110</a>. Mobile operators must relay public warnings from the national public warning system to the end-users concerned. <em>Fit for Cameroon:</em> A decree or regulator decision could create the same duty and name the authority that originates the warning.</li>
+</ul>
+</li>
+</ul>
+<h3>G1-21 · Nobody in charge: Explain publicly what went wrong after an error</h3>
+<ul>
+<li><strong>Type:</strong> G1 Nobody in charge · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 6, first at D1 12:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to explain publicly what went wrong after an error</li>
+<li><strong>Institutions concerned:</strong> ART, CTD, DPC, MET, OPS</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S02, CM-S03, CM-S04</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'public_communication_after_error'</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>United States</em>: <a href="https://www.fcc.gov/node/215906">FCC findings on the Hawaii false missile alert (2018)</a>. Social media corrected the alert faster than the official system, showing the need for a planned public explanation. <em>Fit for Cameroon:</em> Name a spokesperson in the plan.</li>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/dir/2018/1972/oj">Directive (EU) 2018/1972 (European Electronic Communications Code), Article 110</a>. Mobile operators must relay public warnings from the national public warning system to the end-users concerned. <em>Fit for Cameroon:</em> A decree or regulator decision could create the same duty and name the authority that originates the warning.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Free Mobile Disaster Alerts Act (2014), Sections 4 and 6</a>. Operators must send free alerts with content from named agencies; fines and franchise suspension for non-compliance. <em>Fit for Cameroon:</em> Requires naming content providers and setting penalties.</li>
+</ul>
+</li>
+</ul>
+<h3>G9-22 · Channel unprotected: Stop fake alerts that imitate the official channel</h3>
+<ul>
+<li><strong>Type:</strong> G9 Channel unprotected · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> suspected (needs expert check)</li>
+<li><strong>When:</strong> event(s) 7, first at D1 15:00</li>
+<li><strong>What is missing:</strong> No procedure, deadline or form for: stop fake alerts that imitate the official channel</li>
+<li><strong>Institutions concerned:</strong> ANTIC</li>
+<li><strong>Texts checked:</strong> CM-S01, CM-S03, CM-S04</li>
+<li><strong>Evidence:</strong> CM-L10: ANTIC power, procedure: none found (inferred)</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>United States</em>: <a href="https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-10">47 CFR Part 10 (Wireless Emergency Alerts)</a>. Only authorised alerting authorities can originate alerts through a single national gateway, which limits imitation. <em>Fit for Cameroon:</em> Cameroon could designate one authenticated originator and a short code for official alerts.</li>
+<li><em>International</em>: <a href="https://www.itu.int/rec/T-REC-X.1303">Recommendation ITU-T X.1303 (CAP 1.2)</a>. Alerts carry an identified sender and can be digitally signed. <em>Fit for Cameroon:</em> Free to adopt.</li>
+</ul>
+</li>
+</ul>
+<h3>G1-23 · Nobody in charge: Produce a clear map of who was responsible for each failure</h3>
+<ul>
+<li><strong>Type:</strong> G1 Nobody in charge · <strong>Severity:</strong> 2 (delay or extra cost) · <strong>Status:</strong> confirmed by text</li>
+<li><strong>When:</strong> event(s) 15, first at D27 10:00</li>
+<li><strong>What is missing:</strong> No institution holds the power or duty to produce a clear map of who was responsible for each failure</li>
+<li><strong>Institutions concerned:</strong> ANTIC, ART, CTD, DPA, DPC, MET, MINSANTE, OPS</li>
+<li><strong>Texts checked:</strong> CM-S02, CM-S06</li>
+<li><strong>Evidence:</strong> Who-does-what map (CM): no institution holds 'accountability_report'; drill:MET@15; drill:DPC@15; drill:OPS@15; drill:ART@15; drill:MINSANTE@15</li>
+<li><strong>How others handle it:</strong><ul>
+<li><em>European Union</em>: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Regulation (EU) 2024/1689 (AI Act), Articles 12 and 73</a>. Logs and serious-incident reports make it possible to reconstruct who did what. <em>Fit for Cameroon:</em> ALERTE's logbook shows the same idea in practice.</li>
+<li><em>Philippines</em>: <a href="https://issuances-library.senate.gov.ph/sites/default/files/2023-02/ra%252010639.pdf">Republic Act No. 10639, Free Mobile Disaster Alerts Act (2014), Sections 4 and 6</a>. Operators must send free alerts with content from named agencies; fines and franchise suspension for non-compliance. <em>Fit for Cameroon:</em> Requires naming content providers and setting penalties.</li>
+</ul>
+</li>
+</ul>
+<h2>Decision timeline</h2>
+<table>
+<thead>
+<tr>
+<th>Story time</th>
+<th>Seat</th>
+<th>Decision</th>
+<th>Legal basis</th>
+<th>Quote check</th>
+<th>Confidence</th>
+<th>By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1 06:00</td>
+<td>MET</td>
+<td>Act: Issue an official weather or flood warning (no written procedure found; acting on general powers)</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 06:20</td>
+<td>MET</td>
+<td>No legal basis found to check and validate an AI-generated forecast before it is used for a public decision. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 06:20</td>
+<td>HYDRO</td>
+<td>Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.</td>
+<td>-</td>
+<td>-</td>
+<td>medium</td>
+<td>scripted</td>
+</tr>
+<tr>
+<td>D1 06:45</td>
+<td>DPC</td>
+<td>Act: Decide to alert the public (no written procedure found; acting on general powers)</td>
+<td>CM-S01 Early warning and public alerting</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 07:10</td>
+<td>OPS</td>
+<td>Act: Technically send the alert to phones (SMS or cell broadcast) (no written procedure found; acting on general powers)</td>
+<td>CM-S03 Operators</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 08:30</td>
+<td>DPC</td>
+<td>No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 08:30</td>
+<td>CTD</td>
+<td>No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 08:30</td>
+<td>ART</td>
+<td>No legal basis found to answer for harm caused by a wrong alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 12:00</td>
+<td>MET</td>
+<td>No legal basis found to correct or cancel a false alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 12:00</td>
+<td>DPC</td>
+<td>No legal basis found to correct or cancel a false alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 12:00</td>
+<td>OPS</td>
+<td>No legal basis found to correct or cancel a false alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 12:00</td>
+<td>ART</td>
+<td>No legal basis found to correct or cancel a false alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 12:00</td>
+<td>CTD</td>
+<td>No legal basis found to correct or cancel a false alert. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 15:00</td>
+<td>ANTIC</td>
+<td>Act: Stop fake alerts that imitate the official channel (no written procedure found; acting on general powers)</td>
+<td>CM-S04 Institutions</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D1 15:00</td>
+<td>ART</td>
+<td>Ask ANTIC to stop fake alerts that imitate the official channel</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 04:00</td>
+<td>MET</td>
+<td>No legal basis found to report that sensors feeding the AI are down and the forecast is unreliable. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 04:00</td>
+<td>HYDRO</td>
+<td>Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.</td>
+<td>-</td>
+<td>-</td>
+<td>medium</td>
+<td>scripted</td>
+</tr>
+<tr>
+<td>D11 09:00</td>
+<td>CTD</td>
+<td>Act: Act on a local, informal warning that contradicts the AI (no written procedure found; acting on general powers)</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 11:30</td>
+<td>DPC</td>
+<td>No legal basis found to send alerts in the languages people understand. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 11:30</td>
+<td>OPS</td>
+<td>No legal basis found to send alerts in the languages people understand. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>MET</td>
+<td>Ask DPC to coordinate the multi-sector response</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>DPC</td>
+<td>Act: Coordinate the multi-sector response</td>
+<td>CM-S01 Civil Protection Directorate (MINAT / DPC)</td>
+<td>ok</td>
+<td>high</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>DPC</td>
+<td>Act: Activate the emergency and rescue plan</td>
+<td>CM-S01 Cameroon disaster management law: summary of the IFRC legal mapping (2021) / Leg</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>DPC</td>
+<td>Act: Order the evacuation of a danger zone (no written procedure found; acting on general powers)</td>
+<td>CM-S07 Warnings</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>OPS</td>
+<td>Ask DPC to coordinate the multi-sector response</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>ART</td>
+<td>Ask DPC to coordinate the multi-sector response</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>MINSANTE</td>
+<td>Ask DPC to coordinate the multi-sector response</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D11 18:00</td>
+<td>CTD</td>
+<td>Ask DPC to coordinate the multi-sector response</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D25 10:00</td>
+<td>MINSANTE</td>
+<td>Act: Lead the epidemic (cholera) response</td>
+<td>GL-S14 Article 6</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 09:00</td>
+<td>MINSANTE</td>
+<td>Ask DPA to use phone location data for public health</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 09:00</td>
+<td>OPS</td>
+<td>Act: Protect personal data (consent, minimisation, security) (no written procedure found; acting on general powers)</td>
+<td>CM-S02 Consent and lawful processing</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 09:00</td>
+<td>DPA</td>
+<td>Act: Protect personal data (consent, minimisation, security) (no written procedure found; acting on general powers)</td>
+<td>CM-S02 Personal Data Protection Authority (APDP)</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 14:00</td>
+<td>DPA</td>
+<td>Act: Authorise sending personal data abroad (no written procedure found; acting on general powers)</td>
+<td>CM-S02 Transfers of personal data abroad</td>
+<td>ok</td>
+<td>medium</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 14:00</td>
+<td>MINSANTE</td>
+<td>Ask DPA to authorise sending personal data abroad</td>
+<td>-</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D26 14:00</td>
+<td>HYDRO</td>
+<td>Output produced. HydroSense informs; it does not decide. Validity limits are in its model card.</td>
+<td>-</td>
+<td>-</td>
+<td>medium</td>
+<td>scripted</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>MET</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>DPC</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>OPS</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>ART</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>MINSANTE</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>DPA</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>CTD</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+<tr>
+<td>D27 10:00</td>
+<td>ANTIC</td>
+<td>No legal basis found to produce a clear map of who was responsible for each failure. Flagging a gap.</td>
+<td>NO LEGAL BASIS FOUND</td>
+<td>-</td>
+<td>low</td>
+<td>rules</td>
+</tr>
+</tbody>
+</table>
+<h2>Readiness scorecard (ITU AI Readiness Framework, 13 dimensions)</h2>
+<p>Scores describe what this drill revealed (5 = no gap found, 0 = many serious gaps); they are not an official rating.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Score</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Data/Model Marketplace</td>
+<td>3.0 / 5</td>
+<td>G10-15 Cross-border: Agreement with a foreign actor processing national data in a crisis; G4-17 Missing piece: Authorise sending personal data abroad</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Generated Content Marketplace</td>
+<td>1.9 / 5</td>
+<td>G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision; G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable; G9-22 Channel unprotected: Stop fake alerts that imitate the official channel</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cross-Domain Correlation Analysis</td>
+<td>2.4 / 5</td>
+<td>G2-12 Two in charge: Protect personal data (consent, minimisation, security); G5-14 Conflicting goals: Use phone location data for public health; G2-18 Two in charge: Issue an official weather or flood warning</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Contextualization and Regional Impact</td>
+<td>2.5 / 5</td>
+<td>G7-08 People left out: Send alerts in the languages people understand; G7-09 People left out: Reach people without phones or network coverage</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Level of Integration of AI in Workflows</td>
+<td>0.0 / 5</td>
+<td>G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision; G3-02 No procedure: Decide to alert the public; G3-04 No procedure: Technically send the alert to phones (SMS or cell broadcast)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Human Interface</td>
+<td>2.5 / 5</td>
+<td>G7-08 People left out: Send alerts in the languages people understand; G7-09 People left out: Reach people without phones or network coverage</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Strategy Alignment</td>
+<td>0.0 / 5</td>
+<td>G3-02 No procedure: Decide to alert the public; G1-03 Nobody in charge: Order mobile operators to relay a public alert; G3-04 No procedure: Technically send the alert to phones (SMS or cell broadcast)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Collaboration with AI</td>
+<td>2.5 / 5</td>
+<td>G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision; G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Impacts of Humans in AI Integration</td>
+<td>2.5 / 5</td>
+<td>G8-01 AI unchecked: Check and validate an AI-generated forecast before it is used for a public decision; G8-06 AI unchecked: Report that sensors feeding the AI are down and the forecast is unreliable</td>
+</tr>
+<tr>
+<td>10</td>
+<td>AI &amp; Policies</td>
+<td>0.0 / 5</td>
+<td>G1-03 Nobody in charge: Order mobile operators to relay a public alert; G6-05 Nobody answers for harm: Answer for harm caused by a wrong alert; G1-11 Nobody in charge: Use phone location data for public health</td>
+</tr>
+<tr>
+<td>11</td>
+<td>AI for Inclusion</td>
+<td>2.5 / 5</td>
+<td>G7-08 People left out: Send alerts in the languages people understand; G7-09 People left out: Reach people without phones or network coverage</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Granular Priorities</td>
+<td>not assessed</td>
+<td>not assessed by this story</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Digital Infrastructure</td>
+<td>4.4 / 5</td>
+<td>G9-22 Channel unprotected: Stop fake alerts that imitate the official channel</td>
+</tr>
+</tbody>
+</table>
+<h2>Assumptions and sources to confirm</h2>
+<p>Lines of the who-does-what map that are not directly documented:</p>
+<ul>
+<li><code>CM-L04</code> DPC power <em>activate_contingency_plan</em>: Emergency and rescue plans are organised by Decree 98/031 [inferred]</li>
+<li><code>CM-L05</code> DPC power <em>evacuate_zone</em>: Administrative authorities order the evacuation of danger zones [inferred]</li>
+<li><code>CM-L06</code> MET duty <em>issue_weather_warning</em>: The national meteorology service issues weather forecasts and warnings [assumed (assumed by ALERTE team, 2026-10-07: organisation decree of the meteorology service to obtain)]</li>
+<li><code>CM-L09</code> OPS power <em>send_mass_alert</em>: Licensed operators run the networks and can technically send SMS to subscribers [inferred]</li>
+<li><code>CM-L10</code> ANTIC power <em>block_spoofed_alert</em>: ANTIC is the national body in charge of electronic security; spoofing and fraudulent links are cybercrimes (Law 2010/012) [inferred]</li>
+<li><code>CM-L11</code> CTD power <em>act_on_local_warning</em>: Local councils take part in local civil protection and receive community reports [assumed (assumed by ALERTE team, 2026-10-07: to verify in Law 2019/024)]</li>
+<li><code>CM-L12</code> MINSANTE duty <em>cholera_response</em>: The State must detect, assess, notify and report outbreaks (International Health Regulations) [inferred]</li>
+</ul>
+<p>National documents used as summaries (official text still to obtain or confirm): CM-S01, CM-S02, CM-S03, CM-S04, CM-S05, CM-S06, CM-S07</p>
+<h2>Logbook</h2>
+<p>Every step of this drill is in <code>ledger.jsonl</code>, chained by SHA-256 fingerprints. Check it with <code>python -m alerte verify cm01-offline-20261110-101335-4a39</code>.</p>
+<p><em>Fictional exercise. Not a real alert. HydroSense and all numbers in the events are invented; places and institutions are real.</em></p></body></html>

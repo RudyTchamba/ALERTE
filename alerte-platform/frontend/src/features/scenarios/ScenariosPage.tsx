@@ -1,3 +1,4 @@
+import { Prereq } from '@/components/Prereq'
 import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -39,12 +40,13 @@ export function ScenariosPage() {
   void q
   return (
     <>
-      <PageHeader title={t('scenarios.title')} description={t('scenarios.description')}
+      <PageHeader title={t('scenarios.title')} term="scenario" description={t('scenarios.description')}
         actions={<>
           <input ref={file} type="file" accept=".yaml,.yml,text/yaml" className="sr-only" aria-label={t('scenarios.importYaml')} onChange={(e) => { const f = e.target.files?.[0]; if (f) importYaml.mutate(f); e.target.value = '' }} />
           <Button loading={importYaml.isPending} onClick={() => file.current?.click()}>{t('scenarios.importYaml')}</Button>
           <Button variant="primary" onClick={() => setCreating(true)}>{t('scenarios.new')}</Button>
         </>} />
+      <Prereq page="scenarios" />
       <div className="mb-3"><Checkbox label={t('geo.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /></div>
       <QueryState q={list} what="(/scenarios)">
         {(rows) => rows.length === 0 ? <EmptyState title={t('scenarios.empty')} hint={t('scenarios.emptyHint')} /> : (

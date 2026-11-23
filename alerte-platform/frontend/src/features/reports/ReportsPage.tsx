@@ -1,3 +1,4 @@
+import { Prereq } from '@/components/Prereq'
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -40,6 +41,7 @@ function ReportList() {
   return (
     <>
       <PageHeader title={t('reports.title')} description={t('reports.description')} actions={<Button onClick={() => setImportOpen((v) => !v)}>{t('reports.importPrior')}</Button>} />
+      <Prereq page="reports" />
       {importOpen && (
         <Card className="mb-4">
           <h2 className="mb-2 font-semibold">{t('reports.importPrior')}</h2>
@@ -60,7 +62,7 @@ function ReportList() {
         {job && <div className="mt-3"><JobProgress jobId={job} label={t('reports.generating')} onFinished={(s) => { if (s.status === 'done') { toast.push(t('reports.generatedToast')); void q.refetch() } }} /></div>}
       </Card>
       <QueryState q={q} what="(/reports)">
-        {(rows) => rows.length === 0 ? <EmptyState title={t('reports.empty')} hint={t('reports.emptyHint')} /> : (
+        {(rows) => rows.length === 0 ? <EmptyState title={t('reports.empty')} hint={t('reports.emptyHint')} action={<Link to="/studio/exercises">{t('journey.steps.exercises.title')}</Link>} /> : (
           <Table caption={t('reports.title')}>
             <THead><Tr><Th>{t('reports.reportTitle')}</Th><Th>{t('reports.origin')}</Th><Th>{t('reports.versions')}</Th><Th>{t('common.createdAt')}</Th></Tr></THead>
             <TBody>{rows.map((r) => <Tr key={r.id}><Td><Link to={`/reports/${r.id}`} className="font-medium">{r.title}</Link></Td><Td><OriginBanner r={r} /></Td><Td>{r.versions}</Td><Td>{fmtDateTime(r.created_at)}</Td></Tr>)}</TBody>

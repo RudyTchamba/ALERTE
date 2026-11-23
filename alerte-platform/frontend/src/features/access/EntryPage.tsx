@@ -61,6 +61,15 @@ export function EntryPage() {
       <main id="main" className="mx-auto max-w-4xl p-4 lg:p-8">
         <h1 className="mb-1 flex items-center gap-3 text-3xl font-extrabold"><LogoMark className="h-9 w-9" />{t('common.appName')}</h1>
         <p className="mb-6 text-muted">{t('common.tagline')}</p>
+        <section aria-label={t('access.explain.title')} className="mb-5 rounded-md border border-line bg-surface p-4 text-sm">
+          <h2 className="mb-1 text-base font-bold">{t('access.explain.title')}</h2>
+          <p>{t('access.explain.text')}</p>
+          <ul className="mt-2 list-disc pl-5 text-muted">
+            <li>{t('access.explain.first')}</li>
+            <li>{t('access.explain.existing')}</li>
+            <li>{t('access.explain.demo')}</li>
+          </ul>
+        </section>
         {params.get('expired') && <p role="alert" className="mb-4 rounded-md border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}
 
         {created ? (

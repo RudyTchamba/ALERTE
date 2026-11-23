@@ -1,0 +1,72 @@
+{
+  "title": "Glossary",
+  "description": "The words used in ALERTE, in plain language.",
+  "about": "What is “{{term}}”?",
+  "seeAll": "See the full glossary",
+  "terms": {
+    "workspace": {
+      "name": "Workspace",
+      "def": "An isolated working space for one project, organisation or team. It holds everything: countries, institutions, knowledge bases, mandates, agents, permissions, scenarios, exercises and reports. Two workspaces never see each other's data. It is not a country, a scenario or an exercise."
+    },
+    "knowledgeBase": {
+      "name": "Knowledge base (KB)",
+      "def": "A library of documents (laws, decrees, plans, reports) cut into searchable passages. Agents only read the KBs they are granted, and only their published versions."
+    },
+    "chunk": {
+      "name": "Chunk (passage)",
+      "def": "A piece of a document, usually one article, with its page, article number and language. Searches return chunks, and every citation points to one."
+    },
+    "mandate": {
+      "name": "Mandate",
+      "def": "A line of the who-does-what map: an institution may or must do an action, with the text that says so. It is written in a text, deduced from a text, or assumed. Only a validated mandate with a resolvable source counts as documented."
+    },
+    "registry": {
+      "name": "Registry review",
+      "def": "A human statement that an institution's list of mandates is complete. Until then, a missing mandate is never presented as a documented gap."
+    },
+    "agent": {
+      "name": "Agent",
+      "def": "A virtual institution: an AI (or a scripted stand-in, labelled NO AI) with a mission, tools and limits. It only knows what its institution would know."
+    },
+    "accessMapping": {
+      "name": "Access mapping",
+      "def": "The agents × knowledge bases grid: which agent may read which base. It is enforced by the server on every search."
+    },
+    "scenario": {
+      "name": "Scenario",
+      "def": "The crisis story: an ordered list of events (injects). Reusable for any number of exercises."
+    },
+    "inject": {
+      "name": "Inject (event)",
+      "def": "One event of the story: simulated time, sender, recipients, text, what it requires, tags and an optional failure type. It is delivered only to its recipients."
+    },
+    "seat": {
+      "name": "Seat",
+      "def": "One institution's place in an exercise, played by an AI agent or by a named human who receives a personal link."
+    },
+    "readiness": {
+      "name": "Readiness",
+      "def": "The pre-launch checks of an exercise. A blocking issue prevents launching; a warning lets you launch but is recorded."
+    },
+    "exercise": {
+      "name": "Exercise",
+      "def": "One run of a scenario with a given set of seats. Its configuration is frozen at launch (a snapshot) and everything that happens is recorded."
+    },
+    "gap": {
+      "name": "Gap",
+      "def": "A hole in the rules found by an explicit rule (G1 to G10), with its evidence. It stays « proposed » until a human confirms, disputes or rejects it."
+    },
+    "ledger": {
+      "name": "Ledger (logbook)",
+      "def": "The append-only record of the exercise. Each entry carries a fingerprint chained to the previous one, so any alteration is detectable. Tamper-evident, not tamper-proof."
+    },
+    "replay": {
+      "name": "Replay",
+      "def": "Rebuilding any moment of a past exercise from its ledger, without calling any model."
+    },
+    "scripted": {
+      "name": "Scripted (NO AI)",
+      "def": "A test mode with deterministic answers. It proves the platform works, never that an AI reasons well. It is labelled NO AI everywhere."
+    }
+  }
+}

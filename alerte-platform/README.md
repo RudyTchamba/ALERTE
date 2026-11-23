@@ -12,6 +12,8 @@ bases de connaissances, RAG, agents, scénarios, simulation, lacunes, rapports, 
 
 1. [Présentation et objectifs](#1-présentation-et-objectifs) · 2. [Problématique](#2-problématique-des-lacunes-institutionnelles) · 3. [Système multi-agents](#3-fonctionnement-du-système-multi-agents) · 4. [Architecture](#4-architecture-technique-générale) · 5. [Technologies](#5-technologies) · 6. [Prérequis](#6-prérequis) · 7. [Arborescence](#7-arborescence) · 8. [Installation](#8-installation-complète) · 9. [Configuration](#9-configuration) · 10. [Démarrage](#10-démarrage-du-backend-et-du-frontend) · 11. [Accès](#11-accès-à-lapplication) · 12. [Parcours](#12-parcours-utilisateur) · 13. [Modèles IA](#13-configuration-des-modèles-ia) · 14. [Bases de connaissances](#14-gestion-des-bases-de-connaissances) · 15. [Tests](#15-tests) · 16. [Déploiement](#16-déploiement) · 17. [Dépannage](#17-dépannage) · [18. État de validation](#18-état-réel-de-validation)
 
+**Prise en main** : [guide de test complet depuis l'interface](docs/runbooks/guide-test-complet-interface.md) (Rising Waters, pas à pas) · [lancement local](docs/runbooks/lancement-local.md) · [matrice de tests](docs/runbooks/matrice-tests-fonctionnels-et-extremes.md) · [état de conformité](docs/runbooks/etat-conformite-interface.md).
+
 Documentation détaillée : [backend/README.md](backend/README.md) · [frontend/README.md](frontend/README.md) · [architecture](docs/architecture/README.md) · [contrats entre modules](backend/CONTRACTS.md).
 
 ## 1. Présentation et objectifs
@@ -87,7 +89,7 @@ une autre machine : le même code s'exécute sur un poste de développement, une
 | Backend | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic, SQLite (WAL, FTS5), ChromaDB, pdfplumber/pypdfium2, Tesseract, WeasyPrint, openpyxl |
 | IA | modèles servis via API compatible OpenAI (Ollama, vLLM, TEI…) ; embeddings BGE-M3 |
 | Frontend | React 19, TypeScript 5.9, Vite 8, Tailwind CSS 4, TanStack Query, React Router 7 |
-| Qualité | pytest (515 tests), Vitest (54 tests), ruff, oxlint, axe-core, GitHub Actions (ubuntu/windows/macos — écrite, non encore exécutée) |
+| Qualité | pytest (517 tests), Vitest (56 tests), ruff, oxlint, axe-core, GitHub Actions (ubuntu/windows/macos — écrite, non encore exécutée) |
 
 Licences : dépendances open source ; **PyMuPDF (AGPL) est exclu**.
 
@@ -194,8 +196,8 @@ Mode « un seul processus » : `cd frontend && npm run build`, puis le backend s
 | `http://localhost:8000/api/v1/redoc` | ReDoc |
 | `http://localhost:8000/api/v1/health` · `/ready` | vivacité · disponibilité (base, FTS5, embedder) |
 
-Premier usage : sur `/access`, « créer un espace » → copiez le **jeton propriétaire** (affiché une seule fois ; seul son hash est conservé). Pour explorer une interface déjà remplie :
-backend démarré, `cd backend && python scripts/seed_demo.py` crée un espace fictif « Démo ALERTE » complet (données fictives, exercice `scripted` SANS IA) et affiche son jeton.
+Premier usage : sur `/access`, « créer un espace » → copiez le **jeton propriétaire** (affiché une seule fois ; seul son hash est conservé). Pour explorer une interface déjà remplie, backend démarré :
+`cd backend && python scripts/rising_waters_pack.py && python scripts/seed_rising_waters.py --until 8` crée l'espace « ALERTE — Demonstration » avec le scénario **Rising Waters — Cameroun** (données fictives, exercice joué en mode `scripted` SANS IA) et affiche son jeton ; `--until N` s'arrête à l'étape N du guide. `scripts/seed_demo.py` crée un espace de démonstration plus petit.
 
 ## 12. Parcours utilisateur
 
@@ -227,7 +229,7 @@ Une KB s'exporte en archive portable (ZIP + manifeste + SHA-256) ; l'import est 
 ## 15. Tests
 
 ```bash
-cd backend && python -m pytest -m "not model and not gpu"            # 515 tests collectés, sans serveur de modèle
+cd backend && python -m pytest -m "not model and not gpu"            # 517 tests collectés, sans serveur de modèle
 cd backend && ALERTE_EMBED_BASE_URL=http://localhost:11434/v1 ALERTE_EMBED_MODEL=bge-m3 python -m pytest -m model tests/knowledge   # embeddings RÉELS
 cd frontend && npm run typecheck && npm run lint && npm test && npm run build
 ```
@@ -258,7 +260,7 @@ Détails : sections « Problèmes courants » de [backend/README.md](backend/REA
 ## 18. État réel de validation
 
 Légende : **IMPL** implémenté · **FIX** testé avec fixtures/scripts (déterministe, **sans IA**) · **RÉEL** testé avec un vrai modèle · **—** non vérifié · **LIM** limite connue.
-Mise à jour : 2026-11-21. Résultats mesurés : backend 515 tests collectés (suite complète : 513 réussis, 0 échec, 2 ignorés = les deux tests `-m model`, dont un seul a été exécuté à part : celui des embeddings) ; frontend 54 tests, typecheck, lint, build OK.
+Mise à jour : 2026-11-23. Résultats mesurés : backend 517 tests collectés (suite complète : 515 réussis, 0 échec, 2 ignorés = les deux tests `-m model`, dont un seul a été exécuté à part : celui des embeddings) ; frontend 56 tests, typecheck, lint, build OK.
 
 | Fonctionnalité | IMPL | FIX | RÉEL | Remarques |
 |---|:-:|:-:|:-:|---|
@@ -276,7 +278,7 @@ Mise à jour : 2026-11-21. Résultats mesurés : backend 515 tests collectés (s
 | Rapports MD/JSON/CSV/XLSX/PDF, versions immuables | ✔ | ✔ | n/a | PDF : rendu vérifié (latin + arabe) |
 | Évaluation T1–T6, scorecard | ✔ | ✔ | — | évaluation automatique LLM du scorecard : **501** (non implémentée) |
 | Migrations Alembic | ✔ | ✔ | n/a | testé sur venv vierge |
-| Frontend (17 routes) | ✔ | ✔ | n/a | contrôlé dans Chrome : aucune erreur console, axe sans violation, pas de débordement mobile sur les pages testées. Interface en anglais et français ; LIM : certains messages renvoyés par le backend restent en français |
+| Frontend (20 routes) | ✔ | ✔ | n/a | contrôlé dans Chrome : aucune erreur console, axe sans violation, pas de débordement mobile sur les pages testées. Interface en anglais et français ; LIM : certains messages renvoyés par le backend restent en français |
 | **Chaîne complète via HTTP** (démo) | ✔ | ✔ | partiel | `scripts/seed_demo.py` : embeddings réels, agents `scripted` |
 | CI GitHub Actions 3 OS | ✔ | — | — | **jamais exécutée** ; Windows/macOS non vérifiés |
 

@@ -1,0 +1,23 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+index/
+runs/*
+!runs/demo-cm01/
+!runs/demo-ae01/
+!runs/demo-cm-core/
+!runs/demo-ae-core/
+!runs/demo-twin-comparison.md
+data/docs/*/official/*.part
+sandbox/*.jsonl
+sandbox/alerte-lora/
+chromadb/
+*.egg-info/
+.DS_Store
+
+# OCR working files
+review/
+index/extract_cache/

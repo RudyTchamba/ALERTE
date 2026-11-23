@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { Prereq } from '@/components/Prereq'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
@@ -47,10 +49,11 @@ export function AgentsPage() {
 
   return (
     <>
-      <PageHeader title={t('agents.title')} description={t('agents.description')} actions={<Button variant="primary" onClick={() => setEditing('new')}>{t('agents.new')}</Button>} />
+      <PageHeader title={t('agents.title')} term="agent" description={t('agents.description')} actions={<Button variant="primary" onClick={() => setEditing('new')}>{t('agents.new')}</Button>} />
+      <Prereq page="agents" />
       <div className="mb-3"><Checkbox label={t('geo.showArchived')} checked={archived} onChange={(e) => setArchived(e.target.checked)} /></div>
       <QueryState q={agents} what="(/agents)">
-        {(rows) => rows.length === 0 ? <EmptyState title={t('agents.empty')} hint={t('agents.emptyHint')} /> : (
+        {(rows) => rows.length === 0 ? <EmptyState title={t('agents.empty')} hint={t('agents.emptyHint')} action={<Link to="/studio/countries">{t('journey.steps.institutions.title')}</Link>} /> : (
           <Table caption={t('agents.title')}>
             <THead><Tr><Th>{t('common.code')}</Th><Th>{t('common.name')}</Th><Th>{t('agents.roleKind')}</Th><Th>{t('geo.institution')}</Th><Th>{t('agents.model')}</Th><Th>{t('agents.tools')}</Th><Th>{t('common.status')}</Th><Th><span className="sr-only">{t('common.actions')}</span></Th></Tr></THead>
             <TBody>{rows.map((a) => {

@@ -309,3 +309,15 @@ def test_realistic_legacy_scenario_content_lints(client, owner, app):  # noqa: A
     assert rep["stats"]["injects"] == len(legacy["events"]) and rep["ok"] is True
     assert rep["stats"]["distinct_fault_modes"] >= 6
     assert any(i["code"] == "scenario.budget_estimate" for i in rep["issues"])  # 15 injects à plusieurs destinataires
+
+
+def test_readiness_budget_check_uses_the_cap_given_by_the_exercise(client, env, app):  # noqa: ANN001
+    """Régression : le plafond d'appels de l'EXERCICE (et non seulement le défaut serveur) pilote le contrôle de budget du scénario."""
+    sid = mk_scenario(client, env)["id"]
+    for n in range(6):
+        mk_inject(client, env, sid, title=f"Inj {n}", recipients=("MET", "DPC", "OPS") if "OPS" in env["inst"] else ("MET",))
+    svc = app.state.ctx.services["scenarios"]
+    with app.state.ctx.session_factory() as s:
+        low = [c for c in svc.readiness_scenario_checks(s, env["ws"], sid, 5) if c["id"] == "scenario.budget"][0]
+        high = [c for c in svc.readiness_scenario_checks(s, env["ws"], sid, 5000) if c["id"] == "scenario.budget"][0]
+    assert low["ok"] is False and high["ok"] is True

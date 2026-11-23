@@ -89,7 +89,7 @@ curl -N "http://localhost:5173/api/v1/exercises/<id>/stream?stream_token=$ST&aft
 | `npm run preview` | sert `dist/` localement (sans backend intégré) |
 | `npm run typecheck` | TypeScript strict, sans émission |
 | `npm run lint` | oxlint (correctness + accessibilité JSX) |
-| `npm test` | Vitest (54 tests : client API, SSE, états de la salle, pages, primitives UI + axe, parité i18n) ; `fetch` et `EventSource` sont simulés **dans les tests uniquement** |
+| `npm test` | Vitest (56 tests : client API, SSE, états de la salle, pages, primitives UI + axe, parité i18n, parcours) ; `fetch` et `EventSource` sont simulés **dans les tests uniquement** |
 | `npm run test:watch` | Vitest en mode surveillance |
 | `npm run gen:api` | régénère `src/api/schema.d.ts` depuis `http://localhost:8000/api/v1/openapi.json` |
 
@@ -102,7 +102,8 @@ src/
   app/          AppShell (navigation, bandeau « exercice fictif »), routes (code-splitting), thème, authentification
   api/          client HTTP, session, SSE, hooks TanStack Query, clés, types
   components/ui/  primitives accessibles maison (Button, Table, Dialog, Tabs, Toast, Badge…)
-  features/     un dossier par écran : geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, access, about
+  features/     un dossier par écran : geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, access, about, help (glossaire)
+  app/journey.ts  le parcours en 3 phases (menu, barre de parcours, Accueil)
   i18n/         en/*.json et fr/*.json (mêmes clés)
   styles/       jetons CSS et Tailwind
 ```

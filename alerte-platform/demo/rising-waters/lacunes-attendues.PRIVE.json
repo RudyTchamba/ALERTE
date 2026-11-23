@@ -1,0 +1,183 @@
+{
+  "avertissement": "PRIVÉ : à ne JAMAIS importer dans un scénario ni montrer aux agents (évaluation T3 uniquement).",
+  "CM-01": [
+    {
+      "seq": 1,
+      "expected_gaps": [
+        "G2"
+      ]
+    },
+    {
+      "seq": 2,
+      "expected_gaps": [
+        "G8"
+      ]
+    },
+    {
+      "seq": 3,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 4,
+      "expected_gaps": [
+        "G1",
+        "G3"
+      ]
+    },
+    {
+      "seq": 5,
+      "expected_gaps": [
+        "G6"
+      ]
+    },
+    {
+      "seq": 6,
+      "expected_gaps": [
+        "G1"
+      ]
+    },
+    {
+      "seq": 7,
+      "expected_gaps": [
+        "G9"
+      ]
+    },
+    {
+      "seq": 8,
+      "expected_gaps": [
+        "G8"
+      ]
+    },
+    {
+      "seq": 9,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 10,
+      "expected_gaps": [
+        "G7"
+      ]
+    },
+    {
+      "seq": 11,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 12,
+      "expected_gaps": []
+    },
+    {
+      "seq": 13,
+      "expected_gaps": [
+        "G1",
+        "G5"
+      ]
+    },
+    {
+      "seq": 14,
+      "expected_gaps": [
+        "G4",
+        "G10"
+      ]
+    },
+    {
+      "seq": 15,
+      "expected_gaps": [
+        "G1"
+      ]
+    }
+  ],
+  "AE-01": [
+    {
+      "seq": 1,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 2,
+      "expected_gaps": [
+        "G8"
+      ]
+    },
+    {
+      "seq": 3,
+      "expected_gaps": []
+    },
+    {
+      "seq": 4,
+      "expected_gaps": []
+    },
+    {
+      "seq": 5,
+      "expected_gaps": [
+        "G6"
+      ]
+    },
+    {
+      "seq": 6,
+      "expected_gaps": [
+        "G1"
+      ]
+    },
+    {
+      "seq": 7,
+      "expected_gaps": [
+        "G9"
+      ]
+    },
+    {
+      "seq": 8,
+      "expected_gaps": [
+        "G8"
+      ]
+    },
+    {
+      "seq": 9,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 10,
+      "expected_gaps": [
+        "G7"
+      ]
+    },
+    {
+      "seq": 11,
+      "expected_gaps": [
+        "G3"
+      ]
+    },
+    {
+      "seq": 12,
+      "expected_gaps": []
+    },
+    {
+      "seq": 13,
+      "expected_gaps": [
+        "G3",
+        "G5"
+      ]
+    },
+    {
+      "seq": 14,
+      "expected_gaps": [
+        "G10"
+      ]
+    },
+    {
+      "seq": 15,
+      "expected_gaps": [
+        "G1"
+      ]
+    }
+  ]
+}

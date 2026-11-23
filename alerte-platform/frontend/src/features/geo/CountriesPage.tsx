@@ -10,7 +10,7 @@ export function CountriesPage() {
   const [tab, setTab] = useState('countries')
   return (
     <>
-      <PageHeader title={t('geo.title')} description={t('geo.description')} />
+      <PageHeader title={t('geo.title')} term="mandate" description={t('geo.description')} />
       <Tabs label={t('geo.title')} value={tab} onChange={setTab} tabs={[
         { id: 'countries', label: t('geo.countries'), content: <CountriesTab /> },
         { id: 'institutions', label: t('geo.institutions'), content: <InstitutionsTab /> },
