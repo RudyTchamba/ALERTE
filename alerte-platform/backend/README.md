@@ -178,12 +178,15 @@ L'interface le fait depuis `/access`. Pour un jeu de données de démonstration 
 | Script | Rôle |
 |---|---|
 | `scripts/seed_demo.py` | peuple un backend démarré avec un espace fictif « Démo ALERTE » (pays, institutions, KB indexée, mandat, agents, scénario, exercice `scripted` joué, lacunes, rapport) via l'API HTTP ; n'efface rien |
+| `scripts/rising_waters_pack.py` | génère dans `../demo/rising-waters/` le pack **Rising Waters** (scénarios CM/AE, mandats, institutions, actions, agents) au format de la plateforme, à partir de `alerte/data/` (lecture seule) |
+| `scripts/seed_rising_waters.py` | prépare l'espace « ALERTE — Demonstration » par étapes (`--until N`, `--country AE`) ; n'efface rien |
+| `scripts/ledger_tamper_demo.py` | prouve qu'une altération du ledger est détectée, **sur une copie isolée** |
 | `scripts/legacy_to_archive.py` | convertit l'ancienne base `alerte/` en archives de KB importables |
 
 ## 11. Tests
 
 ```bash
-python -m pytest -m "not model and not gpu"        # 515 tests collectés ; aucun serveur de modèle requis
+python -m pytest -m "not model and not gpu"        # 517 tests collectés ; aucun serveur de modèle requis
 python -m pytest tests/knowledge -q                # un module
 python -m ruff check app tests                     # lint
 ```
@@ -213,7 +216,7 @@ backend/
     evaluation/         mesures T1–T6, scorecard
     reports/            rapports versionnés immuables, rendus MD/JSON/CSV/XLSX/PDF
   migrations/           Alembic
-  tests/                515 tests
+  tests/                517 tests
   CONTRACTS.md          contrats entre modules
 ```
 

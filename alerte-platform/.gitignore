@@ -15,6 +15,7 @@ dist/
 .vite/
 # Données et secrets d'exécution
 data/
+data-demo/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm

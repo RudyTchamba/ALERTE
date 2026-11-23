@@ -80,8 +80,9 @@ def render_xlsx(c: dict[str, Any]) -> bytes:
     sheet(wb.create_sheet("Preuves"), ["Lacune", "Type", "Rôle", "Référence", "Extrait"],
           [[e["gap_id"], e["kind"], e["role"], e["ref"], e["excerpt"]] for e in c["annexes"]["evidence_index"]], {4: 40, 5: 70})
     sheet(wb.create_sheet("Références"), ["Lacune", "Juridiction", "Instrument", "Article", "Résumé", "Contraignant", "URL", "Statut", "Message"],
-          [[r["gap_title"], x["jurisdiction"], x["instrument"], x["article"], x["summary"], x["binding"], x["url"], x["status"], r["message"]]
-           for r in c["references"] for x in (r["references"] or [{}])], {5: 60})
+          [[r["gap_title"], x.get("jurisdiction"), x.get("instrument"), x.get("article"), x.get("summary"), x.get("binding"), x.get("url"),
+            x.get("status"), r.get("message")]
+           for r in c["references"] for x in (r["references"] or [{}])], {5: 60})  # une lacune SANS référence : ligne avec le seul message
     sheet(wb.create_sheet("Plan"), ["Lacune", "Recommandation", "Propriétaire", "Échéance", "Statut", "KPI"],
           [[a["gap_title"], a["recommendation"], a["owner"], a["due_date"], a["status"], a["kpi"]] for a in c["improvement_plan"]], {2: 60})
     sheet(wb.create_sheet("Revues"), ["Lacune", "Relecteur", "Action", "De", "À", "Réalité", "Commentaire", "Date"],

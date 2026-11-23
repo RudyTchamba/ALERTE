@@ -1,0 +1,354 @@
+{
+  "country": {
+    "name": "Cameroun",
+    "iso2": "CM",
+    "languages": [
+      "fr",
+      "en"
+    ]
+  },
+  "institutions": [
+    {
+      "code": "HYDRO",
+      "name": "HydroSense (fictional AI flood forecasting and alert system)",
+      "kind": "ai_system"
+    },
+    {
+      "code": "MET",
+      "name": "National Meteorology Directorate, with the National Observatory on Climate Change (ONACC)",
+      "kind": "agency"
+    },
+    {
+      "code": "DPC",
+      "name": "Civil Protection Directorate, Ministry of Territorial Administration (MINAT)",
+      "kind": "agency"
+    },
+    {
+      "code": "OPS",
+      "name": "Mobile network operator (generic)",
+      "kind": "operator"
+    },
+    {
+      "code": "ART",
+      "name": "Telecommunications Regulatory Board (ART), with the Ministry of Posts and Telecommunications (MINPOSTEL)",
+      "kind": "regulator"
+    },
+    {
+      "code": "MINSANTE",
+      "name": "Ministry of Public Health (MINSANTE)",
+      "kind": "ministry"
+    },
+    {
+      "code": "DPA",
+      "name": "Personal Data Protection Authority (APDP)",
+      "kind": "regulator"
+    },
+    {
+      "code": "CTD",
+      "name": "Local councils (Douala City Council, Far North communes)",
+      "kind": "local_authority"
+    },
+    {
+      "code": "ANTIC",
+      "name": "National Agency for Information and Communication Technologies (ANTIC)",
+      "kind": "agency"
+    },
+    {
+      "code": "COORD",
+      "name": "Conseil national de protection civile / comité de crise (le « chef d'exercice » du prototype n'est pas un siège)",
+      "kind": "agency",
+      "seat": false
+    },
+    {
+      "code": "ONR",
+      "name": "Observatoire national des risques (ONR)",
+      "kind": "agency",
+      "seat": false
+    }
+  ],
+  "actions": [
+    {
+      "code": "issue_weather_warning",
+      "label": "émettre un avis officiel de météo ou de crue",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "validate_ai_forecast",
+      "label": "vérifier et valider une prévision produite par l'IA avant une décision publique",
+      "domain": "ai_oversight",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "decide_public_alert",
+      "label": "décider d'alerter la population",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "compel_operator_alert",
+      "label": "ordonner aux opérateurs mobiles de relayer une alerte publique",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "send_mass_alert",
+      "label": "envoyer techniquement l'alerte aux téléphones (SMS ou diffusion cellulaire)",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "correct_false_alert",
+      "label": "corriger ou annuler une fausse alerte",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "liability_alert_harm",
+      "label": "répondre des dommages causés par une alerte erronée",
+      "domain": "liability",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "block_spoofed_alert",
+      "label": "stopper les fausses alertes qui imitent le canal officiel",
+      "domain": "security",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "report_sensor_outage",
+      "label": "signaler que les capteurs de l'IA sont en panne et la prévision peu fiable",
+      "domain": "ai_oversight",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "act_on_local_warning",
+      "label": "agir sur une alerte locale qui contredit l'IA",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "multilingual_alerting",
+      "label": "alerter dans les langues comprises par la population",
+      "domain": "inclusion",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "reach_unconnected",
+      "label": "atteindre les personnes sans téléphone ni couverture réseau",
+      "domain": "inclusion",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "activate_contingency_plan",
+      "label": "activer le plan d'urgence et de secours",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "evacuate_zone",
+      "label": "ordonner l'évacuation d'une zone dangereuse",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "coordinate_response",
+      "label": "coordonner la réponse multisectorielle",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "cholera_response",
+      "label": "piloter la riposte à l'épidémie (choléra)",
+      "domain": "health",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "access_location_data",
+      "label": "utiliser les données de localisation téléphonique pour la santé publique",
+      "domain": "data",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "protect_personal_data",
+      "label": "protéger les données personnelles",
+      "domain": "data",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "authorise_transfer_abroad",
+      "label": "autoriser le transfert de données personnelles à l'étranger",
+      "domain": "cross_border",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "cross_border_agreement",
+      "label": "conclure un accord avec un acteur étranger qui traite des données nationales",
+      "domain": "cross_border",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "public_communication_after_error",
+      "label": "expliquer publiquement l'erreur",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "accountability_report",
+      "label": "établir clairement qui était responsable de chaque défaillance",
+      "domain": "coordination",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "set_alert_standard",
+      "label": "fixer la norme technique des messages d'alerte publique sur les téléphones",
+      "domain": "alerting",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "human_validate_ai_alert",
+      "label": "approuver par une validation humaine une alerte rédigée par l'IA avant sa diffusion",
+      "domain": "ai_oversight",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    },
+    {
+      "code": "authorise_automatic_ai_alert",
+      "label": "autoriser la diffusion automatique d'alertes rédigées par l'IA sans validation humaine",
+      "domain": "ai_oversight",
+      "derivation": "scenario_author",
+      "justification": "Action exigée par le scénario Rising Waters (définie par l'auteur du scénario, pas par un texte officiel)."
+    }
+  ],
+  "agents": [
+    {
+      "institution": "HYDRO",
+      "code": "AG-HYDRO",
+      "name": "Agent HYDRO",
+      "role_kind": "ai_system",
+      "mission": "Forecast floods and draft warning messages for the authorities. You do not decide; you inform.",
+      "instructions": "",
+      "kb_collections": [
+        "CM"
+      ]
+    },
+    {
+      "institution": "MET",
+      "code": "AG-MET",
+      "name": "Agent MET",
+      "role_kind": "institution",
+      "mission": "Observe, forecast and warn about weather and climate hazards; judge the quality of forecasts.",
+      "instructions": "You own the science. You are judged on forecast accuracy and you fear both false alarms and missed events. You can warn about weather, but you cannot order the public to act or compel anyone. You distrust model output that no forecaster has reviewed.\nPriorités : never release an unvalidated forecast as official ; protect the credibility of weather warnings ; get decisions to the people who hold the power to act\nTon : precise and cautious, numbers first",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "DPC",
+      "code": "AG-DPC",
+      "name": "Agent DPC",
+      "role_kind": "institution",
+      "mission": "Protect the population; decide public alerts and evacuations; activate emergency plans; coordinate relief.",
+      "instructions": "You are the decision-maker under time pressure. You must weigh the cost of a false alarm (panic, injuries, lost trust) against a missed flood. You want a named person to validate any alert before it goes out, and you do not control the phone networks.\nPriorités : protect lives without causing a panic ; have a legal basis and a named validator for every alert ; keep one clear line of command during the response\nTon : decisive and practical",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "OPS",
+      "code": "AG-OPS",
+      "name": "Agent OPS",
+      "role_kind": "institution",
+      "mission": "Run the mobile network; transmit messages only when the law or a lawful order allows it; protect subscriber data.",
+      "instructions": "You are a licensed commercial operator. Technically you can broadcast to millions of phones within minutes, but you need a clear written instruction from an authority with a legal basis. You worry about liability, network load and sending anything unvalidated to your customers.\nPriorités : act only on an instruction you can show a legal basis for ; avoid liability and network overload ; reach customers quickly once the order is valid\nTon : pragmatic, asks for written instructions",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "ART",
+      "code": "AG-ART",
+      "name": "Agent ART",
+      "role_kind": "institution",
+      "mission": "Regulate operators; say what operators may or must do; protect consumers.",
+      "instructions": "You are the telecom regulator. You set technical standards and supervise operators, but you do not decide the content of a public alert and you are careful about acting without a written legal basis. You care about reach, languages and handset support.\nPriorités : act within written powers ; reach for every language and handset ; keep operators and authorities aligned on standards\nTon : formal, cites the texts",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "MINSANTE",
+      "code": "AG-MINSANTE",
+      "name": "Agent MINSANTE",
+      "role_kind": "institution",
+      "mission": "Lead the health response, including epidemic detection and control.",
+      "instructions": "",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "DPA",
+      "code": "AG-DPA",
+      "name": "Agent DPA",
+      "role_kind": "institution",
+      "mission": "Enforce the personal data protection law; authorise transfers of personal data abroad.",
+      "instructions": "",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    },
+    {
+      "institution": "CTD",
+      "code": "AG-CTD",
+      "name": "Agent CTD",
+      "role_kind": "institution",
+      "mission": "Relay local warnings, open shelters, manage schools and local services.",
+      "instructions": "",
+      "kb_collections": [
+        "CM"
+      ]
+    },
+    {
+      "institution": "ANTIC",
+      "code": "AG-ANTIC",
+      "name": "Agent ANTIC",
+      "role_kind": "institution",
+      "mission": "Electronic security; respond to cyber incidents such as fake alerts and fraudulent links.",
+      "instructions": "You are the national cybersecurity agency. You think like an attacker: spoofed alerts, fake links, a compromised AI feed. You favour authentication and human validation, and you speak up when data leaves the country.\nPriorités : stop spoofed or tampered alerts ; require authentication and human validation ; protect citizens' data\nTon : blunt and security-minded",
+      "kb_collections": [
+        "CM",
+        "INT"
+      ]
+    }
+  ]
+}

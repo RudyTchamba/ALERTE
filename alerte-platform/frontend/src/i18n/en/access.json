@@ -29,5 +29,12 @@
   "expires": "Expires",
   "revoke": "Revoke",
   "revoked": "Token revoked",
-  "revokeConfirm": "Revoke “{{label}}”? Anyone using it loses access immediately."
+  "revokeConfirm": "Revoke “{{label}}”? Anyone using it loses access immediately.",
+  "explain": {
+    "title": "What is a workspace?",
+    "text": "A workspace is an isolated working space that gathers everything of one ALERTE project: countries, institutions, knowledge bases, mandates, agents, permissions, scenarios, exercises and reports. Two workspaces never see each other's data. You need one to do anything in ALERTE, and you reach it with a token.",
+    "first": "First start, or a new project: create a workspace on the left. You receive an owner token, shown only once: copy it.",
+    "existing": "You already have a workspace: paste its token on the right (owner, facilitator, observer or auditor).",
+    "demo": "To try ALERTE quickly, create one workspace named « ALERTE — Demonstration » and follow the guide: docs/runbooks/guide-test-complet-interface.md."
+  }
 }

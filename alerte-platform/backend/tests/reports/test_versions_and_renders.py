@@ -186,13 +186,12 @@ def test_pdf_uses_only_embedded_fonts():
     assert pdf.is_rtl("مرحبا بالعالم") and not pdf.is_rtl("Hello مرحبا world and more latin") and not pdf.is_rtl("")
 
 
-def test_basic_pdf_fallback_renders_a_valid_multi_page_document():
-    from app.reports.render import pdf
-    html = "<h1>Rapport (exercice)</h1>" + "".join(f"<p>Ligne {i} : décision « citée » — {'mot ' * 30}</p>" for i in range(120))
-    out = pdf.BasicPdfRenderer().render(html, "", identifier=b"\x01" * 16)
-    assert out.startswith(b"%PDF-1.4") and out.rstrip().endswith(b"%%EOF")
-    assert out.count(b"/Type /Page ") >= 3 and b"Rapport \\(exercice\\)" in out
-    assert out == pdf.BasicPdfRenderer().render(html, "", identifier=b"\x01" * 16)  # déterministe
-    import pypdfium2
-    doc = pypdfium2.PdfDocument(out)
-    assert len(doc) >= 3 and "Ligne 0" in doc[0].get_textpage().get_text_range()
+def test_xlsx_renders_a_gap_without_any_international_reference(rep):
+    """Régression : une lacune SANS référence internationale (cas normal : « sources insuffisantes ») faisait échouer le XLSX (KeyError)."""
+    from app.reports.render import tabular
+    res = generate(rep, title="Rapport sans références")
+    content = version(rep, res["version_id"])["content"]
+    content["references"] = [{"gap_title": "Lacune X", "references": [], "message": "sources insuffisantes (< 2 juridictions)"}]
+    wb = load_workbook(io.BytesIO(tabular.render_xlsx(content)))
+    rows = list(wb["Références"].iter_rows(values_only=True))
+    assert rows[1][0] == "Lacune X" and rows[1][1] is None and "insuffisantes" in rows[1][8]

@@ -1,3 +1,4 @@
+import { Prereq } from '@/components/Prereq'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -70,7 +71,8 @@ export function GapsPage() {
 
   return (
     <>
-      <PageHeader title={t('gaps.title')} description={t('gaps.description')} actions={<Button onClick={() => setTab(tab === 'list' ? 'compare' : 'list')}>{tab === 'list' ? t('gaps.compare') : t('gaps.backToList')}</Button>} />
+      <PageHeader title={t('gaps.title')} term="gap" description={t('gaps.description')} actions={<Button onClick={() => setTab(tab === 'list' ? 'compare' : 'list')}>{tab === 'list' ? t('gaps.compare') : t('gaps.backToList')}</Button>} />
+      <Prereq page="gaps" />
       {tab === 'compare' ? <Compare exercises={exs.data ?? []} /> : (
         <div className={gapId ? 'grid grid-cols-1 gap-4 [&>*]:min-w-0 xl:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]' : ''}>
           <div>
@@ -93,7 +95,7 @@ export function GapsPage() {
               <label className="mt-2 inline-flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4" checked={f.include_stale} onChange={(e) => set('include_stale', e.target.checked)} />{t('gaps.includeStale')}</label>
             </details>
             <QueryState q={q} what="(/gaps)">
-              {(rows) => rows.length === 0 ? <EmptyState title={t('gaps.empty')} hint={t('gaps.emptyHint')} /> : (
+              {(rows) => rows.length === 0 ? <EmptyState title={t('gaps.empty')} hint={t('gaps.emptyHint')} action={<Link to="/room">{t('journey.steps.room.title')}</Link>} /> : (
                 <Table caption={t('gaps.title')}>
                   <THead><Tr><Th>{t('gaps.code')}</Th><Th>{t('gaps.gapTitle')}</Th><Th>{t('gaps.severityF')}</Th><Th>{t('gaps.nature.label')}</Th><Th>{t('geo.institutions')}</Th><Th>{t('gaps.confidence')}</Th></Tr></THead>
                   <TBody>{rows.map((g) => (

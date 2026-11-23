@@ -62,28 +62,19 @@ export function EntryPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <FictionalBanner />
-      <main id="main" className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:p-10">
-        <section aria-labelledby="entry-title">
-          <h1 id="entry-title" className="mb-8 flex items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-xl border border-line bg-surface2"><LogoMark className="h-7 w-7" /></span>
-            <span className="flex flex-col leading-none">
-              <span className="text-3xl font-black tracking-[0.18em]">{t('common.appName')}</span>
-              <span className="mt-1 text-sm text-muted">{t('common.tagline')}</span>
-            </span>
-          </h1>
-          <p className="eyebrow mb-3 flex items-center gap-2 text-brand"><span className="live-dot is-live text-brand" aria-hidden />{t('home.hero.eyebrow')}</p>
-          <p className="max-w-xl text-3xl leading-tight font-black tracking-tight sm:text-4xl">{t('home.hero.title')}</p>
-          <p className="mt-4 max-w-xl text-muted">{t('home.hero.lead')}</p>
-          <ol className="mt-8 grid gap-3 sm:grid-cols-3">
-            {steps.map(({ k, icon: Icon }, i) => (
-              <li key={k} className="panel p-3">
-                <span className="mb-2 grid h-8 w-8 place-items-center rounded-lg border border-brand/40 text-brand"><Icon className="h-4 w-4" aria-hidden /></span>
-                <span className="block text-sm font-bold"><span className="text-brand tabular">{i + 1}.</span> {t(`nav.${k}`)}</span>
-                <span className="block text-xs text-muted">{t(`home.how.${k}`)}</span>
-              </li>
-            ))}
-          </ol>
+      <main id="main" className="mx-auto max-w-4xl p-4 lg:p-8">
+        <h1 className="mb-1 flex items-center gap-3 text-3xl font-extrabold"><LogoMark className="h-9 w-9" />{t('common.appName')}</h1>
+        <p className="mb-6 text-muted">{t('common.tagline')}</p>
+        <section aria-label={t('access.explain.title')} className="mb-5 rounded-md border border-line bg-surface p-4 text-sm">
+          <h2 className="mb-1 text-base font-bold">{t('access.explain.title')}</h2>
+          <p>{t('access.explain.text')}</p>
+          <ul className="mt-2 list-disc pl-5 text-muted">
+            <li>{t('access.explain.first')}</li>
+            <li>{t('access.explain.existing')}</li>
+            <li>{t('access.explain.demo')}</li>
+          </ul>
         </section>
+        {params.get('expired') && <p role="alert" className="mb-4 rounded-md border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}
 
         <div className="flex flex-col gap-4">
           {params.get('expired') && <p role="alert" className="rounded-lg border border-warn bg-warnsoft p-3 text-sm">{t('access.sessionExpired')}</p>}

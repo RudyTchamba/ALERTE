@@ -35,7 +35,7 @@ export function KbListPage() {
   const q = useApiQuery<Kb[]>(keys.kbs(archived), '/knowledge-bases', { query: { include_archived: archived } })
   return (
     <>
-      <PageHeader title={t('kb.title')} description={t('kb.description')}
+      <PageHeader title={t('kb.title')} term="knowledgeBase" description={t('kb.description')}
         actions={<><Button onClick={() => setImporting((v) => !v)}>{t('kb.importArchive')}</Button><Button variant="primary" onClick={() => setWizard(true)}>{t('kb.newKb')}</Button></>} />
       {importing && <div className="mb-4"><ImportArchive /></div>}
       <div className="mb-3"><Checkbox label={t('geo.showArchived')} checked={archived} onChange={(e) => setArchived(e.target.checked)} /></div>

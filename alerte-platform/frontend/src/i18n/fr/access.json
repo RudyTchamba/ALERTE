@@ -29,5 +29,12 @@
   "expires": "Expire",
   "revoke": "Révoquer",
   "revoked": "Jeton révoqué",
-  "revokeConfirm": "Révoquer « {{label}} » ? Toute personne qui l'utilise perd l'accès immédiatement."
+  "revokeConfirm": "Révoquer « {{label}} » ? Toute personne qui l'utilise perd l'accès immédiatement.",
+  "explain": {
+    "title": "Qu'est-ce qu'un espace de travail ?",
+    "text": "Un espace de travail (workspace) est un espace isolé qui regroupe tout un projet ALERTE : pays, institutions, bases de connaissances, mandats, agents, permissions, scénarios, exercices et rapports. Deux espaces ne voient jamais les données l'un de l'autre. Il en faut un pour faire quoi que ce soit dans ALERTE, et on y accède avec un jeton.",
+    "first": "Premier démarrage, ou nouveau projet : créez un espace à gauche. Vous recevez un jeton propriétaire, affiché une seule fois : copiez-le.",
+    "existing": "Vous avez déjà un espace : collez son jeton à droite (propriétaire, animateur, observateur ou auditeur).",
+    "demo": "Pour essayer ALERTE rapidement, créez un seul espace nommé « ALERTE — Demonstration » et suivez le guide : docs/runbooks/guide-test-complet-interface.md."
+  }
 }
