@@ -5,7 +5,7 @@ export function Radar({ dims, max }: { dims: { label: string; score: number | nu
   const { t } = useTranslation()
   const size = 340
   const c = size / 2
-  const r = size / 2 - 60
+  const r = size / 2 - 85
   const n = dims.length
   if (n === 0) return null
   const ang = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2
@@ -14,7 +14,7 @@ export function Radar({ dims, max }: { dims: { label: string; score: number | nu
   const poly = assessed.filter((p): p is readonly [number, number] => p !== null).map((p) => p.join(',')).join(' ')
   const desc = dims.map((d) => `${d.label}: ${d.score === null ? t('common.notAssessed') : d.score.toFixed(1)}`).join('; ')
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={t('evaluation.radarLabel')} className="h-auto w-full max-w-md">
+    <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={t('evaluation.radarLabel')} className="h-auto w-full max-w-md" overflow="visible">
       <title>{t('evaluation.radarLabel')}</title><desc>{desc}</desc>
       {[1, 2, 3, 4, 5].map((k) => <polygon key={k} points={dims.map((_, i) => pt(i, (max * k) / 5).join(',')).join(' ')} fill="none" stroke="var(--border)" strokeWidth={1} />)}
       {dims.map((d, i) => {
@@ -23,7 +23,7 @@ export function Radar({ dims, max }: { dims: { label: string; score: number | nu
         return (
           <g key={i}>
             <line x1={c} y1={c} x2={x} y2={y} stroke="var(--border)" />
-            <text x={lx} y={ly} fontSize={9} textAnchor={lx < c - 5 ? 'end' : lx > c + 5 ? 'start' : 'middle'} fill="var(--text)">{d.label.length > 16 ? `${d.label.slice(0, 15)}…` : d.label}{d.score === null ? ` (${t('common.notAssessed')})` : ''}</text>
+            <text x={lx} y={ly} fontSize={11} textAnchor={lx < c - 5 ? 'end' : lx > c + 5 ? 'start' : 'middle'} fill="var(--text)">{d.label.length > 16 ? `${d.label.slice(0, 15)}…` : d.label}{d.score === null ? ` (${t('common.notAssessed')})` : ''}</text>
           </g>
         )
       })}

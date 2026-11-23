@@ -56,12 +56,12 @@ function Node({ p, icon: Icon, label, sub, active, stroke, small, tone }: {
   const w = small ? 108 : 150
   const h = small ? 40 : 58
   return (
-    <g transform={`translate(${p.x - w / 2} ${p.y - h / 2})`} className={cn('transition-opacity', active === false && 'opacity-60')}>
+    <g transform={`translate(${p.x - w / 2} ${p.y - h / 2})`} className={cn('transition-opacity', active === false && 'opacity-80')}>
       {active && <rect x={-6} y={-6} width={w + 12} height={h + 12} rx={16} fill="none" stroke={tone ?? 'var(--brand)'} strokeWidth={2} opacity={0.55} className="flow-halo" />}
       <rect width={w} height={h} rx={12} fill="var(--surface)" stroke={stroke ?? 'var(--border)'} strokeWidth={active ? 2.5 : 1.5} />
       <Icon x={10} y={(h - (small ? 16 : 20)) / 2} width={small ? 16 : 20} height={small ? 16 : 20} className="text-muted" />
       <text x={small ? 32 : 38} y={sub ? h / 2 - 3 : h / 2 + 5} fill="var(--text)" fontSize={small ? 12 : 15} fontWeight={800} fontFamily="var(--font-mono)">{label}</text>
-      {sub && <text x={small ? 32 : 38} y={h / 2 + 14} fill="var(--text-muted)" fontSize={11}>{sub}</text>}
+      {sub && <text x={small ? 32 : 38} y={h / 2 + 14} fill="var(--text-muted)" fontSize={12.5}>{sub}</text>}
     </g>
   )
 }
@@ -76,7 +76,7 @@ function Callout({ at, text, tone }: { at: Pt; text: string; tone: string }) {
     <g className="flow-callout">
       <line x1={at.x} y1={below ? at.y + 30 : at.y - 30} x2={at.x} y2={below ? y : y + h} stroke={tone} strokeWidth={1.5} strokeDasharray="2 3" />
       <foreignObject x={x} y={y} width={w} height={h}>
-        <div style={{ borderColor: tone }} className="flex h-full items-center rounded-xl border-2 bg-surface px-3 py-1.5 text-[13px] leading-snug font-semibold text-ink shadow-lg">
+        <div style={{ borderColor: tone }} className="flex h-full items-center rounded-xl border-2 bg-surface px-3 py-1.5 text-sm leading-snug font-semibold text-ink shadow-lg">
           <span className="line-clamp-3">{text}</span>
         </div>
       </foreignObject>

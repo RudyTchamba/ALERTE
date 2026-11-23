@@ -60,7 +60,7 @@ export function FlowPlayer({ events, seats, live, title, autoplay = false, loop 
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-2.5">
         <h2 className="flex items-center gap-2 text-sm font-bold tracking-wide uppercase">
           <span className={cn('live-dot', (live && atEnd) || playing ? 'is-live text-ok' : 'text-brand')} aria-hidden />{heading ?? t('room.flow.title')}
-          {badge && <span className="rounded-md border border-warn px-1.5 py-0.5 text-[0.65rem] font-semibold tracking-normal text-warn normal-case">{badge}</span>}
+          {badge && <span className="rounded-md border border-warn px-1.5 py-0.5 text-xs font-semibold tracking-normal text-warn normal-case">{badge}</span>}
         </h2>
         <p className="text-xs text-muted">{live && atEnd ? t('room.flow.liveHint') : t('room.flow.replayHint')}</p>
       </div>
@@ -121,7 +121,7 @@ export function FlowPlayer({ events, seats, live, title, autoplay = false, loop 
                 <li key={st.seq} aria-current={i === idx ? 'step' : undefined}>
                   <button type="button" onClick={() => go(i)}
                     className={cn('flex w-full gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors',
-                      i === idx ? 'bg-brandsoft text-ink' : i > idx ? 'text-muted opacity-60 hover:opacity-100' : 'text-ink hover:bg-surface2')}>
+                      i === idx ? 'bg-brandsoft text-ink' : i > idx ? 'text-muted hover:text-ink' : 'text-ink hover:bg-surface2')}>
                     <StepIcon st={st} className={cn('mt-0.5 h-3.5 w-3.5 shrink-0', TONE_TEXT[st.tone])} />
                     <span className="line-clamp-2">{say(st)}</span>
                   </button>

@@ -39,6 +39,19 @@
     "play": "Les événements tombent ; les agents cherchent, se coordonnent et décident. Chaque décision doit citer un texte vérifié.",
     "analyze": "Les lacunes émergent avec leur chaîne de preuves, puis sont validées par des humains et publiées en rapport."
   },
+  "last": {
+    "eyebrow": "Bilan du dernier exercice",
+    "openRoom": "Ouvrir la salle",
+    "alertTitle": "Alerte à la population",
+    "alerted": "Alerte émise",
+    "alertedBy": "après le début de la crise — émise par {{who}}",
+    "verdict": { "silent": "Aucune alerte", "waiting": "En attente", "not_started": "Pas encore joué" },
+    "verdictHint": { "silent": "Les habitants n'ont jamais été prévenus pendant l'exercice.", "waiting": "L'exercice est en cours : aucune alerte pour l'instant.", "not_started": "L'alerte s'affichera dès le début de l'exercice." },
+    "blocked": "{{n}} tentative(s) bloquée(s) faute de base légale vérifiée",
+    "gapsTitle": "Lacunes révélées ({{n}})",
+    "seeGaps": "Voir les lacunes",
+    "noGaps": "Aucune lacune détectée pour cet exercice."
+  },
   "kpi": {
     "title": "En chiffres",
     "played": "Exercices joués",

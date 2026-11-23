@@ -29,6 +29,9 @@
   --focus: #4cc3f5;
   --glow: rgba(245, 165, 36, 0.07);
   --grid: rgba(151, 165, 184, 0.045);
+  --shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+  --shadow-lg: 0 24px 64px -16px rgba(0,0,0,0.7);
+  --ring: rgba(76, 195, 245, 0.35);
 }
 :root[data-theme='light'] {
   color-scheme: light;
@@ -38,10 +41,10 @@
   --border: #c7cfda;
   --text: #0e1621;
   --text-muted: #475467;
-  --brand: #b45309;
+  --brand: #9a4507;
   --brand-contrast: #ffffff;
   --brand-soft: #fdf0d9;
-  --ok: #047857;
+  --ok: #04694c;
   --ok-soft: #d5f5e7;
   --warn: #9a3412;
   --warn-soft: #fde6d6;
@@ -57,6 +60,9 @@
   --focus: #0b6aa2;
   --glow: rgba(180, 83, 9, 0.06);
   --grid: rgba(14, 22, 33, 0.035);
+  --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 6px 16px -10px rgba(16,24,40,0.18);
+  --shadow-lg: 0 24px 64px -16px rgba(16,24,40,0.28);
+  --ring: rgba(11, 106, 162, 0.25);
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
@@ -67,10 +73,10 @@
     --border: #c7cfda;
     --text: #0e1621;
     --text-muted: #475467;
-    --brand: #b45309;
+    --brand: #9a4507;
     --brand-contrast: #ffffff;
     --brand-soft: #fdf0d9;
-    --ok: #047857;
+    --ok: #04694c;
     --ok-soft: #d5f5e7;
     --warn: #9a3412;
     --warn-soft: #fde6d6;
@@ -86,6 +92,9 @@
     --focus: #0b6aa2;
     --glow: rgba(180, 83, 9, 0.06);
     --grid: rgba(14, 22, 33, 0.035);
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 6px 16px -10px rgba(16,24,40,0.18);
+    --shadow-lg: 0 24px 64px -16px rgba(16,24,40,0.28);
+    --ring: rgba(11, 106, 162, 0.25);
   }
 }
 
@@ -111,6 +120,9 @@
   --color-neutralsoft: var(--neutral-soft);
   --color-banner: var(--banner);
   --color-bannerink: var(--banner-ink);
+  /* Lisibilité : plancher de taille relevé (projection, téléphone). */
+  --text-xs: 0.8125rem; --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem; --text-sm--line-height: 1.4rem;
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 }
@@ -127,10 +139,11 @@ body {
   color: var(--text); font-family: var(--font-sans); line-height: 1.5; margin: 0;
   -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3 { letter-spacing: -0.01em; }
+h1, h2, h3 { letter-spacing: -0.015em; text-wrap: balance; }
+p { text-wrap: pretty; }
 .tabular { font-variant-numeric: tabular-nums; }
 /* Petite étiquette au-dessus d'un titre. */
-.eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 /* Bandeau « exercice fictif » : rayures de signalisation. */
 .hazard { background: repeating-linear-gradient(-45deg, var(--banner) 0 14px, color-mix(in srgb, var(--banner) 82%, black) 14px 28px); color: var(--banner-ink); }
 /* Point « en direct ». L'animation est neutralisée par prefers-reduced-motion plus bas. */
@@ -148,7 +161,22 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 /* « Et si » : une lacune résolue se fait barrer en vert. */
 @keyframes gap-strike { from { background-size: 0% 2px; } to { background-size: 100% 2px; } }
 .gap-resolved { background-image: linear-gradient(var(--ok), var(--ok)); background-repeat: no-repeat; background-position: 0 55%; background-size: 0% 2px; animation: gap-strike 0.6s ease-out forwards; color: var(--text-muted); }
-.panel { background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); border-radius: 0.75rem; }
+.panel { background: color-mix(in srgb, var(--surface) 94%, transparent); border: 1px solid var(--border); border-radius: 0.875rem; box-shadow: var(--shadow); }
+/* Panneau cliquable : léger soulèvement au survol. */
+a.panel, button.panel { transition: border-color .15s, transform .15s, box-shadow .15s; }
+a.panel:hover, button.panel:hover { transform: translateY(-2px); box-shadow: var(--shadow), 0 12px 28px -14px var(--brand); }
+@media (prefers-reduced-motion: reduce) { a.panel:hover, button.panel:hover { transform: none; } }
+/* Sélection, barres de défilement discrètes et cohérentes avec le thème. */
+::selection { background: color-mix(in srgb, var(--brand) 35%, transparent); color: var(--text); }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+/* Apparition douce des fenêtres. */
+@keyframes dialog-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.dialog-in { animation: dialog-in .18s ease-out; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fade-in .15s ease-out; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 @layer base {
   a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }

@@ -6,10 +6,10 @@ import { cn } from '@/lib/cn'
 export type Tone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral'
 
 const toneClass: Record<Tone, string> = {
-  ok: 'bg-oksoft text-ok border-ok',
-  warn: 'bg-warnsoft text-warn border-warn',
-  danger: 'bg-dangersoft text-danger border-danger',
-  info: 'bg-infosoft text-info border-info',
+  ok: 'bg-oksoft text-ok border-[color-mix(in_srgb,var(--ok)_45%,transparent)]',
+  warn: 'bg-warnsoft text-warn border-[color-mix(in_srgb,var(--warn)_45%,transparent)]',
+  danger: 'bg-dangersoft text-danger border-[color-mix(in_srgb,var(--danger)_45%,transparent)]',
+  info: 'bg-infosoft text-info border-[color-mix(in_srgb,var(--info)_45%,transparent)]',
   neutral: 'bg-neutralsoft text-neutral border-line',
 }
 const ToneIcon = { ok: CheckCircle2, warn: AlertTriangle, danger: XCircle, info: Info, neutral: Circle }
@@ -18,7 +18,7 @@ const ToneIcon = { ok: CheckCircle2, warn: AlertTriangle, danger: XCircle, info:
 export function Badge({ tone = 'neutral', children, className }: { tone?: Tone; children: ReactNode; className?: string }) {
   const Icon = ToneIcon[tone]
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap', toneClass[tone], className)}>
+    <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold whitespace-nowrap', toneClass[tone], className)}>
       <Icon className="h-3.5 w-3.5" aria-hidden />
       {children}
     </span>

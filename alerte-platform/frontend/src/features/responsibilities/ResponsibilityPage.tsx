@@ -113,7 +113,7 @@ export function ResponsibilityPage() {
                         {institutions.map((i) => (
                           <th key={i.id} scope="col" className="px-2 py-3 text-center" title={i.name}>
                             <span className="font-mono text-sm font-black text-ink">{i.code}</span>
-                            <span className="block max-w-28 truncate text-[0.65rem] font-normal">{i.name}</span>
+                            <span className="block max-w-28 truncate text-xs font-normal">{i.name}</span>
                           </th>
                         ))}
                         <th scope="col" className="px-4 py-3 text-left font-semibold tracking-wide uppercase">{t('gaps.matrix.status')}</th>
@@ -147,7 +147,7 @@ function MatrixRow({ r, institutions, gapCodes, sel, onPick }: { r: Row; institu
     <tr className={cn('border-t border-line', r.state === 'orphan' && 'bg-dangersoft/30')}>
       <th scope="row" className={cn('sticky left-0 z-10 border-l-4 bg-surface px-4 py-3 text-left align-middle', st.border)}>
         <span className="block font-semibold text-ink">{r.action.label}</span>
-        <span className="block font-mono text-[0.7rem] font-normal text-muted">{r.action.code}{r.action.reference_note ? ` · ${r.action.reference_note}` : ''}</span>
+        <span className="block font-mono text-xs font-normal text-muted">{r.action.code}{r.action.reference_note ? ` · ${r.action.reference_note}` : ''}</span>
       </th>
       {institutions.map((i) => {
         const c = r.cells[i.id]

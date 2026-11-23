@@ -59,7 +59,7 @@ function NavEntry({ item, onNavigate }: { item: NavItem; onNavigate: () => void 
   return (
     <NavLink to={item.to} end={item.end} onClick={onNavigate}
       className={({ isActive }) => cn(
-        'group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm no-underline transition-colors',
+        'group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm no-underline transition-colors',
         isActive ? 'bg-brandsoft font-semibold text-brand' : 'text-ink hover:bg-surface2',
       )}>
       {({ isActive }) => (
@@ -83,15 +83,15 @@ export function AppShell() {
     <div className="flex min-h-screen flex-col">
       <a href="#main" className="skip-link">{t('common.skipToContent')}</a>
       <FictionalBanner />
-      <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-line bg-surface/90 px-4 py-2 backdrop-blur">
+      <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-line bg-surface/85 px-4 py-2 shadow-[0_8px_24px_-20px_rgba(0,0,0,0.6)] backdrop-blur-md">
         <Button size="sm" variant="ghost" className="lg:hidden" aria-expanded={open} aria-controls="main-nav" aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')} onClick={() => setOpen((o) => !o)}>
           {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
         </Button>
         <NavLink to="/" className="flex items-center gap-2.5 text-ink no-underline" aria-label={`${t('common.appName')} — ${t('nav.home')}`}>
-          <span className="grid h-8 w-8 place-items-center rounded-lg border border-line bg-surface2"><LogoMark className="h-5 w-5" /></span>
+          <span className="grid h-9 w-9 place-items-center rounded-xl border border-brand/40 bg-brandsoft shadow-[0_6px_18px_-8px_var(--brand)]"><LogoMark className="h-5 w-5" /></span>
           <span className="flex flex-col leading-none">
             <span className="text-base font-black tracking-[0.18em]">{t('common.appName')}</span>
-            <span className="hidden text-[0.7rem] text-muted md:inline">{t('common.tagline')}</span>
+            <span className="hidden text-xs text-muted md:inline">{t('common.tagline')}</span>
           </span>
         </NavLink>
         <div className="ml-auto flex flex-wrap items-center gap-2 text-sm">
@@ -122,10 +122,10 @@ export function AppShell() {
           {NAV.map((g) => (
             <div key={g.group} className="mb-5">
               <div className="mb-1.5 flex items-center gap-2 px-2.5">
-                {g.step && <span aria-hidden className="grid h-5 w-5 place-items-center rounded-md border border-line bg-surface2 text-[0.65rem] font-bold text-brand tabular">{g.step}</span>}
+                {g.step && <span aria-hidden className="grid h-5 w-5 place-items-center rounded-md border border-line bg-surface2 text-xs font-bold text-brand tabular">{g.step}</span>}
                 <p className="eyebrow">{t(`nav.${g.group}`)}</p>
               </div>
-              {g.hint && <p className="mb-1.5 px-2.5 text-[0.7rem] leading-snug text-muted">{t(`nav.${g.hint}`)}</p>}
+              {g.hint && <p className="mb-1.5 px-2.5 text-xs leading-snug text-muted">{t(`nav.${g.hint}`)}</p>}
               <ul className="flex flex-col gap-0.5">
                 {g.items.map((i) => <li key={i.to}><NavEntry item={i} onNavigate={close} /></li>)}
               </ul>

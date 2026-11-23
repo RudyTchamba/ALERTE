@@ -30,7 +30,7 @@ export function Tabs({ tabs, value, onChange, label }: { tabs: TabDef[]; value: 
           <button key={t.id} ref={(el) => { refs.current[t.id] = el }} role="tab" type="button" id={`${uid}-tab-${t.id}`}
             aria-selected={t.id === value} aria-controls={`${uid}-panel-${t.id}`} tabIndex={t.id === value ? 0 : -1}
             onClick={() => onChange(t.id)}
-            className={cn('-mb-px border-b-2 px-3 py-2 text-sm font-medium', t.id === value ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink')}>
+            className={cn('-mb-px rounded-t-lg border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors', t.id === value ? 'border-brand bg-brandsoft/50 text-brand' : 'border-transparent text-muted hover:bg-surface2 hover:text-ink')}>
             {t.label}
           </button>
         ))}

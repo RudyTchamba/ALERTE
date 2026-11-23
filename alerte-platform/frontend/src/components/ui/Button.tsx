@@ -11,9 +11,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-brandfg border-transparent font-semibold shadow-[0_0_0_1px_var(--brand),0_6px_20px_-8px_var(--brand)] hover:brightness-110',
-  secondary: 'bg-surface2 text-ink border-line hover:border-muted',
-  danger: 'bg-danger text-[var(--danger-contrast)] border-transparent font-semibold hover:brightness-110',
+  primary: 'bg-brand text-brandfg border-transparent font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.25)_inset,0_6px_20px_-8px_var(--brand)] hover:brightness-110 hover:shadow-[0_1px_0_0_rgba(255,255,255,0.25)_inset,0_10px_28px_-8px_var(--brand)]',
+  secondary: 'bg-surface2 text-ink border-line shadow-sm hover:border-muted hover:bg-[color-mix(in_srgb,var(--surface-2)_70%,var(--border))]',
+  danger: 'bg-danger text-[var(--danger-contrast)] border-transparent font-semibold shadow-[0_6px_20px_-10px_var(--danger)] hover:brightness-110',
   ghost: 'bg-transparent text-ink border-transparent hover:bg-surface2',
 }
 
@@ -24,8 +24,8 @@ export function Button({ variant = 'secondary', size = 'md', loading, icon, chil
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg border font-medium transition disabled:opacity-50 disabled:shadow-none',
-        size === 'sm' ? 'min-h-8 px-2.5 py-1 text-sm' : 'min-h-10 px-4 py-2 text-sm',
+        'inline-flex items-center justify-center gap-2 rounded-lg border font-medium whitespace-nowrap transition-all duration-150 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none',
+        size === 'sm' ? 'min-h-8 px-3 py-1 text-sm' : 'min-h-10 px-4 py-2 text-sm',
         variants[variant],
         className,
       )}

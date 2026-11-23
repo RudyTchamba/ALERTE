@@ -68,9 +68,9 @@ function Doc({ v }: { v: Extract<ReformVerification, { found: true }> }) {
             <h1 className="mt-1 text-2xl font-black tracking-tight">{c.title}</h1>
             <p className="mt-1 text-xs font-bold tracking-widest text-warn uppercase print:text-black">{t('reform.proposal')}</p>
           </div>
-          <figure className="w-28 shrink-0 text-center">
+          <figure className="w-32 shrink-0 text-center">
             <QrSvg value={url} title={t('reform.scan')} className="w-full" />
-            <figcaption className="mt-1 text-[9px] leading-tight text-muted print:text-black">{t('reform.scan')}</figcaption>
+            <figcaption className="mt-1 text-xs leading-tight text-muted print:text-black">{t('reform.scan')}</figcaption>
           </figure>
         </header>
 
@@ -90,7 +90,7 @@ function Doc({ v }: { v: Extract<ReformVerification, { found: true }> }) {
         </>}
         {c.rejected_citations > 0 && <p className="mt-2 text-xs text-warn print:text-black">{t('reform.partial', { n: c.rejected_citations })}</p>}
 
-        <footer className="mt-8 border-t border-line pt-3 font-mono text-[10px] leading-relaxed break-all text-muted print:border-black print:text-black">
+        <footer className="mt-8 border-t border-line pt-3 font-mono text-xs leading-relaxed break-all text-muted print:border-black print:text-black">
           <p className="mb-1 font-sans text-xs font-bold tracking-wide uppercase">{t('reform.anchors')}</p>
           <p>{t('reform.ledgerHead', { seq: a.ledger_head_seq ?? '—' })} · {a.ledger_head_hash}</p>
           <p>{t('reform.snapshot')} · {a.snapshot_sha256 ?? '—'}</p>

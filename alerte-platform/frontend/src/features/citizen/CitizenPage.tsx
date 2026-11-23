@@ -113,7 +113,7 @@ function AlertScreen({ alert, data, onAck }: { alert: PublicAlert; data: PublicA
   return (
     <div role="alertdialog" aria-modal="true" aria-label={t('citizen.alertKind')} className="alert-flash fixed inset-0 z-50 flex flex-col overflow-y-auto p-6 text-white">
       <p className="mb-6 flex items-center gap-2 text-sm font-black tracking-widest uppercase"><TriangleAlert className="h-6 w-6" aria-hidden />{t('citizen.alertKind')}</p>
-      <p className="text-xs font-bold tracking-widest uppercase opacity-80">{t('citizen.exercise')}</p>
+      <p className="text-xs font-bold tracking-widest uppercase">{t('citizen.exercise')}</p>
       <h1 className="mt-2 text-3xl leading-tight font-black">{alert.action}</h1>
       <p className="mt-4 text-lg">{data.hazard?.area}</p>
       {alert.inject_title && <p className="mt-1 text-lg font-bold">{alert.inject_title}</p>}
@@ -141,7 +141,7 @@ function AlertCard({ alert }: { alert: PublicAlert }) {
           {cap && (
             <>
               <p className="mt-2 text-xs text-muted">{t('citizen.capNote')}</p>
-              <pre className="mt-2 max-h-72 overflow-auto rounded-lg bg-surface2 p-2 font-mono text-[10px] leading-snug">{alert.cap_xml}</pre>
+              <pre className="mt-2 max-h-72 overflow-auto rounded-lg bg-surface2 p-2 font-mono text-xs leading-snug">{alert.cap_xml}</pre>
             </>
           )}
         </div>

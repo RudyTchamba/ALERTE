@@ -39,6 +39,19 @@
     "play": "Events unfold; agents search, coordinate and decide. Every decision must cite a verified text.",
     "analyze": "Gaps emerge with their evidence chain, then are validated by humans and published as a report."
   },
+  "last": {
+    "eyebrow": "Latest exercise outcome",
+    "openRoom": "Open the room",
+    "alertTitle": "Public alert",
+    "alerted": "Alert issued",
+    "alertedBy": "after the crisis began — issued by {{who}}",
+    "verdict": { "silent": "No alert", "waiting": "Waiting", "not_started": "Not played yet" },
+    "verdictHint": { "silent": "Residents were never warned during the exercise.", "waiting": "The exercise is running: no alert so far.", "not_started": "The alert will show once the exercise starts." },
+    "blocked": "{{n}} attempt(s) blocked for lack of a verified legal basis",
+    "gapsTitle": "Gaps revealed ({{n}})",
+    "seeGaps": "See the gaps",
+    "noGaps": "No gap detected for this exercise."
+  },
   "kpi": {
     "title": "Key figures",
     "played": "Exercises played",

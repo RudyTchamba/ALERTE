@@ -12,8 +12,8 @@ export function Table({ caption, children, className }: { caption: string; child
     </div>
   )
 }
-export const THead = (p: HTMLAttributes<HTMLTableSectionElement>) => <thead className="bg-surface2 text-xs tracking-wide text-muted uppercase" {...p} />
+export const THead = (p: HTMLAttributes<HTMLTableSectionElement>) => <thead className="bg-surface2 text-xs font-bold tracking-wider text-muted uppercase" {...p} />
 export const TBody = (p: HTMLAttributes<HTMLTableSectionElement>) => <tbody {...p} />
-export const Tr = ({ className, ...p }: HTMLAttributes<HTMLTableRowElement>) => <tr className={cn('border-t border-line transition-colors hover:bg-surface2/60', className)} {...p} />
-export const Th = ({ className, ...p }: ThHTMLAttributes<HTMLTableCellElement>) => <th scope="col" className={cn('px-3 py-2 font-semibold whitespace-nowrap', className)} {...p} />
-export const Td = ({ className, ...p }: TdHTMLAttributes<HTMLTableCellElement>) => <td className={cn('px-3 py-2 align-top', className)} {...p} />
+export const Tr = ({ className, ...p }: HTMLAttributes<HTMLTableRowElement>) => <tr className={cn('border-t border-line transition-colors even:bg-surface2/25 hover:bg-surface2/70', className)} {...p} />
+export const Th = ({ className, ...p }: ThHTMLAttributes<HTMLTableCellElement>) => <th scope="col" className={cn('px-4 py-3 whitespace-nowrap', className)} {...p} />
+export const Td = ({ className, ...p }: TdHTMLAttributes<HTMLTableCellElement>) => <td className={cn('px-4 py-3 align-top', className)} {...p} />
