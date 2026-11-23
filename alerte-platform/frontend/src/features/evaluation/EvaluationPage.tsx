@@ -9,6 +9,8 @@ import { Badge, Button, Card, Field, Input, PageHeader, QueryState, Section, Sel
 import { errorMessage } from '@/lib/errors'
 import { fmtPct } from '@/lib/format'
 import { Radar } from './Radar'
+import { JobProgress } from '@/features/kb/JobProgress'
+import { useQueryClient } from '@tanstack/react-query'
 
 const METRICS = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'] as const
 
@@ -89,44 +91,95 @@ function Metrics({ exerciseId, exercises }: { exerciseId: string; exercises: Exe
 
 const ANSWERS = ['yes', 'partial', 'no', 'not_assessed'] as const
 
+const isJudge = (a: string | null) => !!a && a.startsWith('llm-judge:')
+
+/** Libellé lisible d'une dimension (traduit si disponible, sinon nom ITU). */
+function useDimLabel() {
+  const { t } = useTranslation()
+  return (d: { short_name: string | null; name: string }) => t(`evaluation.dims.${d.short_name ?? ''}`, { defaultValue: d.name })
+}
+
+function evidenceLabel(e: unknown): string {
+  const x = e as { kind?: string; ref?: { seq?: number; code?: string; section?: string } | string }
+  if (typeof x.ref === 'string') return `${x.kind}:${x.ref}`
+  if (x.kind === 'event') return `E${x.ref?.seq}`
+  if (x.kind === 'document') return x.ref?.code ?? 'document'
+  return x.ref?.section ?? x.kind ?? '?'
+}
+
 function ScorecardView({ exerciseId }: { exerciseId: string }) {
   const { t } = useTranslation()
   const toast = useToast()
+  const qc = useQueryClient()
+  const dimLabel = useDimLabel()
   const q = useApiQuery<Scorecard>(keys.scorecard(exerciseId), `/scorecard/exercises/${exerciseId}`)
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [reviewer, setReviewer] = useState('')
-  const save = useApiMutation(() => api.put(`/scorecard/exercises/${exerciseId}`, { answers: Object.entries(edits).map(([criterion_id, answer]) => ({ criterion_id, answer })), reviewed_by: reviewer || null }), {
+  const [jobId, setJobId] = useState<string | null>(null)
+  const save = useApiMutation((answers: { criterion_id: string; answer: string; note?: string | null; evidence?: unknown[] }[]) =>
+    api.put(`/scorecard/exercises/${exerciseId}`, { answers, reviewed_by: reviewer || null }), {
     invalidate: [keys.scorecard(exerciseId)], onSuccess: () => { setEdits({}); toast.push(t('common.saved')) }, onError: (e) => toast.push(errorMessage(e, t), 'danger'),
   })
-  const assess = useApiMutation(() => api.post(`/scorecard/exercises/${exerciseId}/assess`), { onError: (e) => toast.push(errorMessage(e, t), 'danger') })
+  const assess = useApiMutation(() => api.post<{ job_id: string }>(`/scorecard/exercises/${exerciseId}/assess`), {
+    onSuccess: (r) => setJobId(r.job_id), onError: (e) => toast.push(errorMessage(e, t), 'danger'),
+  })
+  const toReview = (q.data?.dimensions ?? []).flatMap((d) => d.criteria).filter((c) => isJudge(c.assessor) && !c.reviewed_by && c.answer !== 'not_assessed')
+  const manual = () => Object.entries(edits).map(([criterion_id, answer]) => {
+    const c = q.data?.dimensions.flatMap((d) => d.criteria).find((x) => x.criterion_id === criterion_id)
+    return { criterion_id, answer, note: c?.note || t('evaluation.manualNote'), evidence: c?.evidence ?? [] }
+  })
   return (
-    <Section title={t('evaluation.scorecard')} actions={<Button loading={assess.isPending} onClick={() => assess.mutate(undefined)}>{t('evaluation.llmJudge')}</Button>}>
+    <Section title={t('evaluation.scorecard')} actions={
+      <Button variant="primary" loading={assess.isPending || (!!jobId)} onClick={() => assess.mutate(undefined)}>{t('evaluation.llmJudge')}</Button>}>
       <p className="mb-2 text-sm text-muted">{t('evaluation.scorecardHint')}</p>
+      <p className="mb-3 text-sm text-muted">{t('evaluation.judgeHint')}</p>
+      {jobId && <div className="mb-4"><JobProgress jobId={jobId} label={t('evaluation.judgeRunning')} onFinished={(st) => {
+        setJobId(null)
+        void qc.invalidateQueries({ queryKey: keys.scorecard(exerciseId) })
+        if (st.status === 'done') toast.push(t('evaluation.judgeDone'))
+        else toast.push(`${t('evaluation.judgeFailed')} ${st.error ?? ''}`, 'danger')
+      }} /></div>}
       <QueryState q={q} what="(/scorecard)">
         {(s) => (
           <>
             <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" role="status">
               <Badge tone={s.overall_status === 'assessed' ? 'ok' : 'neutral'}>{s.overall_score === null ? t('common.notAssessed') : t('evaluation.overall', { score: s.overall_score.toFixed(2) })}</Badge>
-              <span>{t('evaluation.assessedN', { n: s.dimensions_assessed, total: s.dimensions_total })}</span><span className="text-xs text-muted">{s.note}</span>
+              <span>{t('evaluation.assessedN', { n: s.dimensions_assessed, total: s.dimensions_total })}</span><span className="text-sm text-muted">{s.note}</span>
             </p>
-            <div className="mb-4 flex justify-center"><Radar dims={s.dimensions.map((d) => ({ label: d.short_name ?? d.name, score: d.score }))} max={5} /></div>
+            {toReview.length > 0 && (
+              <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-warn bg-warnsoft p-3">
+                <p className="min-w-0 flex-1 text-sm text-ink"><strong>{t('evaluation.toReview', { n: toReview.length })}</strong> {t('evaluation.toReviewHint')}</p>
+                <Field label={t('evaluation.reviewedBy')}><Input value={reviewer} onChange={(e) => setReviewer(e.target.value)} /></Field>
+                <Button variant="primary" disabled={!reviewer.trim()} loading={save.isPending}
+                  onClick={() => save.mutate(toReview.map((c) => ({ criterion_id: c.criterion_id, answer: c.answer, note: c.note, evidence: c.evidence })))}>
+                  {t('evaluation.validateAll', { n: toReview.length })}</Button>
+              </div>
+            )}
+            <div className="mb-4 flex justify-center"><Radar dims={s.dimensions.map((d) => ({ label: dimLabel(d), score: d.score }))} max={5} /></div>
             <Table caption={t('evaluation.scorecard')}>
               <THead><Tr><Th>#</Th><Th>{t('evaluation.dimension')}</Th><Th>{t('evaluation.score')}</Th><Th>{t('evaluation.criteria')}</Th></Tr></THead>
               <TBody>{s.dimensions.map((d) => (
                 <Tr key={d.dimension_id}>
-                  <Td>{d.number}</Td><Td className="font-medium">{d.name}{d.factor && <div className="text-xs text-muted">{d.factor}</div>}</Td>
-                  <Td>{d.score === null ? <Badge tone="neutral">{t('common.notAssessed')}</Badge> : <strong>{d.score.toFixed(2)} / 5</strong>}<div className="text-xs text-muted">{d.assessed}/{d.total}</div></Td>
-                  <Td><details><summary className="cursor-pointer text-sm">{t('evaluation.criteriaN', { n: d.criteria.length })}</summary>
-                    <ul className="mt-2 flex flex-col gap-2">{d.criteria.map((c) => (
-                      <li key={c.criterion_id} className="text-sm"><label className="block" htmlFor={`c-${c.criterion_id}`}>{c.text}</label>
-                        <Select id={`c-${c.criterion_id}`} className="!w-auto" value={edits[c.criterion_id] ?? c.answer} onChange={(e) => setEdits({ ...edits, [c.criterion_id]: e.target.value })}>{ANSWERS.map((a) => <option key={a} value={a}>{t(`evaluation.answers.${a}`)}</option>)}</Select>
-                        {c.assessor && <span className="ml-2 text-xs text-muted">{c.assessor}</span>}</li>
+                  <Td>{d.number}</Td><Td className="font-medium">{dimLabel(d)}<div className="text-sm font-normal text-muted">{d.name}</div></Td>
+                  <Td>{d.score === null ? <Badge tone="neutral">{t('common.notAssessed')}</Badge> : <strong>{d.score.toFixed(2)} / 5</strong>}<div className="text-sm text-muted">{d.assessed}/{d.total}</div></Td>
+                  <Td><details><summary className="cursor-pointer text-sm font-semibold">{t('evaluation.criteriaN', { n: d.criteria.length })}</summary>
+                    <ul className="mt-2 flex flex-col gap-3">{d.criteria.map((c) => (
+                      <li key={c.criterion_id} className="text-sm"><label className="block font-medium" htmlFor={`c-${c.criterion_id}`}>{c.text}</label>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <Select id={`c-${c.criterion_id}`} className="!w-auto" value={edits[c.criterion_id] ?? c.answer} onChange={(e) => setEdits({ ...edits, [c.criterion_id]: e.target.value })}>{ANSWERS.map((a) => <option key={a} value={a}>{t(`evaluation.answers.${a}`)}</option>)}</Select>
+                          {isJudge(c.assessor)
+                            ? <Badge tone={c.reviewed_by ? 'ok' : 'warn'}>{c.reviewed_by ? t('evaluation.aiReviewed', { who: c.reviewed_by }) : t('evaluation.aiToReview')}</Badge>
+                            : c.assessor && <span className="text-sm text-muted">{c.assessor}{c.reviewed_by ? ` · ${c.reviewed_by}` : ''}</span>}
+                          {c.evidence.length > 0 && <span className="font-mono text-xs text-muted">{c.evidence.map(evidenceLabel).join(' · ')}</span>}
+                        </div>
+                        {c.note && <p className="mt-1 text-sm text-muted">{c.note}</p>}
+                      </li>
                     ))}</ul></details></Td>
                 </Tr>
               ))}</TBody>
             </Table>
             <div className="mt-3 flex flex-wrap items-end gap-2"><Field label={t('evaluation.reviewedBy')}><Input value={reviewer} onChange={(e) => setReviewer(e.target.value)} /></Field>
-              <Button variant="primary" disabled={!Object.keys(edits).length} loading={save.isPending} onClick={() => save.mutate(undefined)}>{t('evaluation.saveAnswers', { n: Object.keys(edits).length })}</Button></div>
+              <Button variant="primary" disabled={!Object.keys(edits).length} loading={save.isPending} onClick={() => save.mutate(manual())}>{t('evaluation.saveAnswers', { n: Object.keys(edits).length })}</Button></div>
           </>
         )}
       </QueryState>

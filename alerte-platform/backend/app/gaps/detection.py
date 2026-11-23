@@ -194,6 +194,7 @@ class _Ctx:
         self.domains = {c: a.get("domain") for c, a in self.actions.items()}
         self.institutions = {i["id"]: i for i in snapshot.get("institutions", [])}
         self.seats = {s["code"]: s for s in snapshot.get("seats", [])}
+        self.inject_titles = {i.get("inject_ref"): i.get("title") for i in (snapshot.get("scenario") or {}).get("injects", [])}
         self.scripted = ((snapshot.get("exercise") or {}).get("ai_mode") == "scripted")
         self.cands: dict[str, GapCandidate] = {}
         self.inject_seq: dict[str, int] = {}
@@ -201,8 +202,12 @@ class _Ctx:
             if e["type"] == "INJECT":
                 self.inject_seq.setdefault(e["payload"].get("inject_ref"), e["seq"])
 
-    def label(self, action: str | None) -> str:
-        return (self.actions.get(action or "", {}).get("label") or action or "?")
+    def label(self, action: str | None, ref: str | None = None, institutions: list[str] | None = None) -> str:
+        """Libellé lisible : l'action ; sans action, l'inject et les institutions concernées (jamais « ? »)."""
+        if action:
+            return self.actions.get(action, {}).get("label") or action
+        parts = [self.inject_titles.get(ref) or ref, ", ".join(sorted({self.icode(i) for i in institutions or []}))]
+        return " — ".join(x for x in parts if x) or ("action non précisée" if self.lang == "fr" else "unspecified action")
 
     def icode(self, iid: str) -> str:
         return self.institutions.get(iid, {}).get("code", iid)
@@ -247,10 +252,10 @@ def _merge(ctx: _Ctx, c: GapCandidate, weaken: bool = True) -> GapCandidate:
 
 def _new(ctx: _Ctx, rule: GapRule | None, code: str, action: str | None, action_key: str | None, d: Demand | None,
          institutions: list[str], category: str, severity: int, origin: str, basis: str, desc: str,
-         absence: bool = False) -> GapCandidate:
+         absence: bool = False, ref: str | None = None) -> GapCandidate:
     ext = EXTENSIONS.get(code)
     name = (rule.names if rule else ext["names"] if ext else {}).get(ctx.lang, code)
-    label = ctx.label(action)
+    label = ctx.label(action, ref or (d.inject_ref if d else None), institutions)
     dom = ctx.domains.get(action or "")
     key = f"{code}|{action_key or action or '-'}"
     c = GapCandidate(group_key=key, code=code, category=category, title=f"{name} : {label}", description=desc,
@@ -429,7 +434,7 @@ def _signal_candidates(ctx: _Ctx) -> None:
         c = _new(ctx, rule, code, action, key_action, d, insts or list(d.recipients if d else ()), cat, sev,
                  "coordinator_signal", "observed" if alone_observed else "inferred",
                  f"Signal {sig} émis par le coordinateur" + (f" (inject {ref})" if ref else ""),
-                 absence=spec["absence"])
+                 absence=spec["absence"], ref=ref)
         if not ref and action is None:
             c.group_key += f"|{e['seq']}"
         c.registry_state = ctx.reg.worst_state(concerned)
@@ -504,7 +509,7 @@ def _hypotheses(ctx: _Ctx) -> None:
         rule = RULES_BY_CODE.get(code)
         sev = rule.severity(d.tags if d else frozenset()) if rule else EXTENSIONS[code]["severity"]
         c = _new(ctx, rule, code, action, None, d, sorted(rec["insts"]), cat, sev, "agent_hypothesis", "hypothesis",
-                 f"Hypothèse d'agent : {text}" if text else "Hypothèse d'agent (sans texte)")
+                 f"Hypothèse d'agent : {text}" if text else "Hypothèse d'agent (sans texte)", ref=ref)
         if code.startswith("X") or not action:
             c.group_key = f"{code}|{action or '-'}|{hint or '-'}|{ref or '-'}"
         c.needs_negative_search = False

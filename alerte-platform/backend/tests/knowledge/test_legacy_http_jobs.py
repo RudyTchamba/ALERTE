@@ -84,6 +84,17 @@ def test_http_export_download_reimport_roundtrip(client, owner):
     dl = client.get(f"{API}/exports/{eid}/download", headers=owner)
     assert dl.status_code == 200 and dl.headers["content-type"] == "application/zip" and "attachment" in dl.headers["content-disposition"]
     assert zipfile.ZipFile(io.BytesIO(dl.content)).testzip() is None
+    zf = zipfile.ZipFile(io.BytesIO(dl.content))
+    sig = json.loads(zf.read("signature.json"))                    # archive signée Ed25519 par l'instance
+    assert sig["algorithm"] == "Ed25519" and sig["key_id"] == client.get(f"{API}/ledger/public-key").json()["key_id"]
+    forged = io.BytesIO()                                          # signature falsifiée : archive refusée
+    with zipfile.ZipFile(forged, "w") as z:
+        for n in zf.namelist():
+            z.writestr(n, zf.read(n) if n != "signature.json" else json.dumps({**sig, "signature": "AAAA" + sig["signature"][4:]}))
+    rf = client.post(f"{API}/knowledge-bases/import", headers=owner, files={"file": ("f.zip", forged.getvalue())})
+    wait_job(client, owner, rf.json()["job"]["id"])
+    rep_f = client.get(f"{API}/imports/{rf.json()['import']['id']}", headers=owner).json()
+    assert rep_f["status"] == "rejected" and "signature" in rep_f["report"]["errors"][0]["message"]
     # export ouvert : tous « allowed » → accepté
     op = client.post(f"{API}/knowledge-bases/{kb}/exports", headers=owner, json={"mode": "open_publication"})
     assert op.status_code == 202
@@ -95,6 +106,8 @@ def test_http_export_download_reimport_roundtrip(client, owner):
     r = client.post(f"{API}/knowledge-bases/import", headers=owner, files={"file": ("a.zip", dl.content)})
     iid = r.json()["import"]["id"]
     wait_job(client, owner, r.json()["job"]["id"])
+    summ = client.get(f"{API}/imports/{iid}", headers=owner).json()["report"]["summary"]
+    assert summ["signature"]["valid"] is True and summ["signed_by_this_instance"] is True
     c = client.post(f"{API}/imports/{iid}/confirm", headers=owner, json={"code": "COPIE"})
     j = wait_job(client, owner, c.json()["job"]["id"])
     assert j["status"] == "done" and j["result"]["id_conflicts_remapped"] is True and j["result"]["kb_code"] == "COPIE"

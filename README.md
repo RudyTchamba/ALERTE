@@ -235,7 +235,9 @@ cd alerte-platform/frontend && npm run typecheck && npm run lint && npm test && 
 
 ## 12. Validation status and known limits
 
-* **Tests:** 528 backend tests collected (pytest), 80 frontend tests (Vitest), typecheck, lint and production build passing.
+* **Tests:** 533 backend tests (pytest, all passing), 80 frontend tests (Vitest), typecheck, lint and production build passing.
+* **Signatures:** ledger anchors and knowledge-base archives are signed with the instance's Ed25519 key (public key at `/api/v1/ledger/public-key`); a forged archive signature is rejected on import.
+* **AI scorecard judge:** proposes an answer per AI Readiness criterion from verifiable exercise facts only (never the gaps), with checked references; answers stay *to review* until a human validates them.
 * **Proven with real models:** hybrid retrieval with BGE-M3; full AI exercises on the Cameroon corpus with `qwen2.5:7b-instruct` (tool use, citation check, language guard, gap detection, verified reform draft).
 * **Not claimed:** the legal correctness of gaps — they are **candidates for expert review**, by design. Reasoning quality of larger models (14B+) was not benchmarked. Gap detection is rule-based and identical in `scripted` and `ai` modes.
 * **Known limits:** UAE corpus documented but no UAE exercise run in this release; some backend messages are in French only; the multi-OS CI is written but not yet run; no Dockerfile (Docker is never required).

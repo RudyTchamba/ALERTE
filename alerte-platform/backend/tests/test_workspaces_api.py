@@ -113,3 +113,10 @@ def test_reference_guard_blocks_deletion_of_used_objects(client: TestClient, own
         assert r.status_code == 409 and r.json()["error"]["code"] == "institution.in_use"
     finally:
         ws_service._guards.clear()
+
+
+def test_auth_me_returns_the_role_and_scope_of_the_token(client):
+    w = client.post("/api/v1/workspaces", json={"name": "Moi"}).json()
+    me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {w['owner_token']}"}).json()
+    assert me["role"] == "owner" and me["workspace_id"] == w["workspace"]["id"] and me["seat_id"] is None
+    assert client.get("/api/v1/auth/me").status_code == 401

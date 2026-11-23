@@ -59,11 +59,12 @@ def test_scorecard_validation_and_independence_from_gaps(env):
     assert put({"criterion_id": "zzz", "answer": "yes", "note": "n"}).status_code == 422
     assert put({"criterion_id": cid, "answer": "maybe", "note": "n"}).status_code == 422
     assert put({"criterion_id": cid, "answer": "yes", "evidence": [{"kind": "gap", "ref": "g1"}]}).status_code == 422
-    assert env.client.post(f"{API}/scorecard/exercises/{ex}/assess", headers=env.h).status_code == 501
-    # le module scorecard ne référence jamais les lacunes
-    src = (APP / "evaluation" / "scorecard.py").read_text(encoding="utf-8")
-    assert "gaps" not in {n.module.split(".")[-1] for n in ast.walk(ast.parse(src)) if isinstance(n, ast.ImportFrom) and n.module}
-    assert "gaps_port" not in src and "read_gaps" not in src
+    assert env.client.post(f"{API}/scorecard/exercises/{ex}/assess", headers=env.h).status_code == 202  # juge IA (tâche)
+    # ni le scorecard ni son juge IA ne référencent les lacunes
+    for name in ("scorecard.py", "judge.py"):
+        src = (APP / "evaluation" / name).read_text(encoding="utf-8")
+        assert "gaps" not in {n.module.split(".")[-1] for n in ast.walk(ast.parse(src)) if isinstance(n, ast.ImportFrom) and n.module}
+        assert "gaps_port" not in src and "read_gaps" not in src and "FROM gap" not in src
 
 
 def _imports(path: pathlib.Path) -> list[str]:

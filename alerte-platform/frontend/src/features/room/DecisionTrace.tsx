@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useApiQuery } from '@/api/hooks'
 import type { StreamEvent } from '@/api/sse'
-import { Badge, Dialog, EmptyState, Mono } from '@/components/ui'
+import { Badge, Button, Dialog, EmptyState, Mono, QueryState } from '@/components/ui'
 import { buildTrace } from './trace'
 import { OutcomeBadge, VerifiedBadge } from './parts'
 import type { DecisionItem } from './state'
@@ -11,8 +13,46 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return <section className="mb-4"><h3 className="mb-1 font-semibold">{title}</h3>{children}</section>
 }
 
+interface BlobPart { sha256: string | null; available: boolean; intact: boolean | null; content: string | null }
+interface LlmCallDetail { seq: number; request: BlobPart; response: BlobPart }
+
+function pretty(s: string | null): string {
+  if (!s) return ''
+  try { return JSON.stringify(JSON.parse(s), null, 2) } catch { return s }
+}
+
+/** Prompt et réponse bruts d'un appel au modèle (rôles d'audit), chargés à la demande, intégrité contrôlée. */
+function LlmCallRaw({ exerciseId, seq }: { exerciseId: string; seq: number }) {
+  const { t } = useTranslation()
+  const q = useApiQuery<LlmCallDetail>(['llm-call', exerciseId, seq], `/exercises/${exerciseId}/llm-calls/${seq}`)
+  return (
+    <QueryState q={q} what="(/llm-calls)">
+      {(d) => (
+        <div className="mt-2 grid gap-2 md:grid-cols-2">
+          {(['request', 'response'] as const).map((part) => (
+            <div key={part}>
+              <p className="mb-1 flex items-center gap-2 font-semibold">{t(`room.trace.${part}`)}
+                {d[part].available ? <Badge tone={d[part].intact ? 'ok' : 'danger'}>{d[part].intact ? t('room.trace.intact') : t('room.trace.altered')}</Badge> : <Badge tone="neutral">{t('room.trace.unavailable')}</Badge>}</p>
+              {d[part].content && <pre className="max-h-80 overflow-auto rounded-lg border border-line bg-bg p-2 font-mono text-xs leading-relaxed whitespace-pre-wrap">{pretty(d[part].content)}</pre>}
+            </div>
+          ))}
+        </div>
+      )}
+    </QueryState>
+  )
+}
+
+function LlmCallToggle({ exerciseId, seq }: { exerciseId: string; seq: number }) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  return <>
+    <Button size="sm" variant="ghost" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? t('room.trace.hideRaw') : t('room.trace.showRaw')}</Button>
+    {open && <LlmCallRaw exerciseId={exerciseId} seq={seq} />}
+  </>
+}
+
 /** Decision trace: context -> retrievals (scores) -> model calls -> citation checks -> validated decision. */
-export function DecisionTraceDialog({ decision, events, onClose }: { decision: DecisionItem | null; events: Ev[]; onClose: () => void }) {
+export function DecisionTraceDialog({ decision, events, onClose, exerciseId }: { decision: DecisionItem | null; events: Ev[]; onClose: () => void; exerciseId?: string }) {
   const { t } = useTranslation()
   const tr = decision ? buildTrace(events, decision.decisionId) : null
   return (
@@ -58,6 +98,7 @@ export function DecisionTraceDialog({ decision, events, onClose }: { decision: D
                   <li key={c.seq} className="rounded border border-line p-2 text-xs">
                     #{c.seq} {String(c.payload.provider)} / {String(c.payload.model)} · {String(c.payload.tokens_in ?? '?')}→{String(c.payload.tokens_out ?? '?')} tokens · {String(c.payload.ms ?? '?')} ms · {c.payload.valid === false ? <Badge tone="danger">{t('room.trace.invalid')}</Badge> : <Badge tone="ok">{t('room.trace.valid')}</Badge>} {c.payload.retried === true && <Badge tone="warn">{t('room.trace.retried')}</Badge>}
                     <br />prompt <Mono>{String(c.payload.request_blob_sha256 ?? '').slice(0, 16)}</Mono> · response <Mono>{String(c.payload.response_blob_sha256 ?? '').slice(0, 16)}</Mono>
+                    {exerciseId && <div className="mt-1"><LlmCallToggle exerciseId={exerciseId} seq={c.seq} /></div>}
                   </li>))}</ul>}
                 <p className="mt-1 text-xs text-muted">{t('room.trace.blobNote')}</p>
               </Section>

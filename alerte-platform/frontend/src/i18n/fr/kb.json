@@ -25,5 +25,8 @@
     "inc": { "originals": "Fichiers d'origine", "embeddings": "Embeddings", "mandates": "Mandats", "references": "Références" } },
   "backToKb": "Retour à la base de connaissances", "retire": "Retirer le document", "retireConfirm": "Retirer « {{title}} » ? Refusé si un exercice ou une version publiée le référence.",
   "metadata": "Métadonnées", "currentVersion": "Version actuelle", "file": "Fichier", "size": "Taille", "extraction": "Extraction", "newVersion": "Téléverser une nouvelle version", "ingesting": "Ingestion", "pagesToReview": "Pages à relire", "pagesToReviewHint": "Ces pages ont une faible qualité d'extraction (scan, OCR). Vérifiez-les avec l'original.", "page": "Page",
-  "versionHistory": "Historique des versions", "note": "Note", "preview": "Aperçu de la page", "pageOf": "Page {{page}} sur {{total}}", "noChunks": "Aucun extrait", "article": "Article", "text": "Texte"
+  "versionHistory": "Historique des versions", "note": "Note", "preview": "Aperçu de la page", "pageOf": "Page {{page}} sur {{total}}", "noChunks": "Aucun extrait", "article": "Article", "text": "Texte",
+  "signedHere": "Signée par cette instance (Ed25519)",
+  "signedOther": "Signée Ed25519 par une autre instance (clé {{key}})",
+  "unsigned": "Archive non signée : provenance non attestée"
 }

@@ -138,7 +138,7 @@ function RoomView({ ex }: { ex: Exercise }) {
         </div>
       </div>
       <p className="sr-only-live" aria-live="polite" role="log">{state.announcements.slice(-1)[0] ?? ''}</p>
-      <DecisionTraceDialog decision={trace} events={state.events} onClose={() => setTrace(null)} />
+      <DecisionTraceDialog decision={trace} events={state.events} onClose={() => setTrace(null)} exerciseId={ex.id} />
       {seatOpen && <SeatDialog ex={ex} code={seatOpen} state={state.decisions} onTrace={(d) => { setSeatOpen(null); setTrace(d) }} onClose={() => setSeatOpen(null)} canControl={canControl} running={['running', 'paused'].includes(exState)} />}
       {warn && <PublicAlertPanel ex={ex} fixed onClose={() => setWarn(false)} />}
       {qrSeat && <AudienceQR ex={ex} initialSeat={qrSeat} fixed onClose={() => setQrSeat(null)} />}

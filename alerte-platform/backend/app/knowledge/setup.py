@@ -16,6 +16,7 @@ def register(ctx) -> None:  # noqa: ANN001
     ws = ctx.services.get("workspaces")
     lookup = getattr(ws, "get_country", None)
     rt = KnowledgeRuntime(ctx.settings, ctx.session_factory, ctx.blobs, ctx.jobs, embedder, country_lookup=lookup)
+    rt.signer = getattr(ctx.services.get("ledger"), "signer", None)  # signe les archives exportées (Ed25519)
     ctx.services["knowledge"] = rt
     ctx.services["search"] = rt.search
     ctx.services["embedder"] = embedder

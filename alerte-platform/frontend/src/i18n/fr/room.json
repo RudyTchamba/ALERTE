@@ -87,9 +87,16 @@
     "valid": "sortie valide",
     "invalid": "sortie invalide",
     "retried": "nouvelle tentative",
-    "blobNote": "Les prompts complets et les sorties brutes sont stockés par empreinte ; la visionneuse n'est pas encore exposée par l'API.",
+    "blobNote": "Les prompts et réponses bruts sont conservés par empreinte SHA-256 ; leur intégrité est contrôlée à l'affichage (rôles animateur et auditeur).",
     "citations": "Contrôles de citations",
-    "errors": "Erreurs"
+    "errors": "Erreurs",
+    "showRaw": "Voir le prompt et la réponse",
+    "hideRaw": "Masquer",
+    "request": "Prompt envoyé",
+    "response": "Réponse brute",
+    "intact": "intègre",
+    "altered": "altéré",
+    "unavailable": "non conservé"
   },
   "readOnly": "Lecture seule",
   "invalidLink": "Ce lien est invalide ou a expiré. Demandez-en un nouveau à l'animateur.",

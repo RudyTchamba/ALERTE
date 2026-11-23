@@ -195,3 +195,50 @@ def test_ledger_http_routes_enforce_workspace_guard_and_role_visibility(client: 
     assert client.get(f"{API}/exercises/{ex}/replay-digest", headers=owner).json()["events"] == 2
     exp = client.get(f"{API}/exercises/{ex}/ledger/export", headers=owner)
     assert exp.status_code == 200 and len(exp.text.strip().splitlines()) == 2
+
+
+def test_signed_anchors_verify_and_tampered_anchor_is_detected(tmp_path):
+    from app.audit.models import LedgerAnchor
+    from app.audit.signing import AnchorSigner
+    eng = make_engine(f"sqlite:///{(tmp_path / 's.sqlite').as_posix()}")
+    Base.metadata.create_all(eng, tables=[LedgerEvent.__table__, LedgerAnchor.__table__])
+    factory = make_sessionmaker(eng)
+    key = tmp_path / "keys" / "k.pem"
+    signer = AnchorSigner.load_or_create(key)
+    assert (key.stat().st_mode & 0o777) == 0o600
+    assert AnchorSigner.load_or_create(key).key_id() == signer.key_id()  # même clé relue
+    ledger = Ledger(tmp_path / "anchors", signer=signer)
+    ex = new_id()
+    _fill(factory, ledger, ex)
+    with session_scope(factory) as s:
+        a = ledger.write_anchor(s, ex)
+        assert a.signature and signer.verify(ex, a.seq, a.hash, a.signature)
+    with session_scope(factory) as s:
+        r = ledger.verify(s, ex)
+        assert r["ok"] and r["signatures_checked"] == 1 and r["signatures_ok"] is True and r["signature_key_id"] == signer.key_id()
+    other = Ledger(tmp_path / "anchors", signer=AnchorSigner.load_or_create(tmp_path / "keys" / "other.pem"))
+    with session_scope(factory) as s:
+        r = other.verify(s, ex)  # clé différente : la signature ne passe pas
+        assert not r["ok"] and r["signatures_ok"] is False
+
+
+def test_public_key_is_published_and_llm_call_detail_returns_raw_blobs(client):
+    import hashlib
+    r = client.get(f"{API}/ledger/public-key")
+    assert r.status_code == 200 and r.json()["algorithm"] == "Ed25519" and "BEGIN PUBLIC KEY" in r.json()["public_key_pem"]
+    ctx = client.app.state.ctx
+    w = client.post(f"{API}/workspaces", json={"name": "L"}).json()
+    h, ws = auth(w["owner_token"]), w["workspace"]["id"]
+    ex = new_id()
+    ctx.services["exercise_guard"] = lambda session, p, eid: None if (eid == ex and p.workspace_id == ws) else (_ for _ in ()).throw(
+        __import__("app.core.errors", fromlist=["NotFound"]).NotFound("exercice introuvable"))
+    req = ctx.blobs.put_bytes(b'{"messages":[{"role":"system","content":"Tu es MET"}]}')
+    with session_scope(ctx.session_factory) as s:
+        seq = ctx.service("ledger").append(s, ex, EventType.LLM_CALL, "seat:MET",
+                                           {"provider": "p", "model": "m", "request_blob_sha256": req,
+                                            "response_blob_sha256": hashlib.sha256(b"absent").hexdigest()})
+    d = client.get(f"{API}/exercises/{ex}/llm-calls/{seq}", headers=h).json()
+    assert d["request"]["available"] and d["request"]["intact"] and "Tu es MET" in d["request"]["content"]
+    assert d["response"]["available"] is False and d["meta"]["model"] == "m" and "request_blob_sha256" not in d["meta"]
+    assert client.get(f"{API}/exercises/{ex}/llm-calls/999", headers=h).status_code == 404
+    assert client.get(f"{API}/exercises/{new_id()}/llm-calls/{seq}", headers=h).status_code == 404  # autre exercice

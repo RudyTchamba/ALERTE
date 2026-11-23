@@ -207,7 +207,7 @@ def _build_export(rt: KnowledgeRuntime, s: Session, ex: KBExport, plan: dict, pr
             "provenance": {"tool": "alerte-platform/knowledge ingest", "analyzer_version": ANALYZER_VERSION,
                            "libs": {n: _pkg(n) for n in ("pdfplumber", "pypdfium2", "python-docx", "snowballstemmer")}},
             "warnings": warnings, "files": []}
-        writer.finish(manifest)
+        writer.finish(manifest, signer=getattr(rt, "signer", None))
         with tmp.open("rb") as fh:
             sha, size = rt.blobs.put_stream(fh)
     finally:
@@ -275,7 +275,9 @@ def validate_import(rt: KnowledgeRuntime, job: JobContext | None, import_id: str
                   "summary": {"kb": p.kb["code"], "documents": len(p.documents), "chunks": len(p.chunks),
                               "sources": len(p.sources), "embeddings": len(p.embeddings[0]) if p.embeddings else 0,
                               "mode": p.manifest["mode"], "format_version": p.manifest["format_version"],
-                              "redistribution": red, "embeddings_reusable": reuse}}
+                              "redistribution": red, "embeddings_reusable": reuse,
+                              "signature": p.signature, "signed_by_this_instance": bool(
+                                  p.signature and getattr(rt, "signer", None) is not None and p.signature["key_id"] == rt.signer.key_id())}}
         imp.status, imp.report, imp.manifest_sha256 = ("validated" if report["ok"] else "rejected"), report, p.manifest_sha256
         s.commit()
         return report

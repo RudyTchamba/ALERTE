@@ -182,5 +182,17 @@ def test_pdf_uses_only_embedded_fonts():
     css = (pdf.RENDER_DIR / "print.css").read_text(encoding="utf-8")
     assert css.count("@font-face") == 5 and all(Path(pdf.RENDER_DIR / m).is_file() for m in
                                               __import__("re").findall(r'url\("([^"]+)"\)', css))
-    assert pdf.get_pdf_renderer().name == "weasyprint" and pdf.Xhtml2PdfRenderer().name == "xhtml2pdf"
+    assert pdf.get_pdf_renderer().name == "weasyprint" and pdf.BasicPdfRenderer().available()
     assert pdf.is_rtl("مرحبا بالعالم") and not pdf.is_rtl("Hello مرحبا world and more latin") and not pdf.is_rtl("")
+
+
+def test_basic_pdf_fallback_renders_a_valid_multi_page_document():
+    from app.reports.render import pdf
+    html = "<h1>Rapport (exercice)</h1>" + "".join(f"<p>Ligne {i} : décision « citée » — {'mot ' * 30}</p>" for i in range(120))
+    out = pdf.BasicPdfRenderer().render(html, "", identifier=b"\x01" * 16)
+    assert out.startswith(b"%PDF-1.4") and out.rstrip().endswith(b"%%EOF")
+    assert out.count(b"/Type /Page ") >= 3 and b"Rapport \\(exercice\\)" in out
+    assert out == pdf.BasicPdfRenderer().render(html, "", identifier=b"\x01" * 16)  # déterministe
+    import pypdfium2
+    doc = pypdfium2.PdfDocument(out)
+    assert len(doc) >= 3 and "Ligne 0" in doc[0].get_textpage().get_text_range()

@@ -87,9 +87,16 @@
     "valid": "valid output",
     "invalid": "invalid output",
     "retried": "retried",
-    "blobNote": "Full prompts and raw outputs are stored by hash; the blob viewer is not exposed by the API yet.",
+    "blobNote": "Raw prompts and responses are kept by SHA-256 fingerprint; their integrity is checked when displayed (facilitator and auditor roles).",
     "citations": "Citation checks",
-    "errors": "Errors"
+    "errors": "Errors",
+    "showRaw": "Show prompt and response",
+    "hideRaw": "Hide",
+    "request": "Prompt sent",
+    "response": "Raw response",
+    "intact": "intact",
+    "altered": "altered",
+    "unavailable": "not kept"
   },
   "readOnly": "Read-only",
   "invalidLink": "This link is invalid or has expired. Ask the facilitator for a new one.",
