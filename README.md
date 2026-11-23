@@ -130,18 +130,20 @@ The Y.3172 nodes were checked against the text of the Recommendation and the 13 
 
 | Step | What happens | How ALERTE handles it | Gap revealed |
 |---|---|---|---|
-| 1 | J1 06:00 — the river overflows near Maroua | The municipality searches its texts and declares **"no legal basis found"** | Orphan responsibility (G1) |
+| 1 | J1 06:00 — the Logone rises, dykes threatened | The governor triggers the emergency plan citing **Decree 98/031, art. 3**; nobody is bound to issue a precautionary flood warning | Orphan responsibility (G1) |
 | 2 | The governor tries to issue a public alert | Its citation does not resolve against the stored text → decision **not verified**, alert **blocked** | Missing procedure (G3) |
 | 3 | Operators finally relay an alert at J1 10:00 | The citizen phone rings; the CAP 1.2 alert shows the issuer and the **4-hour delay** | No deadline for public alerting (G3) |
 | 4 | Cholera spreads in displacement sites | Health ministry acts under its specific response plan; coordination requests are tracked | Liability (G6), inclusion (G7) |
 | 5 | Fake alerts circulate online | Regulator and ICT agency look for a power to block and correct | Missing procedure and liability (G3, G6) |
 
-**Measured on exercise EX-019** (AI mode, `qwen2.5:7b-instruct` + `bge-m3`, local Ollama, one laptop):
+**Measured on exercise EX-022** (AI mode, `qwen2.5:7b-instruct` + `bge-m3`, local Ollama, one laptop), after a corpus audit:
 
-* **18 candidate gaps** (8 of severity 3) awaiting human review, including *"Orphan responsibility: issue a flood warning"*.
-* Public alert issued **4 h after the crisis began**; one earlier attempt blocked for lack of a verified legal basis.
+* **The audit mattered.** The prototype's file for Decree 98/031 (organisation of emergency plans) actually contained another report; with the real decree, the run EX-019 → EX-022 lost **2 false gaps** (the municipality no longer appears as an orphan holder of the alert) and **kept 16**. The governor and civil protection now ground their decisions in **Decree 98/031, art. 3**.
+* **16 candidate gaps** (8 of severity 3) awaiting human review. The headline gap is sharper and better founded: *"Orphan responsibility: issue a flood warning"*. Art. 3 provides for "the dissemination of the alert", but only once the emergency plan is triggered on "reliable information leaving no doubt": **no text frames an early warning while a flood is only a threat, nor its deadline.**
+* Public alert issued **4 h after the crisis began**; a later attempt was blocked for lack of a verified legal basis.
 * 0 agent outputs in the wrong language after the language guard.
-* A **reform draft** for the flood-warning gap, verified with 3 resolving citations (national contingency plan, civil protection decree, ONR text): *"The Civil Protection Directorate (MINAT) shall issue a flood warning … within 30 minutes."* Publicly checkable at `/verify/<sha256>`.
+* A **reform draft** for the flood-warning gap, verified with 3 resolving citations (Decree 98/031 art. 3, Law 86/016 art. 1 and art. 7): *"The Civil Protection Directorate (MINAT) shall issue a flood warning … within one hour of detecting a major flood risk."* Publicly checkable at `/verify/<sha256>`.
+* Retrieval was tuned on this evidence: official texts outrank secondary summaries at equal relevance, a small crisis-vocabulary thesaurus links agents' words ("ORSEC", "flood") to legal wording ("emergency plan", "major risk"), and agents read 8 results per search.
 
 **Where the solution may face controversy, and how it responds.** AI inventing law → the citation check rejects it. Missing or summarised texts → every answer carries an evidence tag (documented / inferred / assumed), and absence of evidence is never reported as evidence of absence unless a human declared the mandate registry complete. Perceived criticism of a government → fictional scenarios, institutions never individuals, gaps framed as opportunities. Humans disagreeing with the AI → any seat can be taken over by a person from a phone, and all gaps require human validation.
 
@@ -168,7 +170,7 @@ Gaps are stated **for the domain** (public alerting), with evidence from nationa
 ## 9. The demo in three minutes
 
 1. **Home dashboard** — key figures and the outcome of the latest exercise (alert delay, gaps by severity).
-2. **Simulation room** — replay EX-019: injects arrive, agents search, cite, coordinate; one citation is rejected live.
+2. **Simulation room** — replay EX-022: injects arrive, agents search, cite, coordinate; one citation is rejected live.
 3. **"Alert residents"** — the jury scans the QR code; their phone stays silent… then rings with a CAP alert 4 hours (simulated) after the crisis.
 4. **Gaps** — open *"Orphan responsibility: issue a flood warning"*, its evidence chain, then **"AI reform draft"** → print → scan the QR code → *Authentic and intact document*.
 5. **Audit** — "Verify ledger": every event chained; tamper one row and the break is pinpointed.

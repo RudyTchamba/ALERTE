@@ -25,6 +25,7 @@ from .providers import ProviderUnavailable, provider_for, request_bytes, sanitiz
 CLOSING = "For exercise purposes only; confirm with a qualified lawyer."
 FINAL_TOOLS = ("post", "decide")
 MAX_ROUNDS = 2
+SEARCH_K = 8  # résultats par recherche : assez pour atteindre la loi derrière les documents généraux
 DEFAULT_LIMITS = {"max_steps": 4, "max_search_calls": 3, "max_legal_calls": 2}
 
 
@@ -311,7 +312,7 @@ class AgentRuntime:
             return
         run.searches += 1
         try:
-            hits = [_hit_dict(h) for h in self._svc("search").search(ctx.scope, q, k=5)]
+            hits = [_hit_dict(h) for h in self._svc("search").search(ctx.scope, q, k=SEARCH_K)]
         except Exception as exc:  # noqa: BLE001 - la recherche peut refuser (index incohérent…)
             run.error("search", clean(str(exc))[:300], "continue")
             run.notes.append("search_kb: search unavailable.")

@@ -77,18 +77,33 @@ kb_id = kb["id"]
 print("KB", kb_id, flush=True)
 
 rows = [r for r in csv.DictReader(open(CORPUS / "manifest.csv", encoding="utf-8")) if r["doc_id"].startswith("CM-")]
+# Corrections du manifeste du prototype (voir scripts/fix_cameroon_kb.py) : le PDF « CM-07 » du prototype contenait le
+# rapport IDNDR ; deux titres ne correspondaient pas au texte ; rapports et presse ne sont pas des sources officielles.
+FIXES_DIR = Path(__file__).resolve().parent / "corpus_fixes"
+FILE_FIX = {"CM-07": FIXES_DIR / "CM-07_Decree_No_98-031_of_9_March_1998_on_the_Organisation_of_Emergency_and_Rescue_Plans.pdf"}
+TITLE_FIX = {
+    "CM-07": "Décret n° 98/031 du 9 mars 1998 portant organisation des plans d'urgence et des secours en cas de catastrophe ou de risque majeur",
+    "CM-08": "Décret n° 2005/124 du 15 avril 2005 portant organisation du Ministère des Postes et Télécommunications",
+    "CM-14": "Investir au Cameroun — article de presse sur la Stratégie nationale d'intelligence artificielle (2025)",
+}
+SECONDARY = {"CM-12", "CM-13", "CM-16", "CM-17", "CM-14"}
+REPORTS = SECONDARY | {"CM-15", "CM-18"}
 done_docs = []
 already = {d["title"] for d in (call("GET", f"/knowledge-bases/{kb_id}/documents", params={"limit": 200}) or {}).get("items", [])}
 for r in rows:
+    r = {**r, "title": TITLE_FIX.get(r["doc_id"], r["title"])}
     if r["title"][:500] in already:
         continue
-    f = CORPUS / Path(r["file"]).name
+    f = FILE_FIX.get(r["doc_id"]) or CORPUS / Path(r["file"]).name
     if not f.exists():
         print("absent:", f.name, flush=True)
         continue
     meta = {"title": r["title"][:500], "doc_type": r["doc_type"] or None, "jurisdiction": "CM", "language": r["language"] or None,
             "source_url": r["url"] or None, "reliability": r["reliability"] if r["reliability"] in ("official", "summary", "unofficial") else None,
-            "validity": "in_force" if r.get("status") == "current" else "unknown", "redistribution": "unknown"}
+            "validity": "unknown" if r["doc_id"] in REPORTS else ("in_force" if r.get("status") == "current" else "unknown"),
+            "redistribution": "restricted" if r["doc_id"] in SECONDARY else "allowed"}
+    if r["doc_id"] in SECONDARY:
+        meta["reliability"] = "unofficial" if r["doc_id"] == "CM-14" else "summary"
     data = {k: v for k, v in meta.items() if v}
     t0 = time.time()
     with open(f, "rb") as fh:

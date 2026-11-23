@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
@@ -23,7 +24,8 @@ from ..core.errors import NotFound, Unprocessable
 from .models import Gap, ReformDraft
 
 PROMPT_VERSION = "reform-draft-v3"
-MAX_HITS = 8
+MAX_HITS = 12
+MAX_FRAMEWORK = 4  # extraits du cadre existant (sources des mandats documentés) fournis en tête
 LANG_NAMES = {"fr": "French", "en": "English", "es": "Spanish", "pt": "Portuguese", "ar": "Arabic"}
 
 
@@ -162,7 +164,23 @@ def generate(ctx: Any, session: Session, workspace_id: str, gap_id: str, role: s
         for q, k in ((f"{label} alerte des populations", 4), (f"{label} protection civile mission", 4), (label, 2)):
             for h in search.search(scope, q, k=k):
                 hits.setdefault(h.chunk_id, h)
-    hits_list = list(hits.values())[:MAX_HITS]
+    # Cadre existant : les articles qui fondent les mandats DOCUMENTÉS des institutions concernées par la lacune (à
+    # défaut, de l'exercice). La disposition proposée doit s'y articuler (ex. le décret qui organise déjà l'alerte).
+    framework: dict[str, Any] = {}
+    kn = ctx.services.get("knowledge")
+    concerned = set(gap.institution_ids or [])
+    mands = [m for m in snapshot.get("mandates") or [] if m.get("evidence_tag") == "documented" and not m.get("hypothesis")]
+    mands.sort(key=lambda m: (m.get("institution_id") not in concerned, m.get("action_code") != gap.action_code))
+    for m in mands:
+        for src in m.get("sources") or []:
+            ch = kn.get_chunk(session, src["chunk_id"]) if kn is not None else None
+            if ch and ch.get("article") and src["chunk_id"] not in framework and len(framework) < MAX_FRAMEWORK:
+                framework[src["chunk_id"]] = SimpleNamespace(chunk_id=ch["chunk_id"], doc_code=ch.get("doc_code"),
+                                                              article=ch.get("article"), text=ch.get("text") or "")
+    rest = [h for cid, h in hits.items() if cid not in framework]
+    rest.sort(key=lambda h: getattr(h, "article", None) is None)  # dispositions (articles) avant fragments sans article
+    hits_list = (list(framework.values()) + rest)[:MAX_HITS]
+    hits = {h.chunk_id: h for h in hits_list}  # ensemble de récupération = exactement ce que le modèle a lu
     if not hits_list:
         raise Unprocessable("aucun extrait du corpus de l'exercice : impossible d'ancrer un projet de texte",
                             code="reform.no_sources")

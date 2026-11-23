@@ -149,6 +149,33 @@ def normalize_arabic(text: str) -> str:
     return _AR_DIAC.sub("", text).translate(_AR_MAP)
 
 
+# Thésaurus du vocabulaire de crise (requêtes seulement) : relie les termes courants des agents au vocabulaire des
+# textes juridiques de protection civile (FR/EN). Il ÉLARGIT la requête lexicale (OR), il ne retire jamais rien.
+CRISIS_THESAURUS: dict[str, tuple[str, ...]] = {
+    "orsec": ("plan", "urgence", "secours", "déclenchement"),
+    "crue": ("catastrophe", "risque", "majeur", "inondation"),
+    "crues": ("catastrophe", "risque", "majeur", "inondation"),
+    "inondation": ("catastrophe", "risque", "majeur", "crue"),
+    "inondations": ("catastrophe", "risque", "majeur", "crue"),
+    "flood": ("disaster", "catastrophe", "risque", "majeur"),
+    "floods": ("disaster", "catastrophe", "risque", "majeur"),
+    "alerte": ("diffusion", "information", "public"),
+    "alert": ("warning", "diffusion", "alerte", "public"),
+    "warning": ("alert", "alerte", "diffusion"),
+    "évacuation": ("secours", "évacuer", "population"),
+    "evacuation": ("secours", "évacuation", "population"),
+    "populations": ("public", "population"),
+    "disaster": ("catastrophe", "risque", "majeur"),
+}
+
+
+def expand_query(text: str) -> str:
+    """Ajoute les termes du thésaurus de crise aux mots de la requête (avant analyse)."""
+    words = re.findall(r"[\w'’-]+", unicodedata.normalize("NFKC", text).casefold())
+    extra = [x for w in words for x in CRISIS_THESAURUS.get(w, ())]
+    return text + (" " + " ".join(extra) if extra else "")
+
+
 def analyze(text: str, *, for_query: bool = False) -> str:
     """NFKC, minuscules, normalisation arabe, racinisation Snowball (arabe pour l'écriture arabe, français pour le latin)."""
     text = normalize_arabic(unicodedata.normalize("NFKC", text)).casefold()

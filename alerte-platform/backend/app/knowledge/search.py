@@ -17,12 +17,15 @@ from sqlalchemy.orm import Session, sessionmaker
 from ..contracts import Embedder, Hit, LexicalIndex, SearchFilters, SearchScope, VectorIndex
 from .indexes import NumpyExactIndex, count_scope_chunks, scope_conditions
 from .models import Chunk, Document, DocumentVersion, KnowledgeBase
-from .textproc import article_in_query, article_number
+from .textproc import article_in_query, article_number, expand_query
 
 log = logging.getLogger("alerte.knowledge.search")
 security_log = logging.getLogger("alerte.security")
 RRF_K = 60
 CANDIDATES = 50
+# Priorité à l'autorité de la source (après fusion RRF) : pour fonder une décision, un texte officiel passe devant un
+# résumé d'organisation ou un article de presse à pertinence comparable. Rien n'est exclu, seul l'ordre change.
+AUTHORITY = {"official": 1.0, "summary": 0.8, "unofficial": 0.7, "not_found": 0.6}
 
 ViolationCallback = Callable[[dict[str, Any]], None]
 
@@ -31,12 +34,16 @@ def default_violation_callback(info: dict[str, Any]) -> None:
     security_log.error("SCOPE_VIOLATION", extra={"event": "SCOPE_VIOLATION", **{k: str(v) for k, v in info.items()}})
 
 
-def rrf(rankings: Sequence[Sequence[str]], k: int = RRF_K) -> dict[str, float]:
+def rrf(rankings: Sequence[Sequence[str]], k: int = RRF_K, weights: Sequence[float] | None = None) -> dict[str, float]:
     scores: dict[str, float] = {}
-    for ranking in rankings:
+    for i, ranking in enumerate(rankings):
+        w = weights[i] if weights else 1.0
         for rank, cid in enumerate(ranking, start=1):
-            scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + rank)
+            scores[cid] = scores.get(cid, 0.0) + w / (k + rank)
     return scores
+
+
+THESAURUS_WEIGHT = 0.5  # la liste élargie par le thésaurus complète la requête d'origine sans la dominer
 
 
 class HybridSearchService:
@@ -52,16 +59,20 @@ class HybridSearchService:
         self.include_replaced, self.candidates = include_replaced, candidates
 
     def with_replaced(self) -> HybridSearchService:
-        return HybridSearchService(self._factory, self.lexical, self.vector, self.exact, self.embedder,
+        lexical = self.lexical
+        if getattr(lexical, "include_replaced", True) is False:  # l'index lexical doit lui aussi inclure les textes remplacés
+            lexical = type(lexical)(self._factory, include_replaced=True)  # type: ignore[call-arg]
+        return HybridSearchService(self._factory, lexical, self.vector, self.exact, self.embedder,
                                    self.on_scope_violation, include_replaced=True, candidates=self.candidates)
 
     # ------------------------------------------------------------------ revérification SQL
     def _recheck(self, session: Session, ids: Sequence[str], scope: SearchScope, engine: str,
-                 allowed_dvs: frozenset[str] | None, filters: SearchFilters | None) -> list[dict]:
+                 allowed_dvs: frozenset[str] | None, filters: SearchFilters | None,
+                 report: ViolationCallback | None = None) -> list[dict]:
         """Ids ordonnés → lignes autoritatives de la base, hors portée ou hors filtre écartées."""
         if not ids:
             return []
-        q = select(Chunk, Document.code, Document.validity, Document.doc_type,
+        q = select(Chunk, Document.code, Document.validity, Document.doc_type, Document.reliability,
                    and_(*scope_conditions(scope)).label("in_scope")) \
             .join(DocumentVersion, DocumentVersion.id == Chunk.document_version_id) \
             .join(Document, Document.id == DocumentVersion.document_id).where(Chunk.id.in_(list(ids)))
@@ -72,9 +83,9 @@ class HybridSearchService:
             if r is None:  # entrée d'index périmée (chunk supprimé) : écartée
                 log.warning("index périmé : chunk absent de la base", extra={"engine": engine})
                 continue
-            chunk, code, validity, doc_type, in_scope = r
+            chunk, code, validity, doc_type, reliability, in_scope = r
             if not in_scope:
-                self.on_scope_violation({"event": "SCOPE_VIOLATION", "engine": engine, "chunk_id": cid,
+                (report or self.on_scope_violation)({"event": "SCOPE_VIOLATION", "engine": engine, "chunk_id": cid,
                                          "scope_hash": scope.scope_hash(), "workspace_id": scope.workspace_id,
                                          "purpose": scope.purpose, "seat_id": scope.seat_id})
                 continue
@@ -86,7 +97,7 @@ class HybridSearchService:
                 continue
             if filters and filters.languages and (chunk.language or "") not in filters.languages:
                 continue
-            out.append({"chunk": chunk, "code": code})
+            out.append({"chunk": chunk, "code": code, "authority": AUTHORITY.get(reliability or "", 0.9)})
         return out
 
     def _narrow(self, session: Session, scope: SearchScope, filters: SearchFilters | None) -> frozenset[str] | None:
@@ -111,19 +122,36 @@ class HybridSearchService:
         if scope.is_empty or not (query or "").strip() or k <= 0:
             return []  # deny-by-default
         cand = max(self.candidates, k)
+        seen: set[str] = set()
+        report = self.on_scope_violation
+
+        def once(info: dict[str, Any]) -> None:  # une violation n'est signalée qu'une fois par recherche
+            if info.get("chunk_id") not in seen:
+                seen.add(info.get("chunk_id"))
+                report(info)
+
+        return self._search(scope, query, k, cand, filters, once)
+
+    def _search(self, scope: SearchScope, query: str, k: int, cand: int, filters: SearchFilters | None,
+                report: ViolationCallback) -> list[Hit]:
         with self._factory() as s:
             allowed_dvs = self._narrow(s, scope, filters)
             if allowed_dvs is not None and not allowed_dvs:
                 return []
             lex = self._recheck(s, [c for c, _ in self.lexical.query(query, scope, cand)], scope, "lexical",
-                                allowed_dvs, filters)
-            dense, degraded, exact_guard, key = self._dense(s, scope, query, cand, allowed_dvs, filters)
+                                allowed_dvs, filters, report)
+            expanded = expand_query(query)  # thésaurus de crise : liste SUPPLÉMENTAIRE, la requête d'origine garde son rang
+            lex_x = self._recheck(s, [c for c, _ in self.lexical.query(expanded, scope, cand)], scope, "lexical",
+                                  allowed_dvs, filters, report) if expanded != query else []
+            dense, degraded, exact_guard, key = self._dense(s, scope, query, cand, allowed_dvs, filters, report)
             art_key = (filters.article if filters and filters.article else None) or article_in_query(query)
             art = self._recheck(s, self._article_list(s, scope, article_number(art_key) or "", cand), scope, "article",
-                                allowed_dvs, filters) if art_key else []
-            lex_ids, dense_ids, art_ids = ([r["chunk"].id for r in lst] for lst in (lex, dense, art))
-            fused = rrf([x for x in (lex_ids, dense_ids, art_ids) if x])
-            by_id = {r["chunk"].id: r for r in lex + dense + art}
+                                allowed_dvs, filters, report) if art_key else []
+            lex_ids, dense_ids, art_ids, x_ids = ([r["chunk"].id for r in lst] for lst in (lex, dense, art, lex_x))
+            lists = [(x, w) for x, w in ((lex_ids, 1.0), (dense_ids, 1.0), (art_ids, 1.0), (x_ids, THESAURUS_WEIGHT)) if x]
+            fused = rrf([x for x, _ in lists], weights=[w for _, w in lists])
+            by_id = {r["chunk"].id: r for r in lex + dense + art + lex_x}
+            fused = {c: v * by_id[c]["authority"] for c, v in fused.items()}
             if filters and filters.article:  # filtre exact : uniquement l'article demandé
                 fused = {c: v for c, v in fused.items() if c in set(art_ids)}
             ranked = sorted(fused.items(), key=lambda kv: (-kv[1], kv[0]))[:k]
@@ -136,11 +164,12 @@ class HybridSearchService:
                     snippet=c.text[:300],
                     signals={"lexical": lex_ids.index(cid) + 1 if cid in lex_ids else None,
                              "dense": dense_ids.index(cid) + 1 if cid in dense_ids else None,
-                             "article": cid in art_ids, "degraded": degraded, "exact_guard": exact_guard,
+                             "article": cid in art_ids, "authority": by_id[cid]["authority"],
+                             "degraded": degraded, "exact_guard": exact_guard,
                              "embedder_key": key}))
             return hits
 
-    def _dense(self, s: Session, scope: SearchScope, query: str, cand: int, allowed_dvs, filters):  # noqa: ANN001, ANN202
+    def _dense(self, s: Session, scope: SearchScope, query: str, cand: int, allowed_dvs, filters, report=None):  # noqa: ANN001, ANN202
         """Renvoie (résultats revérifiés, dégradé, garde de rappel déclenchée, empreinte)."""
         if self.embedder is None or self.vector is None:
             return [], True, False, None
@@ -169,12 +198,12 @@ class HybridSearchService:
         except Exception as exc:  # noqa: BLE001 - index défaillant : exact
             log.warning("index vectoriel en échec (%s) : rejeu exact", type(exc).__name__)
             raw, guard = [], True
-        rows = self._recheck(s, [c for c, _ in raw], dscope, getattr(vector, "name", "vector"), allowed_dvs, filters)
+        rows = self._recheck(s, [c for c, _ in raw], dscope, getattr(vector, "name", "vector"), allowed_dvs, filters, report)
         no_post_filter = not (filters and (filters.article or filters.languages))
         if (guard or (no_post_filter and len(rows) < expected)) and exact is not None \
                 and getattr(vector, "name", "") != "numpy_exact":
             # garde de rappel : moins de résultats que la portée n'en contient → exact sur les embeddings SQLite
             guard = True
             rows = self._recheck(s, [c for c, _ in exact.query(qvec, dscope, cand)], dscope, "numpy_exact",
-                                 allowed_dvs, filters)
+                                 allowed_dvs, filters, report)
         return rows, degraded, guard, key
