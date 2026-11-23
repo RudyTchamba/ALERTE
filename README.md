@@ -7,7 +7,7 @@
 |---|---|
 | **Team** | **RAGnarok** |
 | **Team leader** | Joyce Gloria Leumen Mbakop |
-| **Team members** | *[to complete]* |
+| **Team members** | Joyce Gloria Leumen Mbakop · Balekamen Babatack Landry · Tchaptche Itiel Rudy Tchamba |
 | **Repository** | https://github.com/RudyTchamba/ALERTE |
 | **Code** | [`alerte-platform/`](alerte-platform/) (FastAPI backend + React frontend) |
 | **Technical documentation** | [`alerte-platform/README.md`](alerte-platform/README.md) (French) · [architecture dossier](alerte-platform/docs/architecture/README.md) |
