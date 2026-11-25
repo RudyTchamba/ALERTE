@@ -27,6 +27,27 @@ const schema = z.object({
 })
 type Form = z.infer<typeof schema>
 
+/** Rattachement de la base à un pays : visible et modifiable (une base importée n'en a pas au départ). */
+function CountryCell({ kb }: { kb: Kb }) {
+  const { t } = useTranslation()
+  const toast = useToast()
+  const countries = useApiQuery<Country[]>(keys.countries(false), '/countries')
+  const attach = useApiMutation((country_id: string) => api.patch(`/knowledge-bases/${kb.id}`, { country_id: country_id || null }), {
+    invalidate: [['kbs']], onError: (e) => toast.push(errorMessage(e, t), 'danger'),
+  })
+  if (kb.archived_at) return <>{countries.data?.find((c) => c.id === kb.country_id)?.name ?? '—'}</>
+  return (
+    <div className="flex flex-col gap-1">
+      {!kb.country_id && kb.kind === 'national' && <Badge tone="warn">{t('kb.noCountry')}</Badge>}
+      <label className="sr-only" htmlFor={`kbc-${kb.id}`}>{t('kb.countryCell', { name: kb.name })}</label>
+      <Select id={`kbc-${kb.id}`} value={kb.country_id ?? ''} disabled={attach.isPending} onChange={(e) => attach.mutate(e.target.value)} className="!min-h-8 !py-1 text-sm">
+        <option value="">{t('kb.attachCountry')}…</option>
+        {countries.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </Select>
+    </div>
+  )
+}
+
 export function KbListPage() {
   const { t } = useTranslation()
   const [archived, setArchived] = useState(false)
@@ -42,13 +63,13 @@ export function KbListPage() {
       <QueryState q={q} what="(/knowledge-bases)">
         {(rows) => rows.length === 0 ? <EmptyState title={t('kb.empty')} hint={t('kb.emptyHint')} action={<Button variant="primary" onClick={() => setWizard(true)}>{t('kb.newKb')}</Button>} /> : (
           <Table caption={t('kb.title')}>
-            <THead><Tr><Th>{t('common.name')}</Th><Th>{t('common.kind')}</Th><Th>{t('kb.languages')}</Th><Th>{t('kb.published')}</Th><Th>{t('kb.documents')}</Th><Th>{t('kb.indexed')}</Th><Th>{t('kb.coverage')}</Th><Th>{t('common.status')}</Th></Tr></THead>
+            <THead><Tr><Th>{t('common.name')}</Th><Th>{t('common.kind')}</Th><Th>{t('kb.country')}</Th><Th>{t('kb.languages')}</Th><Th>{t('kb.published')}</Th><Th>{t('kb.documents')}</Th><Th>{t('kb.indexed')}</Th><Th>{t('kb.coverage')}</Th><Th>{t('common.status')}</Th></Tr></THead>
             <TBody>{rows.map((k) => {
               const o = k.overview
               return (
                 <Tr key={k.id}>
                   <Td><Link to={`/studio/knowledge/${k.id}`} className="font-medium">{k.name}</Link><div className="font-mono text-xs text-muted">{k.code}</div></Td>
-                  <Td>{t(`kb.kinds.${k.kind}`, k.kind)}</Td><Td>{k.languages.join(', ') || '—'}</Td>
+                  <Td>{t(`kb.kinds.${k.kind}`, k.kind)}</Td><Td><CountryCell kb={k} /></Td><Td>{k.languages.join(', ') || '—'}</Td>
                   <Td>{o?.published_version_no ? `v${o.published_version_no}` : <Badge tone="warn">{t('kb.unpublished')}</Badge>}</Td>
                   <Td>{o?.documents ?? '—'}</Td>
                   <Td>{o ? `${o.embedded_chunks}/${o.chunks}` : '—'}</Td>
@@ -97,7 +118,7 @@ function KbWizard({ onClose }: { onClose: () => void }) {
           <Field label={t('common.kind')} hint={t('kb.kindHint')}><Select {...register('kind')}>{KB_KINDS.map((k) => <option key={k} value={k}>{t(`kb.kinds.${k}`)}</option>)}</Select></Field>
         </div>
         <div hidden={step !== 1} className="flex flex-col gap-3">
-          <Field label={t('geo.country')}><Select {...register('country_id')}><option value="">—</option>{countries.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>
+          <Field label={t('kb.country')} hint={t('kb.countryHint')}><Select {...register('country_id')}><option value="">—</option>{countries.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field>
           <Field label={t('kb.domain')} hint={t('kb.domainHint')}><Input {...register('domain')} /></Field>
           <Field label={t('kb.languages')} hint={t('geo.languagesHint')}><Input {...register('languages')} /></Field>
         </div>

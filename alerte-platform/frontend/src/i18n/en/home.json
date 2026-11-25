@@ -25,22 +25,81 @@
     "scenarios": "Scenarios",
     "exercises": "Exercises"
   },
+  "hero": {
+    "eyebrow": "Virtual crisis room",
+    "title": "Stress-test your institutions before the real crisis.",
+    "lead": "AI agents play a country's institutions, each bound by its official mandates and its own documents. ALERTE runs a crisis scenario and reveals coordination failures with evidence: orphan responsibilities, overlapping mandates, missing procedures.",
+    "ctaRoom": "Enter the simulation room",
+    "ctaPrepare": "Prepare an exercise",
+    "ctaGaps": "See the gaps"
+  },
+  "how": {
+    "title": "How it works",
+    "prepare": "Institutions, mandates and legal texts: each agent only knows what its institution knows.",
+    "play": "Events unfold; agents search, coordinate and decide. Every decision must cite a verified text.",
+    "analyze": "Gaps emerge with their evidence chain, then are validated by humans and published as a report."
+  },
+  "last": {
+    "eyebrow": "Latest exercise outcome",
+    "openRoom": "Open the room",
+    "alertTitle": "Public alert",
+    "alerted": "Alert issued",
+    "alertedBy": "after the crisis began — issued by {{who}}",
+    "verdict": {
+      "silent": "No alert",
+      "waiting": "Waiting",
+      "not_started": "Not played yet"
+    },
+    "verdictHint": {
+      "silent": "Residents were never warned during the exercise.",
+      "waiting": "The exercise is running: no alert so far.",
+      "not_started": "The alert will show once the exercise starts."
+    },
+    "blocked": "{{n}} attempt(s) blocked for lack of a verified legal basis",
+    "gapsTitle": "Gaps revealed ({{n}})",
+    "seeGaps": "See the gaps",
+    "noGaps": "No gap detected for this exercise."
+  },
+  "kpi": {
+    "title": "Key figures",
+    "played": "Exercises played",
+    "withAi": "with a real AI model",
+    "gaps": "Gaps detected",
+    "toReview": "awaiting review",
+    "institutions": "Institutions modelled",
+    "agents": "AI agents configured"
+  },
+  "setupTitle": "Preparation",
+  "setupLead": "The five building blocks of an exercise.",
+  "next": "Next step",
+  "ready": "Ready",
+  "latest": "Latest exercises",
+  "viewAll": "View all",
+  "open": "Open",
+  "checks": {
+    "database": "Database",
+    "data_dir": "Storage",
+    "knowledge": "Knowledge",
+    "hybrid": "Hybrid search (AI)",
+    "lexical": "Lexical search only"
+  },
+  "demo": {
+    "title": "A simulation in 30 seconds",
+    "badge": "Illustration — fictional data",
+    "inject": "Flash flood on the river",
+    "injectBody": "The river rises by 2 m in one hour.",
+    "q1": "flood warning",
+    "a1": "Issue a flood warning",
+    "m1": "Flood warning issued: prepare the public alert.",
+    "q2": "public alert broadcast",
+    "m2": "Broadcast the alert by SMS in the flood zone.",
+    "q3": "obligation to broadcast an alert",
+    "a2": "Broadcast the alert by SMS",
+    "sectionLead": "Watch the flow: the event arrives, each institution searches its own texts, coordinates with the others and decides. The automatic check verifies every citation, and the detector flags the gaps.",
+    "seeReal": "See a real exercise in replay"
+  },
   "whatIsWorkspace": "What is a workspace?",
   "workspaceText": "A workspace gathers all the resources of one ALERTE project: countries, institutions, knowledge bases, mandates, agents, permissions, scenarios, exercises and reports. The data of two workspaces stay isolated. A workspace is not a country, a scenario or an exercise: it is the container in which you build them.",
   "youAreIn": "You are in the workspace « {{name}} » with the role {{role}}.",
-  "start": "Follow the three phases below, from top to bottom: the highlighted step is the next thing to do.",
-  "journey": "Your journey",
-  "done": "Done",
-  "nextStep": "Next step",
-  "counts": {
-    "institutions": "{{i}} institution(s) · {{m}} mandate(s), {{v}} validated",
-    "knowledge": "{{k}} base(s), {{p}} published",
-    "agents": "{{n}} agent(s)",
-    "access": "{{n}} permission(s) granted",
-    "scenarios": "{{n}} scenario(s)",
-    "exercises": "{{n}} exercise(s)",
-    "room": "{{n}} exercise(s) started",
-    "gaps": "{{n}} gap(s) detected",
-    "reports": "{{n}} report(s)"
-  }
+  "start": "Follow the three phases below, from top to bottom: the highlighted step is the next thing to do."
 }

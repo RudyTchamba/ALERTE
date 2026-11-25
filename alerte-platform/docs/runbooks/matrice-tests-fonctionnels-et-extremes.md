@@ -49,7 +49,7 @@
 | MD-05 | P1 | MD-01 | **Rejeter** sans motif / avec motif | refus / « rejeté » | motif obligatoire | API |
 | MD-06 | P1 | MD-04 | corriger la description | modifiée (API) ; **pas de bouton UI** | correction | API / ABS en UI |
 | MD-07 | P1 | MD-04 | historique d'une ligne | création, mise à jour, validation (API) ; non affiché en UI | traçabilité | API / ABS en UI |
-| MD-08 | P0 | 9 institutions | registre → `reviewed complete` | avertissement `registry.not_reviewed` disparaît ; lacunes « documentées » possibles | absence ≠ non revu | API |
+| MD-08 | P0 | une institution dont un humain a réellement revu tous les mandats (jamais « pour faire disparaître l'avertissement ») | registre → `reviewed complete` | avertissement `registry.not_reviewed` disparaît ; lacunes « documentées » possibles | absence ≠ non revu | API |
 | MD-09 | P1 | 2 pouvoirs | valider 2 `power` sur la même action | G2 « chevauchement » attendu | double compétence | DOC (non provoqué) |
 | MD-10 | P1 | aucun mandat | exercice | G1 pour chaque action exigée | personne n'a le pouvoir | API (22 G1) |
 | MD-11 | P2 | — | extraction de mandats par LLM | non fournie | spec F-02 | ABS |
@@ -203,3 +203,48 @@
 ## STRESS — Scénario composé (Ét. 25.2)
 | ST-01 | P1 | CF + AI-02 + HS-08 + surprise spoofing + budget serré | exercice composé | reste lisible, cohérent, sécurisé, auditable, honnête | cumul d'incidents | API (éléments séparés vérifiés ; combiné non exécuté) |
 | ST-02 | P2 | — | JSON invalide + citation fausse + hallucination | non reproductibles en SANS IA | IA réelle | non fait |
+
+
+## Exécution du 2026-11-24 (stabilisation)
+
+| Cas | Résultat | Preuve |
+|---|---|---|
+| Import CSV du catalogue d'actions (essai à blanc, réel, idempotent) puis des mandats (14 créés, 0 erreur) | réussi | TEST + API |
+| Mandat sans source → validation refusée (« aucune source ne résout vers un chunk réel ») | réussi sur CM-L01/CM-L10/CM-L13/CM-L14 | UI |
+| Mandat importé : **Sources** → rechercher → utiliser → enregistrer → **Valider** (CM-L10 Art. 7, CM-L13 Art. 24, CM-L14 Art. 16) | réussi | UI |
+| Création espace → pays → institution (pays préchoisi) ; barre « À faire maintenant » et checklist | réussi | UI |
+| Base nationale sans pays signalée ; rattachement par menu | affichage vérifié ; l'enregistrement du rattachement n'a pas été cliqué | UI (affichage) / API (PATCH accepté par le backend, lu dans le code) |
+| 23 routes principales sans erreur console ni réponse ≥ 400 (3 passages) | réussi | UI |
+| `GET /gaps` : mêmes champs après suppression du N+1 | réussi | TEST (58) |
+| Import CSV d'actions non UTF-8 → 422 | **non testé** (corrigé dans le code) | — |
+| Observateur sur la checklist (403 sur certaines listes) : message « indisponible » | **non testé en navigateur** (corrigé dans le code) | — |
+
+## Exécution du 2026-11-24 — base de connaissances reconstruite à partir des PDF
+
+Légende : **RÉEL** = exécuté sur les 44 PDF avec le pipeline ; **TEST** = couvert par la suite automatisée (`backend/tests/knowledge`), non rejoué sur ce corpus ; **NON** = non exécuté.
+
+| Cas demandé | Résultat | Preuve |
+|---|---|---|
+| PDF numérique valide | 28 documents `ready` | RÉEL |
+| PDF scanné | CM-01 (24 p.), CM-07, CM-09 : OCR fra+eng ; 91 pages OCR au total | RÉEL |
+| PDF sans texte extractible / graphique | AE-02, GL-11, GL-13, GL-15 : OCR ; pages « à relire » signalées (35 pages au total) | RÉEL |
+| PDF mal formé / vide / chiffré | refus explicite (`kb.document.unreadable`, `kb.document.encrypted`) | TEST |
+| PDF de grande taille | GL-01 (150 p.), GL-16 (165 p.), CM-18 (202 p.) importés | RÉEL |
+| Plusieurs langues | CM-09, CM-18 (bilingues) ; langue par chunk | RÉEL |
+| Numéro d'article mal reconnu | CM-01 : « 53 » lu « §3 » ⇒ « suite des articles interrompue (7, 13, 19, 40, 52, 53, 58, 66) » ⇒ `needs_review` | RÉEL + TEST (`test_scan_pages.py`) |
+| Perte de texte au découpage | corrigée ; garde « texte non couvert » | RÉEL + TEST |
+| Article réparti sur plusieurs pages | pages début/fin conservées par chunk | RÉEL |
+| Doublon / ancienne version | 0 doublon exact, 0 quasi-doublon dans le corpus ; refus d'un doublon exact à l'import | RÉEL (inventaire) + TEST |
+| Tableaux contenant des dispositions, notes de bas de page | **non vérifiés** document par document | NON |
+| Sans métadonnées suffisantes | métadonnées lues dans les PDF pour les 44 ; cas « missing_meta » de l'onglet Qualité | TEST |
+| Recherche lexicale | Recall@5 0,667 (même langue 1,000) | RÉEL |
+| Recherche sémantique / hybride | **non mesurée** : embeddings incomplets (calcul de BGE-M3 ≈ 6–20 s par passage sur la machine) | NON |
+| Français → anglais, anglais → français | lexical : Recall@5 0,333 (n = 24) | RÉEL |
+| Arabe | aucun document arabe ; OCR arabe installé, non exercé | NON |
+| Recherche sans résultat pertinent | comportement « aucun fondement documentaire » des agents inchangé | TEST |
+| Filtre pays/juridiction/institution/domaine | filtres langue, type, article existants ; pays par base ; juridiction/domaine/institution **présents dans l'export**, pas comme filtres de recherche | TEST / ABS |
+| KB non autorisée, version remplacée | isolation et exclusion des textes remplacés | TEST |
+| Index vectoriel incomplet | recherche lexicale étiquetée « dégradée » | TEST (`test_incomplete_vector_index…`) |
+| Export complet réimportable, texte traité, sélection | existants | TEST (non rejoué sur ce corpus) |
+| Publication ouverte avec ressource `unknown` / `restricted` | refus d'export ouvert ; **dans GitHub : texte publié uniquement pour `allowed`** (78 chunks GL-05/GL-06) | TEST + RÉEL (`kb_export.py`) |
+| Vérification des empreintes, visibilité Git, taille des fichiers | `git check-ignore` : `_local/` ignoré, reste suivi ; plus gros fichier suivi : 1,4 Mo (GL `chunks.jsonl`) | RÉEL |

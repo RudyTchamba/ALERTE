@@ -49,6 +49,24 @@ def create_action(body: ActionCreate, p: Principal = Depends(Write), session: Se
     return service.action_dict(service.create_action(session, p.workspace_id, body))
 
 
+@router.post("/actions/import-csv", response_model=ImportReport, tags=["mandates"])
+async def import_actions_csv(request: Request, dry_run: bool = False, p: Principal = Depends(Write), session: Session = Depends(get_session)):
+    """Corps : JSON `{"csv_text": "..."}` ou `text/csv` brut (UTF-8). Colonnes : code,label,domain,derivation,justification,reference_note."""
+    raw = await request.body()
+    if "json" in request.headers.get("content-type", ""):
+        import json
+        try:
+            text = json.loads(raw)["csv_text"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise Unprocessable("corps JSON attendu : {csv_text}", code="action.import.bad_body") from exc
+    else:
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError as exc:
+            raise Unprocessable("le CSV doit être encodé en UTF-8", code="action.import.bad_encoding") from exc
+    return csv_import.import_actions_csv(session, p.workspace_id, text, dry_run=dry_run)
+
+
 @router.get("/actions/{action_id}", response_model=ActionOut, tags=["mandates"])
 def get_action(action_id: str, p: Principal = Depends(Read), session: Session = Depends(get_session)):
     return service.action_dict(service.get_action(session, p.workspace_id, action_id))

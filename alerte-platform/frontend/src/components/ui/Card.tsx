@@ -6,12 +6,13 @@ export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('panel p-5', className)} {...p} />
 }
 
-export function PageHeader({ title, description, actions, term }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; term?: string }) {
+export function PageHeader({ title, description, actions, eyebrow, term }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode; term?: string }) {
   return (
-    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h1 className="text-2xl font-bold">{title}{term && <InfoTip term={term} />}</h1>
-        {description && <p className="mt-1 max-w-3xl text-sm text-muted">{description}</p>}
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
+      <div className="min-w-0">
+        {eyebrow && <p className="eyebrow mb-1 text-brand">{eyebrow}</p>}
+        <h1 className="text-2xl font-black tracking-tight sm:text-3xl">{title}{term && <InfoTip term={term} />}</h1>
+        {description && <p className="mt-2 max-w-3xl text-base text-muted">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>

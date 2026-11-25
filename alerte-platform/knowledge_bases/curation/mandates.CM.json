@@ -1,0 +1,312 @@
+{
+ "institutions": [
+  {
+   "code": "HYDRO",
+   "name": "HydroSense (fictional AI flood forecasting and alert system)",
+   "kind": "ai_system"
+  },
+  {
+   "code": "MET",
+   "name": "National Meteorology Directorate, with the National Observatory on Climate Change (ONACC)",
+   "kind": "agency"
+  },
+  {
+   "code": "DPC",
+   "name": "Civil Protection Directorate, Ministry of Territorial Administration (MINAT)",
+   "kind": "agency"
+  },
+  {
+   "code": "OPS",
+   "name": "Mobile network operator (generic)",
+   "kind": "operator"
+  },
+  {
+   "code": "ART",
+   "name": "Telecommunications Regulatory Board (ART), with the Ministry of Posts and Telecommunications (MINPOSTEL)",
+   "kind": "regulator"
+  },
+  {
+   "code": "MINSANTE",
+   "name": "Ministry of Public Health (MINSANTE)",
+   "kind": "ministry"
+  },
+  {
+   "code": "DPA",
+   "name": "Personal Data Protection Authority (APDP)",
+   "kind": "regulator"
+  },
+  {
+   "code": "CTD",
+   "name": "Local councils (Douala City Council, Far North communes)",
+   "kind": "local_authority"
+  },
+  {
+   "code": "ANTIC",
+   "name": "National Agency for Information and Communication Technologies (ANTIC)",
+   "kind": "agency"
+  },
+  {
+   "code": "COORD",
+   "name": "Conseil national de protection civile / comité de crise (le « chef d'exercice » du prototype n'est pas un siège)",
+   "kind": "agency"
+  },
+  {
+   "code": "ONR",
+   "name": "Observatoire national des risques (ONR)",
+   "kind": "agency"
+  }
+ ],
+ "mandates": [
+  {
+   "ref": "CM-L01",
+   "institution": "DPC",
+   "kind": "lead",
+   "action": "coordinate_response",
+   "description": "La Direction de la protection civile coordonne les moyens (secours, sauvetage, logistique, forces auxiliaires)",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-10",
+     "article": null,
+     "quote": "coordination des moyens mis en",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Plan national de contingence ; « chef de file » non écrit ; chevauche le CNPC (L02)."
+  },
+  {
+   "ref": "CM-L02",
+   "institution": "COORD",
+   "kind": "power",
+   "action": "coordinate_response",
+   "description": "Le Conseil national de la protection civile assiste le Président ; attributions fixées par décret 96/054",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-05",
+     "article": "Article 3",
+     "quote": "Conseil National de la Protection Civile dont",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Existence établie par la loi 86/016 ; attributions par source secondaire seulement (décret 96/054 absent)."
+  },
+  {
+   "ref": "CM-L03",
+   "institution": "DPC",
+   "kind": "duty",
+   "action": "decide_public_alert",
+   "description": "L'alerte est diffusée après activation du plan d'urgence ; diffusion par les autorités administratives et la DPC",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-10",
+     "article": null,
+     "quote": "Diffusion de l'alerte (Autorités administratives, DPC)",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Le décret 98/031 art. 3 attribue le déclenchement et la diffusion à l'autorité compétente (préfet, gouverneur, SG de la Présidence) ; texte absent du corpus initial."
+  },
+  {
+   "ref": "CM-L04",
+   "institution": "DPC",
+   "kind": "power",
+   "action": "activate_contingency_plan",
+   "description": "Activation du plan d'urgence",
+   "evidence_tag": "assumed",
+   "validation": "proposed",
+   "sources": [],
+   "audit_note": "Décret 98/031 art. 3(1) : préfet / gouverneur / SG Présidence, pas la DPC ; texte absent du corpus initial."
+  },
+  {
+   "ref": "CM-L05",
+   "institution": "DPC",
+   "kind": "power",
+   "action": "evacuate_zone",
+   "description": "Évacuation d'une zone par les autorités administratives",
+   "evidence_tag": "assumed",
+   "validation": "proposed",
+   "sources": [],
+   "audit_note": "CM-13 : « no evacuation procedures » ; CM-09 art. 5(4) seulement sous état d'urgence déclaré."
+  },
+  {
+   "ref": "CM-L06",
+   "institution": "MET",
+   "kind": "duty",
+   "action": "issue_weather_warning",
+   "description": "Le service météo émet les prévisions et alertes",
+   "evidence_tag": "assumed",
+   "validation": "proposed",
+   "sources": [],
+   "audit_note": "Aucun texte d'organisation du service météo dans le corpus : absence de document, pas preuve d'absence de mandat."
+  },
+  {
+   "ref": "CM-L07",
+   "institution": "ONR",
+   "kind": "power",
+   "action": "issue_weather_warning",
+   "description": "L'ONR gère l'information sur les aléas et menaces (arrêté 037/PM)",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-10",
+     "article": null,
+     "quote": "organe central en charge de la gestion de l'information",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Soutient la gestion de l'information, pas l'émission d'alertes météo ; PNC 2011 : « non encore totalement opérationnel »."
+  },
+  {
+   "ref": "CM-L09",
+   "institution": "OPS",
+   "kind": "power",
+   "action": "send_mass_alert",
+   "description": "Les opérateurs peuvent techniquement envoyer des SMS de masse",
+   "evidence_tag": "assumed",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-02",
+     "article": null,
+     "quote": "acheminement gratuit des communications électroniques d'urgence",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Aucun texte ne donne aux opérateurs un pouvoir ou devoir de diffuser des alertes publiques ; le rôle des opérateurs est « à définir » (CM-08 art. 58)."
+  },
+  {
+   "ref": "CM-L10",
+   "institution": "ANTIC",
+   "kind": "power",
+   "action": "block_spoofed_alert",
+   "description": "L'ANTIC régule et contrôle la sécurité électronique ; l'usurpation d'identité dans les messages est interdite",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-04",
+     "article": "Article 7",
+     "quote": "chargée de la régulation des activités de sécurité électronique",
+     "role": "grounds"
+    },
+    {
+     "document": "CM-04",
+     "article": "Article 48",
+     "quote": "usurpant l'identité d'autrui est interdite",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le pouvoir de bloquer n'est pas écrit."
+  },
+  {
+   "ref": "CM-L11",
+   "institution": "CTD",
+   "kind": "power",
+   "action": "act_on_local_warning",
+   "description": "Les communes élaborent des plans de prévention et d'intervention et interviennent en cas de fléaux calamiteux",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-11",
+     "article": "ARTICLE 218",
+     "quote": "fléaux calamiteux",
+     "role": "grounds"
+    },
+    {
+     "document": "CM-11",
+     "article": "ARTICLE 157",
+     "quote": "plans communaux spécifiques de prévention des risques",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "« recevoir des alertes » n'est pas écrit."
+  },
+  {
+   "ref": "CM-L12",
+   "institution": "MINSANTE",
+   "kind": "duty",
+   "action": "cholera_response",
+   "description": "L'État détecte, évalue et notifie les événements de santé publique (RSI) ; plan du MINSANTE aligné sur le RSI",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "GL-17",
+     "article": "Article 6",
+     "quote": "dans les 24 heures suivant l'évaluation",
+     "role": "grounds"
+    },
+    {
+     "document": "CM-18",
+     "article": null,
+     "quote": "exigences du Règlement Sanitaire International",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Obligation de l'État ; exercice par le MINSANTE déduit de son plan (décret 2002/209 absent)."
+  },
+  {
+   "ref": "CM-L13",
+   "institution": "DPA",
+   "kind": "duty",
+   "action": "protect_personal_data",
+   "description": "L'Autorité de protection des données veille à l'application de la loi 2024/017",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-01",
+     "article": "ARTICLE 53",
+     "quote": "veiller à l'application de la présente loi",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": null
+  },
+  {
+   "ref": "CM-L14",
+   "institution": "OPS",
+   "kind": "duty",
+   "action": "protect_personal_data",
+   "description": "Les responsables de traitement protègent les données et informent en cas de violation",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-01",
+     "article": "ARTICLE 22",
+     "quote": "informer sans délai",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Portée générale ; l'opérateur n'est pas nommé."
+  },
+  {
+   "ref": "CM-L15",
+   "institution": "DPA",
+   "kind": "power",
+   "action": "authorise_transfer_abroad",
+   "description": "Le transfert de données à l'étranger exige l'autorisation préalable de l'Autorité",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "CM-01",
+     "article": "ARTICLE 32",
+     "quote": "autorisation préalable",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": null
+  }
+ ],
+ "registry_review": "unreviewed (aucun registre n'est déclaré complet)",
+ "note": "Hypothèses ('assumed') : jamais présentées comme obligations légales. Source : analyse docs/audits/sources-des-mandats-cameroun.md."
+}

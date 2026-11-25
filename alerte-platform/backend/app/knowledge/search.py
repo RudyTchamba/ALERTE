@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import os
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -25,7 +26,12 @@ RRF_K = 60
 CANDIDATES = 50
 # Priorité à l'autorité de la source (après fusion RRF) : pour fonder une décision, un texte officiel passe devant un
 # résumé d'organisation ou un article de presse à pertinence comparable. Rien n'est exclu, seul l'ordre change.
-AUTHORITY = {"official": 1.0, "summary": 0.8, "unofficial": 0.7, "not_found": 0.6}
+_AUTHORITY_BASE = {"official": 1.0, "unknown": 0.9, "summary": 0.8, "unofficial": 0.7, "not_found": 0.6}  # « unknown » = provenance non établie
+# Les scores RRF sont très resserrés (le 1er et le 8e rang ne diffèrent que de ~10 %) : un coefficient multiplicatif de 0,7 à 1,0 ENTERRE un
+# document « unofficial » même quand son passage est le meilleur résultat lexical (mesuré : loi 86/016 art. 3). L'amplitude est donc réglable
+# (ALERTE_AUTHORITY_SPREAD, 0 = neutre, 1 = poids ci-dessus) ; défaut 0 (neutre) d'après l'évaluation : voir docs/knowledge-base/retrieval-evaluation.md.
+AUTHORITY_SPREAD = float(os.environ.get("ALERTE_AUTHORITY_SPREAD", "0.0"))
+AUTHORITY = {k: 1.0 - AUTHORITY_SPREAD * (1.0 - v) for k, v in _AUTHORITY_BASE.items()}
 
 ViolationCallback = Callable[[dict[str, Any]], None]
 
@@ -189,6 +195,14 @@ class HybridSearchService:
         if not compat:
             return [], True, False, key
         dscope = dataclasses.replace(scope, kb_ids=compat)
+        # Index vectoriel INCOMPLET : on n'utilise pas le signal dense. Sinon seuls les documents déjà vectorisés reçoivent un rang
+        # sémantique et dominent le classement (constaté pendant la construction du corpus : tous les résultats venaient du 1er document
+        # vectorisé). Le mode dégradé (lexical seul) est signalé jusqu'à ce que tout le périmètre ait ses vecteurs.
+        total = count_scope_chunks(s, dscope, include_replaced=self.include_replaced)
+        have = count_scope_chunks(s, dscope, embedder_key=key, include_replaced=self.include_replaced)
+        if have < total:
+            log.info("index vectoriel incomplet (%s/%s) : recherche lexicale seule", have, total)
+            return [], True, False, key
         vector = vector_for(key) if vector_for else self.vector
         exact = NumpyExactIndex(self._factory, key, self.include_replaced) if self.exact else None
         expected = min(cand, count_scope_chunks(s, dscope, embedder_key=key, include_replaced=self.include_replaced))

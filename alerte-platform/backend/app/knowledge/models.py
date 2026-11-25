@@ -26,7 +26,7 @@ from ..core.db import Base, TimestampMixin, utcnow
 from ..core.ids import new_id
 
 KB_KINDS = ("national", "global_practices", "scenario", "prior_reports", "mixed")
-RELIABILITY = ("official", "summary", "unofficial", "not_found")
+RELIABILITY = ("official", "summary", "unofficial", "unknown", "not_found")
 VALIDITY = ("in_force", "replaced", "unknown")
 REDISTRIBUTION = ("allowed", "restricted", "unknown")
 EVIDENCE = ("documented", "inferred", "assumed")

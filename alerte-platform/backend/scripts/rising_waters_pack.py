@@ -21,12 +21,23 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
+import sys
 from pathlib import Path
 
 import yaml
 
 HERE = Path(__file__).resolve().parent
-LEGACY = HERE.parent.parent.parent / "alerte" / "data"
+def find_legacy() -> Path | None:
+    """Dossier `alerte/` du prototype : variable ALERTE_LEGACY_DIR, sinon `alerte/` dans le dépôt, sinon `alerte/` à côté du dépôt."""
+    repo = HERE.parent.parent.parent
+    for c in (os.environ.get("ALERTE_LEGACY_DIR"), repo / "alerte", repo.parent / "alerte"):
+        if c and (Path(c) / "data" / "scenarios").is_dir():
+            return Path(c)
+    return None
+
+
+LEGACY = (find_legacy() or Path("alerte-introuvable")) / "data"
 OUT = HERE.parent.parent / "demo" / "rising-waters"
 
 FAULT_MAP = {"language_exclusion": "language_error", "data_abroad": "data_leaves_country", "": "none"}
@@ -127,10 +138,16 @@ def build_setup(country: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
-    out = Path(ap.parse_args().out)
-    out.mkdir(parents=True, exist_ok=True)
-    for old in out.glob("*"):
-        old.unlink()
+    ap.add_argument("--legacy", default=None, help="dossier `alerte/` du prototype (défaut : ALERTE_LEGACY_DIR, ./alerte ou ../alerte)")
+    args = ap.parse_args()
+    global LEGACY
+    if args.legacy:
+        LEGACY = Path(args.legacy) / "data"
+    if not (LEGACY / "scenarios").is_dir():
+        sys.exit("dossier `alerte/data/scenarios` introuvable : indiquez --legacy <chemin du dossier alerte/> (ou ALERTE_LEGACY_DIR). "
+                 "Le pack déjà généré reste dans demo/rising-waters/ et suffit pour suivre le guide.")
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)  # les fichiers existants sont REMPLACÉS un à un (jamais supprimés avant génération)
     expected = {}
     for cc, stem, code, titles in (
             ("CM", "cm01_rising_waters", "CM-01", {"fr": "Rising Waters — Cameroun", "en": "Rising Waters — Cameroon"}),
@@ -147,20 +164,26 @@ def main() -> int:
             rows = list(rd)
             cols = rd.fieldnames or []
         with (out / f"mandats-{cc.lower()}.csv").open("w", encoding="utf-8", newline="") as fh:
-            wr = csv.DictWriter(fh, fieldnames=cols)
+            wr = csv.DictWriter(fh, fieldnames=cols, lineterminator="\n")
             wr.writeheader()
             for row in rows:
                 row["institution"] = pf(cc, row["institution"])
                 wr.writerow(row)
         s = yaml.safe_load((LEGACY / "scenarios" / f"{stem}.yaml").read_text(encoding="utf-8"))
         expected[code] = [{"seq": e["id"], "expected_gaps": e.get("expected_gaps") or []} for e in s["events"]]
+    acts = build_setup("CM")["actions"]  # catalogue COMMUN aux deux pays (les codes d'action sont partagés)
+    with (out / "actions.csv").open("w", encoding="utf-8", newline="") as fh:
+        wr = csv.DictWriter(fh, fieldnames=["code", "label", "domain", "derivation", "justification", "reference_note"], lineterminator="\n")
+        wr.writeheader()
+        for a in acts:
+            wr.writerow({**a, "reference_note": ""})
     (out / "lacunes-attendues.PRIVE.json").write_text(json.dumps(
         {"avertissement": "PRIVÉ : à ne JAMAIS importer dans un scénario ni montrer aux agents (évaluation T3 uniquement).", **expected},
         ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "README.md").write_text(
         "# Pack Rising Waters (généré)\n\nGénéré par `backend/scripts/rising_waters_pack.py` à partir de `alerte/data/` (prototype, lecture seule).\n"
         "Toutes les situations sont **fictives**. Voir `docs/runbooks/guide-test-complet-interface.md`.\n\n"
-        "| Fichier | Usage |\n|---|---|\n| `*.alerte-scenario.yaml` | Scénarios (écran Scénarios → Importer un YAML) |\n"
+        "| Fichier | Usage |\n|---|---|\n| `actions.csv` | **Catalogue d'actions : à importer EN PREMIER** (Pays et institutions → Registre des mandats → Catalogue d'actions → Importer un CSV) |\n| `*.alerte-scenario.yaml` | Scénarios (écran Scénarios → Importer un YAML) |\n"
         "| `mandats-*.csv` | Registre de mandats (Pays et institutions → Mandats → Importer un CSV) |\n"
         "| `setup-*.json` | Pays, institutions, actions et agents (script `seed_rising_waters.py`) |\n"
         "| `lacunes-attendues.PRIVE.json` | Lacunes visées par l'auteur ; **ne jamais importer dans le scénario** |\n", encoding="utf-8")

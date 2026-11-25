@@ -27,7 +27,18 @@ sys.path.insert(0, str(BACKEND))
 from app.core.canonical_json import canonical_bytes  # noqa: E402
 from app.knowledge import archive_format as af  # noqa: E402
 
-REPO = BACKEND.parent.parent
+
+def _find_legacy() -> Path:
+    """Dossier `alerte/` du prototype : ALERTE_LEGACY_DIR, sinon `alerte/` dans le dépôt, sinon `alerte/` à côté du dépôt."""
+    import os
+    repo = BACKEND.parent.parent
+    for c in (os.environ.get("ALERTE_LEGACY_DIR"), repo / "alerte", repo.parent / "alerte"):
+        if c and (Path(c) / "index").is_dir():
+            return Path(c)
+    return repo / "alerte"
+
+
+LEGACY_DIR = _find_legacy()
 _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 COLLECTIONS = {
     "AE": ("AE", "Émirats arabes unis (prototype)", "national"),
@@ -133,8 +144,8 @@ def build_archive(out: Path, kb_code: str, kb_name: str, kind: str, docs: list[d
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True, type=Path, help="dossier (une archive par collection) ou fichier .zip (avec --single)")
-    ap.add_argument("--index-dir", type=Path, default=REPO / "alerte" / "index")
-    ap.add_argument("--manifest", type=Path, default=REPO / "alerte" / "data" / "manifest.csv")
+    ap.add_argument("--index-dir", type=Path, default=LEGACY_DIR / "index")
+    ap.add_argument("--manifest", type=Path, default=LEGACY_DIR / "data" / "manifest.csv")
     ap.add_argument("--single", action="store_true", help="une seule archive pour toutes les collections")
     a = ap.parse_args(argv)
     docs, chunks, reliability, review = read_inputs(a.index_dir, a.manifest)

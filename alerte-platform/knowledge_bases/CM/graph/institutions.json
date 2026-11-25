@@ -1,0 +1,61 @@
+{
+ "institutions": [
+  {
+   "code": "HYDRO",
+   "name": "HydroSense (fictional AI flood forecasting and alert system)",
+   "kind": "ai_system"
+  },
+  {
+   "code": "MET",
+   "name": "National Meteorology Directorate, with the National Observatory on Climate Change (ONACC)",
+   "kind": "agency"
+  },
+  {
+   "code": "DPC",
+   "name": "Civil Protection Directorate, Ministry of Territorial Administration (MINAT)",
+   "kind": "agency"
+  },
+  {
+   "code": "OPS",
+   "name": "Mobile network operator (generic)",
+   "kind": "operator"
+  },
+  {
+   "code": "ART",
+   "name": "Telecommunications Regulatory Board (ART), with the Ministry of Posts and Telecommunications (MINPOSTEL)",
+   "kind": "regulator"
+  },
+  {
+   "code": "MINSANTE",
+   "name": "Ministry of Public Health (MINSANTE)",
+   "kind": "ministry"
+  },
+  {
+   "code": "DPA",
+   "name": "Personal Data Protection Authority (APDP)",
+   "kind": "regulator"
+  },
+  {
+   "code": "CTD",
+   "name": "Local councils (Douala City Council, Far North communes)",
+   "kind": "local_authority"
+  },
+  {
+   "code": "ANTIC",
+   "name": "National Agency for Information and Communication Technologies (ANTIC)",
+   "kind": "agency"
+  },
+  {
+   "code": "COORD",
+   "name": "Conseil national de protection civile / comité de crise (le « chef d'exercice » du prototype n'est pas un siège)",
+   "kind": "agency"
+  },
+  {
+   "code": "ONR",
+   "name": "Observatoire national des risques (ONR)",
+   "kind": "agency"
+  }
+ ],
+ "registry_review": "unreviewed (aucun registre n'est déclaré complet)",
+ "note": "Hypothèses ('assumed') : jamais présentées comme obligations légales. Source : analyse docs/audits/sources-des-mandats-cameroun.md."
+}

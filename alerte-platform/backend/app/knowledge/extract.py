@@ -21,6 +21,24 @@ MAX_PDF_PAGES = 3000
 MAX_CSV_ROWS = 200_000
 OCR_MIN_CONFIDENCE = 60.0
 OCR_DPI = 250
+# Un scan portant un cachet / tampon « copie certifiée conforme » a une couche texte minuscule (> MIN_PAGE_CHARS) alors que
+# l'essentiel de la page est une image : sans cette règle le vrai texte serait perdu SANS être signalé (constaté sur la loi
+# 2024/017 : articles 52, 53 manquants). Une page couverte à >= 60 % par des images et dont la couche texte < 600 car. passe à l'OCR.
+SCAN_IMAGE_COVERAGE = 0.6
+SCAN_TEXT_MAX_CHARS = 600
+
+
+def image_heavy(page, txt: str) -> bool:  # noqa: ANN001
+    """Page essentiellement image avec une couche texte pauvre (cachet, filigrane, numéro de page)."""
+    if len(txt.strip()) >= SCAN_TEXT_MAX_CHARS:
+        return False
+    try:
+        w, h = float(page.width), float(page.height)
+        cov = sum(max(0.0, min(im["x1"], w) - max(im["x0"], 0.0)) * max(0.0, min(im["bottom"], h) - max(im["top"], 0.0))
+                  for im in page.images)
+        return w * h > 0 and cov / (w * h) >= SCAN_IMAGE_COVERAGE
+    except Exception:  # noqa: BLE001 - jamais d'échec silencieux ailleurs : ici on retombe sur le comportement historique
+        return False
 
 
 class ExtractionError(Exception):
@@ -205,7 +223,7 @@ def extract_pdf(path: Path, ocr: OcrEngine | None) -> Extraction:
             except Exception as exc:  # noqa: BLE001
                 txt = ""
                 warnings.append(f"page {i} : extraction du texte en échec ({str(exc)[:80]})")
-            if len(txt.strip()) >= MIN_PAGE_CHARS:
+            if len(txt.strip()) >= MIN_PAGE_CHARS and not (ocr is not None and ocr.usable and image_heavy(page, txt)):
                 pages.append(Page(i, fix_arabic_visual_order(txt)))
                 continue
             # page pauvre → OCR, ou marquage « à relire » explicite

@@ -13,8 +13,8 @@
       "desc": "Build everything the drill needs: institutions, documents, mandates, agents, permissions, scenario and seats."
     },
     "conduct": {
-      "short": "{{n}}. Conduct",
-      "name": "Run the exercise",
+      "short": "{{n}}. Play",
+      "name": "Play the exercise",
       "desc": "Watch the events arrive, the institutions decide and exchange, and step in as facilitator or as a player."
     },
     "analyse": {
@@ -88,5 +88,92 @@
     "scenario": "A scenario with at least one event (Scenarios).",
     "exercise": "An exercise (Exercises and seats).",
     "finished": "A finished exercise: gaps and reports are produced from an exercise that has run."
+  },
+  "setup": {
+    "title": "Your preparation, step by step",
+    "lead": "Each state is computed from what is actually saved in the workspace, not from the pages you opened.",
+    "status": {
+      "done": "Done",
+      "partial": "To complete",
+      "todo": "To do",
+      "locked": "After: {{needs}}",
+      "lockedShort": "After the previous steps"
+    },
+    "nowTitle": "Do this now",
+    "nowAll": "All preparation is done: run or analyse an exercise.",
+    "open": "Open",
+    "steps": {
+      "country": {
+        "title": "Country",
+        "why": "The country is the legal scope: institutions and knowledge bases attach to it.",
+        "action": "Add a country",
+        "none": "No country yet.",
+        "some": "{{n}} country(ies)."
+      },
+      "institutions": {
+        "title": "Institutions",
+        "why": "Each institution belongs to a country; an agent will represent one during the exercise.",
+        "action": "Add institutions",
+        "none": "No institution yet.",
+        "some": "{{n}} institution(s)."
+      },
+      "kb": {
+        "title": "Knowledge bases",
+        "why": "Collections of texts (laws, decrees, plans) attached to a country. An agent only reads published bases it is allowed to use.",
+        "action": "Open the bases",
+        "none": "No base yet.",
+        "some": "{{n}} base(s) · {{published}} published · {{noCountry}} without a country."
+      },
+      "mandates": {
+        "title": "Mandates",
+        "why": "Who must or may do what, with its source (an article of a text). Without a source found in a base, a mandate stays “proposed”: it is not documented.",
+        "action": "Validate mandates",
+        "none": "No mandate: import the CSV or enter them.",
+        "some": "{{n}} mandate(s) · {{validated}} validated with a source · {{reviewed}} registry(ies) reviewed complete out of {{inst}} institution(s)."
+      },
+      "agents": {
+        "title": "Agents",
+        "why": "An AI agent plays one specific institution during the exercise.",
+        "action": "Configure agents",
+        "none": "No agent yet.",
+        "some": "{{n}} agent(s) · {{noInst}} without an institution."
+      },
+      "access": {
+        "title": "Agent × base permissions",
+        "why": "They decide which bases each agent may consult. Without access, an agent can cite nothing.",
+        "action": "Grant access",
+        "some": "{{withKb}} of {{n}} agent(s) have at least one base; {{without}} have none."
+      },
+      "scenario": {
+        "title": "Scenario",
+        "why": "The sequence of events sent to institutions, with the actions they must take.",
+        "action": "Create or import a scenario",
+        "none": "No scenario yet.",
+        "some": "{{n}} scenario(s)."
+      },
+      "exercise": {
+        "title": "Exercise and seats",
+        "why": "An exercise plays a scenario; each seat links an institution to an AI agent or a person.",
+        "action": "Prepare the exercise",
+        "none": "No exercise yet.",
+        "some": "{{n}} exercise(s)."
+      },
+      "readiness": {
+        "title": "Readiness check",
+        "why": "Blocking checks and warnings before launch, with the fix for each one.",
+        "action": "Check the exercise",
+        "none": "No exercise checked.",
+        "some": "{{n}} exercise(s) ready or already started."
+      },
+      "run": {
+        "title": "Launch and analysis",
+        "why": "Play the exercise, then review the gaps, the report and the audit.",
+        "action": "Enter the room",
+        "none": "No exercise played.",
+        "running": "An exercise has started but is not finished.",
+        "some": "{{n}} exercise(s) finished."
+      }
+    },
+    "unavailable": "Some data cannot be read with this token (insufficient rights): the preparation state is not shown."
   }
 }

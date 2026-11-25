@@ -1,0 +1,18 @@
+{
+ "collection": "CM",
+ "name": "Cameroun",
+ "kind": "national",
+ "languages": [
+  "fr",
+  "en"
+ ],
+ "documents": 17,
+ "knowledge_records": 889,
+ "chunks": 1342,
+ "published_version_no": 1,
+ "embedded_chunks": 152,
+ "embedder_key": "6152f1179efa3d1e",
+ "chunks_with_text_published": 0,
+ "records_with_text_published": 0,
+ "content_policy": "texte publié uniquement pour redistribution=allowed ; voir docs/knowledge-base/publication-policy.md"
+}

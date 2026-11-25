@@ -14,8 +14,10 @@ import evaluation from './fr/evaluation.json'
 import about from './fr/about.json'
 import home from './fr/home.json'
 import exercises from './fr/exercises.json'
+import citizen from './fr/citizen.json'
+import reform from './fr/reform.json'
 import journey from './fr/journey.json'
 import glossary from './fr/glossary.json'
 
 // Traduction française complète (clés identiques à `en`) ; toute clé manquante retombe sur l'anglais.
-export default { common, nav, errors, access, geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, about, home, exercises, journey, glossary }
+export default { common, nav, errors, access, geo, kb, agents, scenarios, room, gaps, reports, audit, evaluation, about, home, exercises, citizen, reform, journey, glossary }

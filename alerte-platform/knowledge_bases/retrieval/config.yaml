@@ -1,0 +1,10 @@
+# Configuration de recherche réellement utilisée par le backend d'ALERTE (app/knowledge/search.py, embedders.py, chunking.py)
+lexical: {engine: sqlite-fts5, ranking: bm25}
+vector:
+  embedder: {provider: openai_compat, server: ollama, model: bge-m3, dimension: 1024, normalized: true}
+  stores: [chromadb, numpy-exact]        # ChromaDB + index exact de garde-fou
+fusion: {method: rrf, k: 60, thesaurus_weight: 0.5, authority_weights: {official: 1.0, summary: 0.8, unofficial: 0.7, not_found: 0.6}}
+chunking: {strategy: article-aware, max_chars: 2000, overlap_chars: 200}
+ocr: {engine: tesseract, langs: "fra+eng+ara", dpi: 250, min_confidence: 60, min_page_chars: 80}
+scope: "bases autorisées de l'agent, versions publiées uniquement, revérification de chaque candidat côté backend"
+status_labels: ["lexical seul (dégradé)", "hybride (BM25 + vectoriel + RRF)", "index vectoriel incomplet", "échec d'embedding"]

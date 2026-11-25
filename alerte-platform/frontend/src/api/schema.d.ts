@@ -2794,7 +2794,7 @@ export interface components {
             /** Source Url */
             source_url?: string | null;
             /** Reliability */
-            reliability?: ("official" | "summary" | "unofficial" | "not_found") | null;
+            reliability?: ("official" | "summary" | "unofficial" | "unknown" | "not_found") | null;
             /** Validity */
             validity?: ("in_force" | "replaced" | "unknown") | null;
             /** Replaced By Id */

@@ -1,0 +1,992 @@
+[
+ {
+  "code": "CM-01",
+  "title": "Loi n°2024/017 du 23 décembre 2024 relative à la protection des données à caractère personnel",
+  "doc_type": "law",
+  "doc_number": "2024/017",
+  "doc_date": "2024-12-23",
+  "language": "fr",
+  "domains": [
+   "data_protection"
+  ],
+  "institution_codes": [
+   "DPA",
+   "OPS"
+  ],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Scan (24 p.) portant un cachet « copie certifiée conforme » de la Présidence : OCR nécessaire.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-01_Law_No_2024-017_of_23_December_2024_on_the_Protection_of_Personal_Data.pdf"
+ },
+ {
+  "code": "CM-02",
+  "title": "Loi n°2010/013 du 21 décembre 2010 régissant les communications électroniques au Cameroun",
+  "doc_type": "law",
+  "doc_number": "2010/013",
+  "doc_date": "2010-12-21",
+  "language": "fr",
+  "domains": [
+   "telecommunications"
+  ],
+  "institution_codes": [
+   "ART",
+   "OPS",
+   "ANTIC"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-02_Law_No_2010-013_of_21_December_2010_Regulating_Electronic_Communications_in_Cameroon.pdf"
+ },
+ {
+  "code": "CM-03",
+  "title": "Loi n°2015/006 du 20 avril 2015 modifiant et complétant certaines dispositions de la loi n°2010/013",
+  "doc_type": "law",
+  "doc_number": "2015/006",
+  "doc_date": "2015-04-20",
+  "language": "fr",
+  "domains": [
+   "telecommunications"
+  ],
+  "institution_codes": [
+   "ART",
+   "OPS"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Modifie CM-02.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-03_Law_No_2015-006_of_20_April_2015_Amending_Law_2010-013.pdf"
+ },
+ {
+  "code": "CM-04",
+  "title": "Loi n°2010/012 du 21 décembre 2010 relative à la cybersécurité et la cybercriminalité au Cameroun",
+  "doc_type": "law",
+  "doc_number": "2010/012",
+  "doc_date": "2010-12-21",
+  "language": "fr",
+  "domains": [
+   "cybersecurity"
+  ],
+  "institution_codes": [
+   "ANTIC",
+   "ART"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-04_Law_No_2010-012_of_21_December_2010_on_Cybersecurity_and_Cybercriminality.pdf"
+ },
+ {
+  "code": "CM-05",
+  "title": "Loi n°86/016 du 6 décembre 1986 portant réorganisation générale de la protection civile",
+  "doc_type": "law",
+  "doc_number": "86/016",
+  "doc_date": "1986-12-06",
+  "language": "fr",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [
+   "DPC",
+   "COORD"
+  ],
+  "reliability": "unofficial",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Reproduction d'un site tiers (mention « Source : CamerLex »), 2 pages.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-05_Law_No_86-016_of_6_December_1986_on_the_General_Reorganisation_of_Civil_Protection.pdf"
+ },
+ {
+  "code": "CM-07",
+  "title": "Rapport du Cameroun sur la Décennie internationale de la prévention des catastrophes naturelles (IDNDR)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "fr",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [
+   "DPC"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Scan de 4 p. Ce n'est PAS le décret 98/031 (le nom de fichier est trompeur). Le décret 98/031 est enregistré comme document attendu.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-07_Decree_No_98-031_of_9_March_1998_on_the_Organisation_of_Emergency_and_Rescue_Plans.pdf"
+ },
+ {
+  "code": "CM-08",
+  "title": "Décret n°2005/124 du 15 avril 2005 portant organisation du Ministère des Postes et Télécommunications",
+  "doc_type": "decree",
+  "doc_number": "2005/124",
+  "doc_date": "2005-04-15",
+  "language": "fr",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [
+   "ART",
+   "OPS"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "L'article 58 crée le Service des télécommunications d'urgence.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-08_Decree_No_2005-124_on_Emergency_Telecommunications_as_Cited_by_IFRC.pdf"
+ },
+ {
+  "code": "CM-09",
+  "title": "Loi n°90/047 du 19 décembre 1990 relative à l'état d'urgence",
+  "doc_type": "law",
+  "doc_number": "90/047",
+  "doc_date": "1990-12-19",
+  "language": "fr",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [
+   "DPC"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Extrait du Journal officiel (supplément n°1, bilingue fr/en), couche texte OCR bruitée.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-09_Law_No_90-047_of_19_December_1990_on_the_State_of_Emergency.pdf"
+ },
+ {
+  "code": "CM-10",
+  "title": "Plan national de contingence du Cameroun, livre premier (avril 2011)",
+  "doc_type": "plan",
+  "doc_number": null,
+  "doc_date": "2011-04",
+  "language": "fr",
+  "domains": [
+   "civil_protection",
+   "health"
+  ],
+  "institution_codes": [
+   "DPC",
+   "ONR",
+   "MET",
+   "MINSANTE",
+   "CTD"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-10_National_Contingency_Plan_Plan_National_de_Contingence_PNC.pdf"
+ },
+ {
+  "code": "CM-11",
+  "title": "Loi n°2019/024 du 24 décembre 2019 portant Code général des collectivités territoriales décentralisées",
+  "doc_type": "law",
+  "doc_number": "2019/024",
+  "doc_date": "2019-12-24",
+  "language": "fr",
+  "domains": [
+   "civil_protection",
+   "public_services"
+  ],
+  "institution_codes": [
+   "CTD"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-11_Law_No_2019-024_of_24_December_2019_on_the_General_Code_of_Regional_and_Local_Authorities.pdf"
+ },
+ {
+  "code": "CM-12",
+  "title": "IFRC — Republic of Cameroon: Mapping of International Disaster Response Laws, Rules and Principles (mai 2021, brouillon)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": "2021-05",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "international_commitments"
+  ],
+  "institution_codes": [
+   "DPC",
+   "COORD"
+  ],
+  "reliability": "summary",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Le document se déclare brouillon, en attente de revue dans le pays.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-12_IFRC_Republic_of_Cameroon_Mapping_of_International_Disaster_Response_Laws_Rules_and_Principles_2021.pdf"
+ },
+ {
+  "code": "CM-13",
+  "title": "IFRC — Republic of Cameroon: Mapping of Legal and Policy Arrangements for Disaster Risk Management, including Public Health Emergencies and international disaster assistance",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "health"
+  ],
+  "institution_codes": [
+   "DPC",
+   "MINSANTE"
+  ],
+  "reliability": "summary",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-13_IFRC_Disaster_Risk_Management_Law_Template_Cameroon_2022.pdf"
+ },
+ {
+  "code": "CM-14",
+  "title": "Article de presse (Investir au Cameroun) sur la Stratégie nationale d'intelligence artificielle",
+  "doc_type": "press",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "fr",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "unofficial",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Page web imprimée ; contient des éléments étrangers au sujet.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-14_National_Artificial_Intelligence_Strategy_SNIA_July_2025_MINPOSTEL.pdf"
+ },
+ {
+  "code": "CM-15",
+  "title": "Déclaration du Cameroun, 79e session de l'Assemblée générale des Nations unies, Sixième Commission : protection des personnes en cas de catastrophe",
+  "doc_type": "statement",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "fr",
+  "domains": [
+   "civil_protection",
+   "international_commitments"
+  ],
+  "institution_codes": [
+   "DPC"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Liste les textes nationaux de protection civile (96/054, 98/031, 037/PM…).",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-15_Statement_of_Cameroon_on_Protection_of_Persons_in_the_Event_of_Disasters_UN_General_Assembly_Sixth_Committee_79th_Session.pdf"
+ },
+ {
+  "code": "CM-16",
+  "title": "UNICEF Cameroon — Floods Flash Update No. 5, Far North (24 octobre 2024)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": "2024-10-24",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "health"
+  ],
+  "institution_codes": [],
+  "reliability": "summary",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-16_UNICEF_Cameroon_Floods_Flash_Update_No_5_Far_North_24_October_2024.pdf"
+ },
+ {
+  "code": "CM-17",
+  "title": "Banque mondiale / MoPH Cameroun — Environmental and Social Commitment Plan, Health Security Program in Western and Central Africa, Phase III (P508837)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "en",
+  "domains": [
+   "health"
+  ],
+  "institution_codes": [
+   "MINSANTE"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-17_Gavi_Cholera_in_Cameroon_When_Climate_Disaster_Unleashes_an_Epidemic.pdf"
+ },
+ {
+  "code": "CM-18",
+  "title": "Plan de préparation et de riposte au choléra, Ministère de la Santé publique",
+  "doc_type": "plan",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "fr",
+  "domains": [
+   "health"
+  ],
+  "institution_codes": [
+   "MINSANTE"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "202 pages, bilingue ; aligné sur le RSI 2005 selon le document.",
+  "collection": "CM",
+  "original_path": "alerte/data/docs/CM/CM-18_Cholera_Preparedness_and_Response_Plan_Ministry_of_Public_Health.pdf"
+ },
+ {
+  "code": "AE-01",
+  "title": "Federal Decree-Law No. (45) of 2021 concerning the Protection of Personal Data",
+  "doc_type": "law",
+  "doc_number": "45/2021",
+  "doc_date": "2021",
+  "language": "en",
+  "domains": [
+   "data_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-01_Federal_Decree-Law_No_45_of_2021_on_the_Protection_of_Personal_Data.pdf"
+ },
+ {
+  "code": "AE-02",
+  "title": "UAE National Strategy for Artificial Intelligence 2031",
+  "doc_type": "strategy",
+  "doc_number": null,
+  "doc_date": "2031",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Document graphique, peu de texte extractible ; OCR nécessaire. La date du fichier n'est pas établie (2031 est l'horizon).",
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-02_UAE_National_Strategy_for_Artificial_Intelligence_2031.pdf"
+ },
+ {
+  "code": "AE-04",
+  "title": "The UAE Charter for the Development and Use of Artificial Intelligence (juillet 2024)",
+  "doc_type": "charter",
+  "doc_number": null,
+  "doc_date": "2024-07",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Le nom de fichier annonçait « chaîne d'alerte publique UAE-Alert » : ce n'est pas le contenu.",
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-04_How_the_UAE_Public_Alert_Chain_Works_UAE-Alert_Cell_Broadcast_NCEMA_TDRA.pdf"
+ },
+ {
+  "code": "AE-05",
+  "title": "Federal Decree-Law No. (35) of 2024 on the Reorganization of the Civil Defence Authority",
+  "doc_type": "law",
+  "doc_number": "35/2024",
+  "doc_date": "2024",
+  "language": "en",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-05_Federal_Decree-Law_No_35_of_2024_on_the_Reorganisation_of_the_Civil_Defence_Authority.pdf"
+ },
+ {
+  "code": "AE-06",
+  "title": "Unprecedented rainfall in the United Arab Emirates (Natural Hazards 121, 2025)",
+  "doc_type": "paper",
+  "doc_number": null,
+  "doc_date": "2025",
+  "language": "en",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "unofficial",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Article scientifique (doi 10.1007/s11069-025-07156-9), pas un chiffre officiel du NCM.",
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-06_Record_Rainfall_of_16_April_2024_NCM_Figures.pdf"
+ },
+ {
+  "code": "AE-09",
+  "title": "Federal Decree-Law No. (3) of 2003 Regulating Telecommunications",
+  "doc_type": "law",
+  "doc_number": "3/2003",
+  "doc_date": "2003",
+  "language": "en",
+  "domains": [
+   "telecommunications"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-09_Federal_Decree-Law_No_3_of_2003_Regulating_the_Telecommunications_Sector_as_Amended.pdf"
+ },
+ {
+  "code": "AE-10",
+  "title": "Federal Decree-Law No. (34) of 2021 on Countering Rumors and Cybercrimes",
+  "doc_type": "law",
+  "doc_number": "34/2021",
+  "doc_date": "2021",
+  "language": "en",
+  "domains": [
+   "cybersecurity"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-10_Federal_Decree-Law_No_34_of_2021_on_Countering_Rumours_and_Cybercrimes.pdf"
+ },
+ {
+  "code": "AE-11",
+  "title": "Federal Decree-Law No. (6) of 2007 regarding the Establishment and Regulation of the National Center of Meteorology (NCM)",
+  "doc_type": "law",
+  "doc_number": "6/2007",
+  "doc_date": "2007",
+  "language": "en",
+  "domains": [
+   "civil_protection"
+  ],
+  "institution_codes": [
+   "MET"
+  ],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-11_Federal_Decree-Law_No_6_of_2007_Establishing_the_National_Centre_of_Meteorology_as_Amended_Latest_Amendment_2026.pdf"
+ },
+ {
+  "code": "AE-12",
+  "title": "TRA Technical Specification — Enabling Cell Broadcast for National Public Warning Service (UAE-Alert), TS FS 001 v2.0",
+  "doc_type": "standard",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "en",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Le nom de fichier annonçait « TS040 » ; le contenu est TS FS 001 v2.0.",
+  "collection": "AE",
+  "original_path": "alerte/data/docs/AE/AE-12_TRA_Technical_Specification_TS040_Cell-Broadcast_Requirements_for_Handsets_Effective_1_January_2016.pdf"
+ },
+ {
+  "code": "GL-01",
+  "title": "Directive (EU) 2018/1972 establishing the European Electronic Communications Code (version consolidée EUR-Lex du 18.10.2024)",
+  "doc_type": "law",
+  "doc_number": "2018/1972",
+  "doc_date": "2018-12-11",
+  "language": "en",
+  "domains": [
+   "telecommunications"
+  ],
+  "institution_codes": [],
+  "reliability": "summary",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": "Le PDF précise lui-même : outil de documentation sans effet juridique ; seuls les textes publiés au JO font foi.",
+  "source_url": null,
+  "notes": "Réutilisation EUR-Lex probable (décision 2011/833/UE) mais non vérifiée dans cette session (EUR-Lex a refusé l'accès automatisé).",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-01_EU_Directive_2018-1972_Electronic_Communications_Code.pdf"
+ },
+ {
+  "code": "GL-02",
+  "title": "Regulation (EU) 2024/1689 laying down harmonised rules on artificial intelligence (AI Act)",
+  "doc_type": "law",
+  "doc_number": "2024/1689",
+  "doc_date": "2024-06-13",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": "PDF du Journal officiel de l'UE ; politique de réutilisation EUR-Lex non vérifiée dans cette session.",
+  "source_url": null,
+  "notes": "Réutilisation probable sous décision 2011/833/UE (CC BY 4.0) : à confirmer avant de passer en « allowed ».",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-02_EU_Regulation_2024-1689_Artificial_Intelligence_Act.pdf"
+ },
+ {
+  "code": "GL-03",
+  "title": "Regulation (EU) 2016/679 on the protection of natural persons with regard to the processing of personal data (GDPR)",
+  "doc_type": "law",
+  "doc_number": "2016/679",
+  "doc_date": "2016-04-27",
+  "language": "en",
+  "domains": [
+   "data_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": "PDF du Journal officiel de l'UE (4.5.2016) ; réutilisation EUR-Lex non vérifiée dans cette session.",
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-03_EU_Regulation_2016-679_General_Data_Protection_Regulation.pdf"
+ },
+ {
+  "code": "GL-04",
+  "title": "Republic Act No. 10639 (20 juin 2014) mandating telecommunications service providers to send free mobile alerts",
+  "doc_type": "law",
+  "doc_number": "10639",
+  "doc_date": "2014-06-20",
+  "language": "en",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "unofficial",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Page imprimée d'une bibliothèque en ligne (« E-Library »).",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-04_Philippines_Republic_Act_10639_Free_Mobile_Disaster_Alerts_2014.pdf"
+ },
+ {
+  "code": "GL-05",
+  "title": "47 CFR Part 10 — Wireless Emergency Alerts (extrait)",
+  "doc_type": "regulation",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "en",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "allowed",
+  "license_spdx": "LicenseRef-US-Federal-Government-Public-Domain",
+  "license_evidence": "Texte réglementaire du gouvernement fédéral des États-Unis ; 17 U.S.C. § 105 : pas de droit d'auteur sur les œuvres du gouvernement fédéral. Extrait de 12 pages (début tronqué).",
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-05_US_47_CFR_Part_10_Wireless_Emergency_Alerts.pdf"
+ },
+ {
+  "code": "GL-06",
+  "title": "FCC — Report and Recommendations: Hawaii Emergency Management Agency, January 13, 2018 False Alert",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": "2018-04",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "telecommunications"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "allowed",
+  "license_spdx": "LicenseRef-US-Federal-Government-Public-Domain",
+  "license_evidence": "Rapport de la Federal Communications Commission ; 17 U.S.C. § 105.",
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-06_US_FCC_Hawaii_False_Alert_Investigation_Report_2018.pdf"
+ },
+ {
+  "code": "GL-07",
+  "title": "World Bank / GFDRR — Information and Communication Technology for Disaster Risk Management in Japan (octobre 2019)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": "2019-10",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "telecommunications"
+  ],
+  "institution_codes": [],
+  "reliability": "summary",
+  "validity": "unknown",
+  "redistribution": "restricted",
+  "license_spdx": null,
+  "license_evidence": "Page 2 du PDF : reproduction autorisée « for noncommercial purposes » avec attribution complète.",
+  "source_url": null,
+  "notes": "Le nom de fichier annonçait « J-Alert » : le document est un rapport plus large sur les TIC et la gestion des risques au Japon.",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-07_Japan_J-Alert_National_Instantaneous_Warning_System.pdf"
+ },
+ {
+  "code": "GL-09",
+  "title": "UN — Early Warnings for All: Executive Action Plan 2023-2027",
+  "doc_type": "plan",
+  "doc_number": null,
+  "doc_date": "2022-11",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "international_commitments"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-09_UN_Early_Warnings_for_All_Executive_Action_Plan_2023-2027.pdf"
+ },
+ {
+  "code": "GL-11",
+  "title": "ITU — Guidelines for national emergency telecommunication plans",
+  "doc_type": "guideline",
+  "doc_number": null,
+  "doc_date": null,
+  "language": "en",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Document graphique : OCR nécessaire.",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-11_ITU_Guidelines_for_National_Emergency_Telecommunication_Plans.pdf"
+ },
+ {
+  "code": "GL-12",
+  "title": "ITU-T X.1303 bis (03/2014) — Common alerting protocol (CAP 1.2)",
+  "doc_type": "standard",
+  "doc_number": "X.1303 bis",
+  "doc_date": "2014-03",
+  "language": "en",
+  "domains": [
+   "telecommunications",
+   "civil_protection"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-12_ITU-T_X.1303_Common_Alerting_Protocol_CAP_1.2.pdf"
+ },
+ {
+  "code": "GL-13",
+  "title": "UNDRR — Sendai Framework for Disaster Risk Reduction 2015-2030",
+  "doc_type": "framework",
+  "doc_number": null,
+  "doc_date": "2015",
+  "language": "en",
+  "domains": [
+   "civil_protection",
+   "international_commitments"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Document graphique : OCR nécessaire.",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-13_UNDRR_Sendai_Framework_for_Disaster_Risk_Reduction_2015-2030.pdf"
+ },
+ {
+  "code": "GL-14",
+  "title": "African Union Convention on Cyber Security and Personal Data Protection (EX.CL/846(XXV))",
+  "doc_type": "treaty",
+  "doc_number": "EX.CL/846(XXV)",
+  "doc_date": "2014",
+  "language": "en",
+  "domains": [
+   "cybersecurity",
+   "data_protection",
+   "international_commitments"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-14_African_Union_Malabo_Convention_Cybersecurity_and_Data_Protection_2014.pdf"
+ },
+ {
+  "code": "GL-15",
+  "title": "African Union — Continental Artificial Intelligence Strategy: Harnessing AI for Africa's Development and Prosperity",
+  "doc_type": "strategy",
+  "doc_number": null,
+  "doc_date": "2024",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "unknown",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Document graphique : OCR nécessaire.",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-15_African_Union_Continental_Artificial_Intelligence_Strategy_2024.pdf"
+ },
+ {
+  "code": "GL-16",
+  "title": "WHO — Ethics and governance of artificial intelligence for health",
+  "doc_type": "guideline",
+  "doc_number": null,
+  "doc_date": "2021",
+  "language": "en",
+  "domains": [
+   "ai_governance",
+   "health"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-16_WHO_Ethics_and_Governance_of_Artificial_Intelligence_for_Health_2021.pdf"
+ },
+ {
+  "code": "GL-17",
+  "title": "Règlement sanitaire international (2005) — document A77/A/CONF./14 de la 77e Assemblée mondiale de la Santé (1er juin 2024)",
+  "doc_type": "treaty",
+  "doc_number": "A77/A/CONF./14",
+  "doc_date": "2024-06-01",
+  "language": "fr",
+  "domains": [
+   "health",
+   "international_commitments"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": "Version française présentée à l'Assemblée ; l'état d'adoption des amendements n'est pas établi : validité à vérifier.",
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-17_WHO_International_Health_Regulations_2005.pdf"
+ },
+ {
+  "code": "GL-18",
+  "title": "NIST AI 100-1 — Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+  "doc_type": "framework",
+  "doc_number": "NIST AI 100-1",
+  "doc_date": "2023-01",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "GL",
+  "original_path": "alerte/data/docs/GL/GL-18_NIST_Artificial_Intelligence_Risk_Management_Framework_1.0.pdf"
+ },
+ {
+  "code": "ITU-Y.3172",
+  "title": "ITU-T Y.3172 (06/2019) — Architectural framework for machine learning in future networks including IMT-2020",
+  "doc_type": "standard",
+  "doc_number": "Y.3172",
+  "doc_date": "2019-06",
+  "language": "en",
+  "domains": [
+   "ai_governance",
+   "telecommunications"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "ITU",
+  "original_path": "alerte/data/docs/ITU/T-REC-Y.3172-201906-I!!PDF-E.pdf"
+ },
+ {
+  "code": "ITU-AI4G-2025-6",
+  "title": "ITU — AI Ready: Analysis towards a Standardized Readiness Framework (AI4GOOD-2025-6)",
+  "doc_type": "report",
+  "doc_number": null,
+  "doc_date": "2025",
+  "language": "en",
+  "domains": [
+   "ai_governance"
+  ],
+  "institution_codes": [],
+  "reliability": "official",
+  "validity": "unknown",
+  "redistribution": "unknown",
+  "license_spdx": null,
+  "license_evidence": null,
+  "source_url": null,
+  "notes": null,
+  "collection": "ITU",
+  "original_path": "alerte/data/docs/ITU/T-AI4G-AI4GOOD-2025-6-PDF-E.pdf"
+ }
+]

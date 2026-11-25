@@ -169,3 +169,34 @@ def test_action_service_contract(mclient, h, app):
         assert service.action_exists(s, ws, "act_a") and not service.action_exists(s, ws, "zz")
         assert service.list_actions(s, ws)[0]["derivation"] == "referential"
         assert app.state.ctx.services["mandates"].export_active_mandates
+
+
+ACTIONS_CSV = (
+    "code,label,domain,derivation,justification,reference_note\n"
+    "act_x,Action X,alerting,scenario_author,Exigée par le scénario,\n"
+    "act_y,Action Y,health,referential,,Loi 1\n"
+    "bad code,Action invalide,alerting,scenario_author,j,\n"
+    "act_z,Sans justification,alerting,scenario_author,,\n"
+)
+
+
+def test_actions_csv_import_dry_run_then_real_then_idempotent(mclient, h):
+    """Le catalogue d'actions s'importe en CSV (essai à blanc puis réel) ; c'est un prérequis de l'import des mandats."""
+    dry = mclient.post(f"{API}/actions/import-csv?dry_run=true", content=ACTIONS_CSV, headers={**h, "content-type": "text/csv"}).json()
+    assert dry["dry_run"] is True and dry["created"] == 2 and len(dry["errors"]) == 2
+    assert mclient.get(f"{API}/actions", headers=h).json() == []
+    rep = mclient.post(f"{API}/actions/import-csv", json={"csv_text": ACTIONS_CSV}, headers=h).json()
+    assert rep["created"] == 2 and {e["import_ref"] for e in rep["errors"]} == {"bad code", "act_z"}
+    assert {a["code"] for a in mclient.get(f"{API}/actions", headers=h).json()} == {"act_x", "act_y"}
+    again = mclient.post(f"{API}/actions/import-csv", json={"csv_text": ACTIONS_CSV}, headers=h).json()
+    assert again["created"] == 0 and again["skipped"] == 2
+    mk_inst(mclient, h, "AAA")  # les mandats qui citent ces actions s'importent désormais
+    mand = "line_id,country,institution,kind,action,description\nL1,XX,AAA,power,act_x,Pouvoir X\n"
+    assert mclient.post(f"{API}/mandates/import-csv", content=mand, headers={**h, "content-type": "text/csv"}).json()["created"] == 1
+
+
+def test_mandates_import_error_tells_how_to_create_the_missing_action(mclient, h):
+    mk_inst(mclient, h, "AAA")
+    mand = "line_id,country,institution,kind,action,description\nL1,XX,AAA,power,inconnue,Pouvoir\n"
+    rep = mclient.post(f"{API}/mandates/import-csv?dry_run=true", content=mand, headers={**h, "content-type": "text/csv"}).json()
+    assert "Catalogue d'actions" in rep["errors"][0]["error"]

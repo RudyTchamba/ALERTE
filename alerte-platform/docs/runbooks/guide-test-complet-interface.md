@@ -3,6 +3,8 @@
 > **Exercice fictif, pas une alerte réelle.** Toutes les données de ce guide sont fictives (HydroSense et les chiffres des événements sont inventés ; les institutions et les textes de loi sont réels).
 > Ce guide a été écrit **après** avoir exécuté le parcours sur le code actuel. Chaque étape indique **ce qui a réellement été vérifié** (légende ci-dessous). Ce qui n'existe pas est dit.
 
+> **Tu découvres ALERTE ?** Commence par le [guide de démonstration pas à pas](guide-demonstration-pas-a-pas.md). Ce document-ci est le guide de **test complet** (cas avancés, tests extrêmes, couverture exhaustive).
+
 ## 0. Comment lire ce guide
 
 **Légende de vérification** (inscrite à chaque étape) :
@@ -18,8 +20,8 @@
 **Langue de l'interface** : le sélecteur **FR / EN** est en haut à droite. Ce guide cite les libellés **français** ; l'équivalent anglais figure entre parenthèses quand il diffère. (Au premier lancement la langue suit celle de votre navigateur.)
 
 **Noms de pages** (menu latéral, tels qu'affichés en français) :
-`A. Préparer` → *1 · Pays, institutions, mandats* · *2 · Bases de connaissances* · *3 · Agents* · *4 · Accès aux connaissances* · *5 · Scénarios* · *6 · Exercices et sièges* ;
-`B. Conduire` → *Salle de simulation* ; `C. Analyser` → *Analyse des lacunes*, *Rapports*, *Audit et rejeu*, *Évaluation*, *Architecture* ; `Espace de travail` → *Jetons d'accès*, *Glossaire*.
+`Préparer` → *Pays et institutions* · *Bases de connaissances* · *Agents* · *Accès aux connaissances* · *Scénarios* ;
+`Jouer` → *Exercices*, *Salle de simulation* ; `Analyser` → *Carte des responsabilités*, *Analyse des lacunes*, *Et si… ? (réforme)*, *Rapports*, *Audit et rejeu*, *Évaluation* ; `Système` → *Architecture*, *Jetons d'accès*, *Glossaire* ; (*Carte des responsabilités*, *Et si… ? (réforme)*, `/present` et `/citizen` ont été ajoutées par l'équipe : **non auditées par ce guide**.)
 En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'étape et l'**étape suivante**. Le bouton « ? » à côté d'un titre explique la notion (voir aussi *Glossaire*).
 
 **Notions clés** (détail dans *Glossaire*) : **Workspace** = espace isolé qui contient tout un projet ; **KB** = bibliothèque de documents découpés en **chunks** (passages) ; **Mandat** = « cette institution peut/doit faire telle action, selon tel texte » ; **Agent** = institution virtuelle ; **Inject** = un événement du scénario ; **Siège** = place d'une institution dans un exercice ; **Readiness** = contrôles avant lancement ; **Gap** = lacune ; **Ledger** = journal chaîné ; **Replay** = rejeu sans appeler de modèle.
@@ -30,7 +32,7 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 
 ### Ce que cette version ne fait PAS (à savoir avant de commencer)
 * Un espace n'a **pas de champ « description »** : seulement un nom et un identifiant court facultatif.
-* Les **embeddings** (recherche vectorielle) ne sont calculés que si un serveur d'embeddings est configuré (`lancement-local.md` §2) ; la base du prototype **n'en contient pas** : la recherche est alors **lexicale** (« dégradée », signalée).
+* Les **embeddings** (recherche vectorielle) ne sont calculés que si un serveur d'embeddings est configuré (`lancement-local.md` §2) ; une base construite sans cette étape (étape 5.2 bis) **n'en contient pas** : la recherche est alors **lexicale** (« dégradée », signalée). Le raccourci `seed_rising_waters.py` importe encore l'**ancienne archive du prototype** (voie dépréciée, conservée pour la démonstration rapide) ; pour le corpus reconstruit, suivre l'étape 5.
 * Le **mode « Modèle réel »** n'a été validé qu'avec un très petit modèle (`qwen2.5:1.5b-instruct`), qui ne sait pas citer correctement : la démonstration se fait en **« Scénarisé (SANS IA) »**, qui prouve la plateforme, **jamais** que les agents raisonnent bien.
 * Détail complet : `etat-conformite-interface.md`. Cas de test : `matrice-tests-fonctionnels-et-extremes.md`.
 
@@ -70,7 +72,7 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 | **Vérification** | Cochez la case, cliquez **Continuer** : la page **Accueil** affiche « Espace ALERTE — Demonstration », l'encadré **Qu'est-ce qu'un espace de travail ?**, vos trois phases et l'état du système (`database`, `data_dir`, `knowledge` : actif) |
 | **Erreur possible** | Message « Un espace existe déjà. En créer un autre exige le jeton propriétaire » (création refusée) ; jeton perdu |
 | **Correction** | Collez le jeton propriétaire de l'espace existant. **Jeton perdu : non récupérable** (seul son hash est conservé) → relancez le backend avec un autre `ALERTE_DATA_DIR` (rien n'est supprimé). Avec un jeton **propriétaire** valide vous pouvez créer un second espace (testé : isolation complète) |
-| **Étape suivante** | Étape 3 (*1 · Pays, institutions, mandats*) |
+| **Étape suivante** | Étape 3 (*Pays et institutions*) |
 
 **Ne créez pas plusieurs espaces identiques** : un seul « ALERTE — Demonstration » suffit. Où retrouver ensuite ses ressources : tout est dans le menu latéral ; l'**Accueil** compte vos ressources en temps réel.
 *Vérification : [UI] pour l'Accueil, le menu et le glossaire ; [API] pour la création d'espace et l'isolation ; la création par le formulaire n'a pas été cliquée.*
@@ -85,7 +87,7 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 |---|---|
 | **Objectif** | Déclarer le pays du scénario |
 | **Pré-requis** | Étape 2 |
-| **Navigation** | Menu **1 · Pays, institutions, mandats** → onglet **Pays** |
+| **Navigation** | Menu **Pays et institutions** → onglet **Pays** |
 | **Action** | Bouton **Nouveau pays** (New country) puis **Enregistrer** |
 | **Saisie** | **Nom** : `Cameroun` · **ISO 3166-1 alpha-2** : `CM` · **Langues** : `fr, en` · **Notes** : `Pays du scénario Rising Waters` |
 | **Résultat attendu** | Une ligne « Cameroun · CM · fr, en » dans le tableau (Nom, ISO, Langues, Statut, Actions) |
@@ -122,7 +124,7 @@ Les **identifiants (codes)** ci-dessous sont ceux du scénario : ils doivent êt
 |---|---|
 | **Objectif** | Créer les institutions qui joueront (et celles qui n'ont que des mandats) |
 | **Pré-requis** | Étape 3 |
-| **Navigation** | **1 · Pays, institutions, mandats** → onglet **Institutions** |
+| **Navigation** | **Pays et institutions** → onglet **Institutions** |
 | **Action** | **Nouvelle institution** (New institution) → remplir → **Enregistrer** ; répéter 11 fois |
 | **Saisie** | **Code** `MET` · **Nom** `Service météorologique national (ONACC)` · **Nom en langue locale** (vide) · **Pays** `Cameroun` · **Type** `Agence` · **Domaines** `météo, alerte` · **Description** (facultatif) |
 | **Résultat attendu** | Tableau (Code, Nom, Type, Pays, Domaines, Statut, Actions) avec 11 lignes pour le Cameroun |
@@ -136,42 +138,49 @@ Les **identifiants (codes)** ci-dessous sont ceux du scénario : ils doivent êt
 
 ---
 
-## Étape 5 — Créer et remplir les bases de connaissances
+## Étape 5 — Construire les bases de connaissances à partir des PDF originaux
 
-On utilise l'**archive préparée** du prototype (45 documents, 4 235 passages) et non les 136 Mo de PDF historiques.
+**Décision actuelle** : les bases sont **reconstruites par le pipeline d'ALERTE à partir des PDF originaux** du dossier `alerte/` (lecture seule). L'ancienne archive prétraitée du prototype (45 documents, 4 235 passages) **n'est plus utilisée** : elle contenait des fichiers mal étiquetés (par exemple « décret 98/031 » qui était un rapport IDNDR) et des chunks sans pages. Détail et chiffres : [docs/knowledge-base/build-report.md](../knowledge-base/build-report.md).
 
-**Droits documentaires — à comprendre d'abord.** Aucun des 45 documents n'a de statut de redistribution qualifié : ils sont tous **`unknown`**. Conséquences : (a) l'application les utilise normalement ; (b) l'**export « Publication ouverte »** les **refuse** ; (c) ils ne doivent **pas** être présentés comme publiables.
+**Résultat de la construction de référence** (mesuré, voir le rapport) : **44 PDF** → 44 documents uniques (0 doublon), 2 133 pages, **3 684 chunks** (CM 1 322 · GL 2 083 · AE 186 · ITU 93), 4 bases publiées en `v1`. Ces valeurs viennent de l'exécution réelle ; si vous reconstruisez, les vôtres peuvent différer légèrement (OCR).
 
-### 5.1 Préparer les archives (une fois)
+**Droits documentaires — à comprendre d'abord.** Sur 44 documents : **2 `allowed`** (GL-05, GL-06 : œuvres du gouvernement fédéral des États-Unis), **1 `restricted`** (GL-07 : usage non commercial), **41 `unknown`**. L'application les utilise tous normalement ; l'**export « Publication ouverte »** refuse ceux qui ne sont pas `allowed` ; le dépôt GitHub ne reçoit le **texte** que des documents `allowed` ([publication-policy.md](../knowledge-base/publication-policy.md)).
+
+### 5.1 Préparer l'environnement et les fichiers (une fois)
 ```bash
 cd alerte-platform/backend
-.venv/bin/python scripts/legacy_to_archive.py --out ./data-demo/legacy-archives     # crée alerte-kb-CM.zip, -GL.zip, -AE.zip, -ITU.zip, -SCN.zip
+.venv/bin/python scripts/kb_inventory.py --source ../../alerte --out ../knowledge_bases/inventory   # inventaire : SHA-256, pages, pages sans texte
+# modèles OCR français/arabe sans droits administrateur : voir docs/knowledge-base/rebuilding-the-knowledge-base.md §2
 ```
-(`data-demo/` est ignoré par Git ; les archives ne sont **pas** commitées : droits inconnus.)
+**Sur une machine chargée, lancer le backend avec `OMP_THREAD_LIMIT=1`** (mesuré : une page OCR passe de ≈ 400 s à ≈ 3 s). Backend isolé conseillé (`ALERTE_DATA_DIR=./data-kb-build`) pour ne pas mélanger avec vos données.
 
-### 5.2 Importer l'archive du Cameroun (avec dry-run)
+### 5.2 Importer les PDF (voie graphique, ou script équivalent)
 | Élément | Ce que je veux lire |
 |---|---|
-| **Objectif** | Créer la base « CM » depuis l'archive et examiner le dry-run avant confirmation |
-| **Pré-requis** | 5.1 |
-| **Navigation** | **2 · Bases de connaissances** → bouton **Importer une archive** (Import an archive) |
-| **Action** | **Fichier d'archive (.zip)** → choisir `alerte-kb-CM.zip` → **Valider l'archive** (Validate archive) |
-| **Saisie** | Fichier : `backend/data-demo/legacy-archives/alerte-kb-CM.zip` |
-| **Résultat attendu** | Un rapport de validation : « L'archive est valide » (17 documents, 1 665 chunks) ; **rien n'est créé tant que vous ne confirmez pas**. Puis **Importer en tant que** = *Nouvelle base de connaissances*, **Code (facultatif)** `CM`, bouton **Confirmer l'import** |
-| **Vérification** | La liste affiche « Cameroun (prototype) », 17 documents ; version publiée : *non publiée* |
-| **Erreur possible** | Archive invalide (`kb.import.integrity_failed`) : zip piégé, empreinte fausse ; code déjà pris |
-| **Correction** | Régénérer l'archive ; choisir un autre code |
+| **Objectif** | Créer les bases `CM`, `AE`, `GL`, `ITU` et y importer chaque PDF avec ses métadonnées |
+| **Pré-requis** | 5.1 ; étapes 2 à 4 (le pays rattache la base) |
+| **Navigation** | **Bases de connaissances** → **Nouvelle base de connaissances** (nom, type, **pays**, domaine, langues) → page de la base → onglet **Documents** → téléverser un PDF → fiche du document (titre, type, langue, **fiabilité**, **validité**, **droits**) |
+| **Action** | Pour chaque PDF : téléverser, renseigner/vérifier les métadonnées lues **dans le PDF** (`knowledge_bases/curation/documents.curation.json`), suivre le job d'extraction |
+| **Équivalent script** | `python -u scripts/kb_build.py --api http://localhost:8020 --create-workspace "ALERTE — Corpus PDF" --stage setup,ingest,publish` (mêmes endpoints que l'interface) |
+| **Résultat attendu** | Chaque document passe `ready` ou **`needs_review`** (pages à relire, ou « suite des articles interrompue ») ; 44 documents au total (CM 17 · AE 9 · GL 16 · ITU 2) |
+| **Vérification** | onglet **Qualité et couverture** : pages OCR, pages à relire, articles reconnus ; `GET /knowledge-bases` |
+| **Erreur possible** | « un document identique existe déjà » (SHA-256) ; OCR : « langues OCR absentes » ; PDF chiffré/illisible |
+| **Correction** | ne pas réimporter un doublon ; installer les modèles OCR ; fournir un PDF lisible |
 | **Étape suivante** | 5.3 |
 
-Répétez avec `alerte-kb-GL.zip` (code `GL`, « Pratiques mondiales », 16 documents) : la base internationale lue aussi par les agents.
-*Vérification : [API] import (validation ≈ 1 s, confirmation) ; [UI] libellés ; le clic sur l'import n'a pas été automatisé.*
+*Vérification : **[API/script]** import des 44 PDF jusqu'à la publication (≈ 25 min sur une machine chargée, dont ≈ 4 min pour le scan CM-01) ; **[UI]** le parcours cliqué de téléversement n'a pas été rejoué dans cette session : les libellés sont ceux de l'application, à confirmer.*
+
+**À savoir sur les résultats** : (a) **CM-01** (loi 2024/017) est un scan : l'OCR lit parfois mal un numéro d'article (« 53 » lu « §3 ») → le pipeline signale désormais **« suite des articles interrompue : 8 numéro(s) absent(s) »** et met le document en `needs_review` ; (b) **CM-07** est le rapport IDNDR et **non** le décret 98/031 (le vrai décret est un document attendu, voir `expected_documents.jsonl`) ; (c) les titres de plusieurs autres fichiers du dossier source étaient inexacts (liste dans [corpus-inventory.md](../knowledge-base/corpus-inventory.md)).
+
+### 5.2 bis Calculer les embeddings (recherche hybride)
+Page de la base → **Versions et index** → calculer les embeddings (BGE-M3 via Ollama, `ALERTE_EMBED_BASE_URL`/`ALERTE_EMBED_MODEL`), ou `kb_build.py --stage embed`. **Sans cette étape la recherche est lexicale seule** (étiquette « dégradé ») et une requête dans une autre langue que le texte ne trouve pas le passage. Mesuré ici : ≈ 6 s par passage sur la machine de développement (CPU saturé) : l'opération est longue et **reprenable**. Un index partiellement vectorisé est affiché comme **incomplet**, jamais comme « hybride ».
 
 ### 5.3 Créer une base vide et y ajouter un document (UC-01)
 | Élément | Ce que je veux lire |
 |---|---|
 | **Objectif** | Apprendre la création d'une base et l'ajout d'un document (utile pour le test contrefactuel, étape 20) |
 | **Pré-requis** | Étape 2 |
-| **Navigation** | **2 · Bases de connaissances** → **Nouvelle base de connaissances** (assistant : *Nom et type* → *Pays et domaine* → *Relecture*) |
+| **Navigation** | **Bases de connaissances** → **Nouvelle base de connaissances** (assistant : *Nom et type* → *Pays et domaine* → *Relecture*) |
 | **Action** | Remplir puis **Suivant** jusqu'à la création ; sur la page de la base : onglet **Documents** → **Choisir des fichiers** |
 | **Saisie** | **Nom** `CM — Base documentaire Cameroun (essai)` · **Description** `Base d'essai pour Rising Waters` · **Type** `National` · fichier : un PDF/TXT/DOCX/MD/CSV de votre choix. Métadonnées facultatives : Titre, Juridiction `CM`, Langue `fr`, Redistribution `unknown` |
 | **Résultat attendu** | Une barre de progression (suivi SSE du job d'ingestion) puis une ligne dans le tableau (Code `DOC-0001`, Titre, Juridiction, Validité, Redistribution, **Qualité d'extraction**, **Pages à relire**, Statut) |
@@ -215,7 +224,7 @@ Document valide · sans métadonnées suffisantes (liste « missing_meta » dans
 | **Pré-requis** | Étape 5 |
 | **Navigation** | Page de la base → **Qualité et couverture** puis **Versions et index** |
 | **Action** | Lire la synthèse, puis **Publier** (champ **Note**) pour `CM` et `GL` |
-| **Saisie** | Note : `v1 — import du prototype (droits inconnus)` |
+| **Saisie** | Note : `v1 — construction à partir des PDF originaux` |
 | **Résultat attendu** | Colonne « Version publiée » = `v1` dans la liste des bases |
 | **Vérification** | *Accueil* → phase A : « 2 base(s), 2 publiée(s) » |
 | **Erreur possible** | « des documents sont encore en cours de traitement » ; « aucune version de document prête » |
@@ -230,46 +239,81 @@ Document valide · sans métadonnées suffisantes (liste « missing_meta » dans
 
 **Trois statuts de ligne** : *écrit dans un texte* (`documented`), *déduit d'un texte* (`inferred`), *supposé* (`assumed`). Un mandat n'est **documenté et actif** que s'il est **validé** et rattaché à une **source qui se résout** vers un vrai passage. Un registre non « revu complet » ne permet **jamais** d'affirmer une absence.
 
+### 7.0 D'abord : le catalogue d'actions (obligatoire avant d'importer les mandats)
+
+Un mandat dit « telle institution peut/doit faire **telle action** ». L'import de mandats **refuse** toute ligne dont l'action n'existe pas dans le catalogue : vous obtenez « *action absente du catalogue : 'coordinate_response'* » sur les 14 lignes. **Il faut donc créer les 25 actions de Rising Waters avant l'étape 7.1.**
+
+| Élément | Ce que je veux lire |
+|---|---|
+| **Objectif** | Charger les 25 actions que le scénario exige |
+| **Pré-requis** | Étape 2 |
+| **Navigation** | **Pays et institutions** → onglet **Registre des mandats** → section **Catalogue d'actions** → bouton **Importer un CSV** |
+| **Action** | **Choisir un fichier** → `actions.csv` → **Essai à blanc** → vérifier → **Importer pour de bon** |
+| **Saisie** | Fichier : `alerte-platform/demo/rising-waters/actions.csv` (colonnes `code,label,domain,derivation,justification,reference_note`) |
+| **Résultat attendu** | Essai à blanc : « 25 créés, 0 ignorés, 0 erreurs » ; le tableau **Catalogue d'actions** liste 25 lignes de dérivation **Auteur du scénario** |
+| **Vérification** | *Accueil* ; l'import des mandats (7.1) annonce ensuite « 14 créés, 0 erreurs » |
+| **Erreur possible** | Ligne sans justification pour une dérivation « Auteur du scénario » ; code invalide (espace) |
+| **Correction** | Compléter la colonne `justification` ; relancer (les codes déjà présents sont ignorés : import **idempotent**) |
+| **Étape suivante** | 7.1 |
+
+*Autres moyens* : bouton **Nouvelle action** (une par une) ; ou `python scripts/seed_rising_waters.py --token <jeton> --from 2 --until 2`. Les codes d'action sont **communs** aux deux pays (le jumeau Émirats réutilise ce même catalogue). *Vérification : [API] import CSV (essai à blanc puis réel, idempotent) et test automatisé ; [UI] bouton ajouté dans cette version.*
+
 ### 7.1 Importer le registre du prototype (avec essai à blanc)
 | Élément | Ce que je veux lire |
 |---|---|
 | **Objectif** | Charger les 14 lignes de mandats du Cameroun |
-| **Pré-requis** | Étapes 4 (codes d'institution) |
-| **Navigation** | **1 · Pays, institutions, mandats** → onglet **Registre des mandats** → bouton **Importer un CSV** (Import CSV) |
+| **Pré-requis** | Étape 4 (codes d'institution) **et 7.0 (catalogue d'actions)** |
+| **Navigation** | **Pays et institutions** → onglet **Registre des mandats** → bouton **Importer un CSV** (Import CSV) |
 | **Action** | **Fichier CSV** `demo/rising-waters/mandats-cm.csv` → **Essai à blanc** (Dry run) → vérifier → **Importer pour de bon** |
 | **Saisie** | Fichier : `alerte-platform/demo/rising-waters/mandats-cm.csv` |
 | **Résultat attendu** | Essai à blanc : « 14 créés, 0 ignorés, 0 erreurs » ; après import : 14 lignes **« proposé »**, **sans source**, **inactives** (« mandat proposed ») |
 | **Vérification** | *Accueil* → « 14 mandat(s), 0 validé(s) » |
-| **Erreur possible** | « institution inconnue : 'ONR' » si `COORD`/`ONR` n'ont pas été créés (étape 4) — **c'est le cas de test d'un import partiel** |
+| **Erreur possible** | « **action absente du catalogue** » sur les 14 lignes : le catalogue n'a pas été importé (7.0). « institution inconnue : 'ONR' » si `COORD`/`ONR` n'ont pas été créés (étape 4) — **cas de test d'un import partiel** |
 | **Correction** | Créer l'institution manquante puis relancer (les lignes déjà importées sont ignorées : import idempotent) |
 | **Étape suivante** | 7.2 |
 
 *[API] 14 créés, 2 erreurs « institution inconnue » constatées quand `COORD` et `ONR` manquent ; rejeu idempotent ; [UI] libellés.*
 
 ### 7.2 Associer une source puis valider (3 mandats d'exemple)
-**Validez seulement `CM-L10` et `CM-L13` maintenant. `CM-L15` est réservé au test contrefactuel (étape 20) : laissez-le « proposé ».** Pour chaque ligne : **Nouveau mandat** (création) ou la ligne importée → rattachez une **source** : choisissez **Base de connaissances**, saisissez **Texte à rechercher**, **Rechercher**, puis **Utiliser comme source** sur le bon passage ; enfin **Valider**.
+**Validez seulement `CM-L10` et `CM-L13` maintenant. `CM-L15` est réservé au test contrefactuel (étape 20) : laissez-le « proposé ». Les 11 autres restent « proposés » : ce n'est pas une erreur, c'est ce qui garde l'analyse honnête (un mandat sans source retrouvée n'est pas documenté).**
+
+Pour chaque mandat à valider (le tableau ci-dessous donne la valeur à saisir) :
+1. **Pays et institutions** → onglet **Registre des mandats** → dans la liste **Mandats**, repérez la ligne par la colonne **Réf.** (`CM-L10`).
+2. Cliquez **Sources** sur cette ligne. Une fenêtre s'ouvre ; la liste **Sources déjà liées** est vide (« aucune source »).
+3. Dans **Base de connaissances**, choisissez **Cameroun** ; dans **Texte à rechercher**, saisissez le texte du tableau en français ; cliquez **Rechercher**.
+4. Repérez le passage indiqué dans la colonne « Passage à choisir » (code du document + article) ; cliquez **Utiliser comme source** sous ce passage.
+5. Cliquez **Enregistrer les sources** : la source apparaît dans **Sources déjà liées** (ex. « Art. Article 7 »).
+6. Cliquez **Fermer**, puis **Valider** sur la ligne : le statut passe à **validée** et l'avertissement « aucune source » disparaît.
+
+*[UI] vérifié dans un navigateur réel (Chrome) sur `CM-L10`, `CM-L13`, `CM-L14` : refus clair sans source, ajout de source, validation. Avant cette version, l'interface ne permettait d'ajouter une source qu'à la **création** d'un mandat, pas à un mandat importé : c'est ce qui bloquait ici.*
 
 | Ligne (import_ref) | Action | Base | Texte à rechercher | Passage à choisir |
 |---|---|---|---|---|
-| `CM-L15` — le transfert de données à l'étranger exige l'autorisation préalable de l'APDP — **à valider à l'étape 20, pas ici** | `authorise_transfer_abroad` | `CM` | `transfert de données à caractère personnel vers un pays tiers autorisation préalable` | `CM-01` **ARTICLE 32** |
-| `CM-L10` — l'ANTIC est l'organisme de sécurité électronique | `block_spoofed_alert` | `CM` | `Agence nationale des technologies de l'information et de la communication` | `CM-04` **Article 7** |
-| `CM-L13` — l'autorité de protection des données contrôle la loi 2024/017 | `protect_personal_data` | `CM` | `autorité de protection des données pouvoirs d'enquête` | `CM-01` **ARTICLE 53** |
+| `CM-L15` — le transfert de données à l'étranger exige l'autorisation préalable de l'APDP — **à valider à l'étape 20, pas ici** | `authorise_transfer_abroad` | `CM` | `transfert de données à caractère personnel vers un État étranger autorisation préalable` | `CM-01` **ARTICLE 32** |
+| `CM-L10` — l'ANTIC est l'organisme de sécurité électronique | `block_spoofed_alert` | `CM` | `Agence Nationale des Technologies de l'Information régulation activités de sécurité électronique` | `CM-04` **Article 7** |
+| `CM-L13` — l'autorité de protection des données contrôle la loi 2024/017 | `protect_personal_data` | `CM` | `veiller à l'application de la présente loi délivrer les autorisations réclamations` | `CM-01` **ARTICLE 53** |
 
 * **Valider** sans source → refus **« validation impossible : aucune source ne résout vers un chunk réel »** (`mandate.validate.no_source`). *[API] constaté.*
 * **Rejeter** exige un **motif** (« Motif du rejet ») ; la ligne devient *rejeté*, jamais supprimée de l'historique. *[API]*
-* **Corriger** une ligne : **pas de bouton dans l'interface** (seulement Valider / Rejeter / Supprimer par ligne) ; la correction existe côté API (`PATCH /mandates/{id}`) [ABS en UI]. L'**historique** d'une ligne (création, mise à jour, validation) existe côté API mais n'est **pas affiché** dans l'interface [ABS en UI].
+* **Corriger** le texte d'une ligne : **pas de bouton dans l'interface** (seulement Sources / Valider / Rejeter / Supprimer par ligne) ; la correction existe côté API (`PATCH /mandates/{id}`) [ABS en UI]. L'**historique** d'une ligne (création, mise à jour, validation) existe côté API mais n'est **pas affiché** dans l'interface [ABS en UI].
 * **Supprimer** une ligne : bouton **Supprimer**.
 
-### 7.3 Marquer un registre « revu complet »
-Section **Revue du registre par institution** (même onglet) : pour chaque institution, la liste **Statut de la revue <code>** propose `unreviewed` · `partial` · `reviewed complete`. Mettez `reviewed complete` pour `HYDRO, MET, DPC, OPS, ART, MINSANTE, DPA, CTD, ANTIC` : c'est une **déclaration humaine** « la liste de cette institution est complète ». Tant qu'elle n'est pas faite, une action sans mandat n'est **pas** présentée comme lacune *documentée* (elle est « déduite ») ; la préparation affiche l'avertissement `registry.not_reviewed`.
-*[API] constaté (écart net sur les lacunes) ; [UI] libellés.*
+### 7.3 La revue du registre : ne la déclarez que si elle est réelle
+Section **Revue du registre par institution** (même onglet) : pour chaque institution, la liste **Statut de la revue <code>** propose `unreviewed` (non revu) · `partial` (partiel) · `reviewed complete` (revu complet).
+
+* `reviewed complete` est une **déclaration humaine** : « j'ai examiné tous les mandats de cette institution pour la période voulue et la liste est complète ». **Ne la cochez pas pour faire disparaître un avertissement.**
+* Dans cette démonstration, **laissez `unreviewed`** pour toutes les institutions : seuls 3 mandats sur 14 ont une source. La conséquence attendue et normale : la préparation (étape 14) affiche des avertissements `registry.not_reviewed` (« registre non 'reviewed_complete' ») et les lacunes sont qualifiées « déduites », pas « documentées ».
+* Vous pouvez passer une institution en `partial` si vous avez examiné une partie de ses mandats.
+*[API] constaté (effet sur les lacunes) ; [UI] libellés et panneau d'aide « Comment utiliser le registre des mandats » ajouté en haut de l'onglet.*
+
+**Maintenant, voici ce que vous devez faire : passez à l'étape 8 (profils de modèles). Les avertissements de registre non revu restent affichés : c'est voulu.**
 
 ### 7.4 Deux institutions ou aucune
 * **Aucune institution n'a le pouvoir** (cas de base) : tous les mandats « proposés » ⇒ pour chaque action exigée par le scénario la règle **G1 « Responsabilité orpheline »** apparaît. *Constaté : 42 lacunes (22 × G1, 8 × G6, 7 × G7, 2 × G8, 2 × G10, 1 × G9).*
 * **Deux institutions semblent avoir le même pouvoir** : p. ex. `issue_weather_warning` est portée par `MET` (devoir, CM-L06) **et** `ONR` (pouvoir, CM-L07). La règle **G2 « Mandats qui se chevauchent »** exige **deux pouvoirs** (`kind=power`) **sans chef de file** : à tester en validant les deux lignes, en passant CM-L06 en `power`, puis en relançant (*non exécuté dans ce guide*).
 
-### 7.5 Catalogue d'actions
-Même onglet, section **Catalogue d'actions** : **Libellé**, **Dérivation** *(Référentiel (cité) / Auteur du scénario / Proposée par un agent)*, **Justification**, **Note de référence**. Les 25 actions du pack sont de dérivation **Auteur du scénario** (« exigée par le scénario, **pas une obligation officielle** ») : les rapports les signalent comme telles.
+### 7.5 Catalogue d'actions (détail des champs)
+Même onglet, section **Catalogue d'actions** (voir 7.0 pour l'import) : **Libellé**, **Dérivation** *(Référentiel (cité) / Auteur du scénario / Proposée par un agent)*, **Justification**, **Note de référence**. Les 25 actions du pack sont de dérivation **Auteur du scénario** (« exigée par le scénario, **pas une obligation officielle** ») : les rapports les signalent comme telles.
 
 ---
 
@@ -279,7 +323,7 @@ Même onglet, section **Catalogue d'actions** : **Libellé**, **Dérivation** *(
 |---|---|
 | **Objectif** | Déclarer le modèle qu'un agent appellera (uniquement pour un exercice « Modèle réel ») |
 | **Pré-requis** | Étape 2 ; un serveur compatible OpenAI (Ollama, vLLM…) ; **facultatif pour la démonstration SANS IA** |
-| **Navigation** | **3 · Agents** → section **Profils de modèle** (en bas de la page) → **Nouveau profil de modèle** |
+| **Navigation** | **Agents** → section **Profils de modèle** (en bas de la page) → **Nouveau profil de modèle** |
 | **Action** | Remplir puis **Enregistrer** ; puis **Tester la connexion** sur la ligne |
 | **Saisie** | **Nom** `ollama-local` · **Fournisseur** `openai_compat` · **Modèle** `qwen2.5:1.5b-instruct` · **Référence du point d'accès** `ALERTE_LLM_BASE_URL` (un **nom de variable**, jamais une URL ni une clé) · **Température** `0` · **Jetons max** (vide) · **Délai (s)** `120` |
 | **Résultat attendu** | « joignable » (reachable) si `ALERTE_LLM_BASE_URL` est défini dans `backend/.env` et que le serveur répond |
@@ -316,7 +360,7 @@ L'**ai_mode de l'exercice prime** sur le profil de l'agent (un exercice « Scén
 |---|---|
 | **Objectif** | Créer un agent par institution qui doit jouer |
 | **Pré-requis** | Étape 4 (institutions) |
-| **Navigation** | **3 · Agents** → **Nouvel agent** (New agent) |
+| **Navigation** | **Agents** → **Nouvel agent** (New agent) |
 | **Action** | Remplir le formulaire → **Enregistrer** ; répéter pour `HYDRO, MET, DPC, OPS, ART, MINSANTE, DPA, CTD, ANTIC` |
 | **Saisie** | **Code** `AG-MET` · **Nom** `Agent MET` · **Rôle** `Institution` (pour HYDRO : `Système d'IA testé` ; `Conseiller juridique` existe mais **n'est pas nécessaire** : `ask_legal` est intégré) · **Institution** `MET` · **Mission** `Observer, prévoir et avertir des aléas météo ; juger la qualité des prévisions.` · **Instructions** `Tu détiens la science. Tu ne peux pas ordonner au public d'agir. Tu te méfies d'une sortie de modèle non validée par un prévisionniste.` · **Profil de modèle** `—` (aucun) · **Outils** : les 4 cochés · **Étapes max par activation** `4` · **Recherches max** `3` · **Appels max au conseiller par inject** `2` |
 | **Résultat attendu** | Une ligne (Code, Nom, Rôle, Institution, Profil de modèle « aucun profil de modèle », Outils, Statut actif) avec **Modifier / Aperçu du prompt / Cloner / Archiver** |
@@ -336,10 +380,10 @@ L'**ai_mode de l'exercice prime** sur le profil de l'agent (un exercice « Scén
 |---|---|
 | **Objectif** | Décider quel agent peut lire quelle base — **appliqué par le serveur à chaque recherche** |
 | **Pré-requis** | Étapes 6 (bases publiées) et 9 (agents) |
-| **Navigation** | **4 · Accès aux connaissances** (titre « Qui peut lire chaque base de connaissances ») |
+| **Navigation** | **Accès aux connaissances** (titre « Qui peut lire chaque base de connaissances ») |
 | **Action** | Cocher/décocher la case à l'intersection **agent (ligne) × base (colonne)** |
-| **Saisie** | Cases nommées « **AG-MET peut lire Cameroun (prototype)** », etc. Permissions de l'exemple : `HYDRO` → CM seul ; `CTD` → CM seul ; `MET, DPC, OPS, ART, MINSANTE, DPA, ANTIC` → **CM + GL** |
-| **Résultat attendu** | Notification « AG-MET peut désormais lire Cameroun (prototype) » ; colonne **Impact** (« lit 2 base(s) ») ; avertissement « Agents sans aucune base de connaissances : … » si une ligne est vide |
+| **Saisie** | Cases nommées « **AG-MET peut lire Cameroun** », etc. Permissions de l'exemple : `HYDRO` → CM seul ; `CTD` → CM seul ; `MET, DPC, OPS, ART, MINSANTE, DPA, ANTIC` → **CM + GL** |
+| **Résultat attendu** | Notification « AG-MET peut désormais lire Cameroun » ; colonne **Impact** (« lit 2 base(s) ») ; avertissement « Agents sans aucune base de connaissances : … » si une ligne est vide |
 | **Vérification** | Rechargez la page : les cases restent cochées. *Accueil* → « 16 permission(s) accordée(s) » |
 | **Erreur possible** | Agent sans base : la préparation (étape 14) **bloque** (`agent.no_kb_grant`) |
 | **Correction** | Cocher au moins une base par agent |
@@ -357,7 +401,7 @@ L'**ai_mode de l'exercice prime** sur le profil de l'agent (un exercice « Scén
 |---|---|
 | **Objectif** | Charger les 15 événements de Rising Waters |
 | **Pré-requis** | Étape 4 (les codes `MET, HYDRO, DPC, OPS, ART, CTD, ANTIC, MINSANTE, DPA` doivent exister) et étape 3 |
-| **Navigation** | **5 · Scénarios** → **Importer un YAML** (Import YAML) |
+| **Navigation** | **Scénarios** → **Importer un YAML** (Import YAML) |
 | **Action** | Choisir le fichier ; la page du scénario s'ouvre |
 | **Saisie** | `alerte-platform/demo/rising-waters/cm01-rising-waters.fr.alerte-scenario.yaml` (version française ; `…en.…` pour l'anglais) |
 | **Résultat attendu** | Notification « Scénario importé (0 avertissement(s)) » ; la ligne **CM-01 — Rising Waters — Cameroun**, langue `fr`, 15 injects |
@@ -399,7 +443,7 @@ Les **lacunes visées par l'auteur ne sont PAS dans le scénario** (elles sont d
 |---|---|
 | **Objectif** | Vérifier/modifier un événement, ordonner, visualiser la distribution, lancer le lint |
 | **Pré-requis** | Étape 11 |
-| **Navigation** | Page du scénario (**5 · Scénarios** → cliquer le scénario) |
+| **Navigation** | Page du scénario (**Scénarios** → cliquer le scénario) |
 | **Action** | **Ajouter un inject** / **Modifier** / **Supprimer** / **Monter** · **Descendre** (ordre) / **Exporter en YAML** / **Marquer prêt** |
 | **Saisie** | Formulaire de l'inject : **Titre** `D1 06:20 — HydroSense : alerte ROUGE…` · **Temps simulé** `D1 06:20` (libellé libre) · **De** `HYDRO` · **Texte** · **Panne** (liste des 15 modes + `none`) · **Note de source** · **destinataires** (cases par code) · **étiquettes** (cases + « Autres étiquettes ») · **Ajouter une exigence** (action + justification) · **Sortie du système d'IA (JSON)** `{"statement": "…"}` pour un événement adressé à HYDRO |
 | **Résultat attendu** | Tableau **Qui reçoit quoi** : une ligne par inject, une colonne par institution, « Oui » là où l'événement est distribué |
@@ -420,7 +464,7 @@ Les **lacunes visées par l'auteur ne sont PAS dans le scénario** (elles sont d
 |---|---|
 | **Objectif** | Créer l'exercice, donner un siège à chaque institution (agent IA ou humain nommé) |
 | **Pré-requis** | Étapes 9–12 |
-| **Navigation** | **6 · Exercices et sièges** → **Nouvel exercice** |
+| **Navigation** | **Exercices** → **Nouvel exercice** |
 | **Action** | Remplir la fenêtre → **Créer** ; la page de l'exercice s'ouvre en statut *brouillon* ; bouton **Ajouter les institutions du scénario** puis **Enregistrer les sièges** |
 | **Saisie** | **Scénario** `CM-01 — Rising Waters — Cameroun` · **Titre** `Rising Waters CM — autopilot scripted` · **Mode d'exécution** `Scénarisé (SANS IA)` · **Rythme** `Automatique` · **Budget d'appels au modèle** `330` (voir étape 14) |
 | **Résultat attendu** | La page affiche « **EX-001 · Scénarisé (SANS IA) · Rythme: auto** », le bandeau **SANS IA**, et 9 lignes de sièges **préremplies** (`MET | MET | Agent IA | AG-MET`…) |
@@ -568,7 +612,7 @@ En **SANS IA** les agents ne postent pas : le tableau reste vide (constaté). Po
 |---|---|
 | **Objectif** | Lire, vérifier, valider ou rejeter chaque lacune |
 | **Pré-requis** | Un exercice terminé |
-| **Navigation** | **C. Analyser** → **Analyse des lacunes** (`/gaps`) |
+| **Navigation** | **Analyser** → **Analyse des lacunes** (`/gaps`) |
 | **Action** | Filtrer, cliquer une lacune, lire sa fiche, enregistrer une revue |
 | **Saisie** | **Filtrer** : **Exercice** `EX-001`, **Institution**, **Code** `G1`, **Catégorie**, **Gravité** *(Élevée/Moyenne/Faible)*, **Statut de revue** *(proposed/confirmed/disputed/rejected)*, **Base de preuve** *(documented/observed/inferred/hypothesis)*, **Origine** *(rule/coordinator_signal/agent_hypothesis…)*, case « Inclure les lacunes de détections remplacées » |
 | **Résultat attendu** | Tableau **Code · Lacune · Gravité · Nature · Institutions · Confiance** ; pour le baseline Rising Waters : **42 lacunes** |
@@ -602,16 +646,16 @@ Extensions : `X0` hypothèse d'agent, `X2` lacune signalée par un agent, `X4` o
 ## Étape 20 — Le test contrefactuel : montrer que les lacunes ne sont pas préprogrammées
 
 **Principe.** On joue Rising Waters **sans** le texte qui crée un mandat, on observe la lacune et ses preuves ; on **ajoute** le texte, on valide le mandat, on republie la base, on rejoue ; la lacune **disparaît** ; on **retire** le texte, on republie, on rejoue : elle **réapparaît**. **Texte choisi** : la loi camerounaise n° 2024/017 sur la protection des données personnelles (document `CM-01`), **article 32** (transfert à l'étranger soumis à l'autorisation préalable de l'autorité), qui fonde le mandat `CM-L15` pour l'action `authorise_transfer_abroad` (événement 14).
-**Pré-requis** : étapes 1–19 ; `CM-L15` **encore « proposé »** (étape 7.2) ; les 9 institutions en **registre « revu complet »** (7.3) ; un exercice de référence terminé.
+**Pré-requis** : étapes 1–19 ; `CM-L15` **encore « proposé »** (étape 7.2) ; les registres peuvent rester **non revus** (7.3) : la lacune est alors qualifiée **« déduite », confiance basse** (constaté : G1 « autoriser le transfert de données personnelles à l'étranger », `inferred`, `low`), ce qui est honnête ; un exercice de référence terminé.
 **Règle** : chaque exercice garde **son** snapshot ; on ne modifie jamais un exercice lancé, on en crée un nouveau (**Cloner et rejouer**, qui crée un exercice lié à l'original, même scénario, mêmes réglages).
 
 | # | Action exacte | Résultat attendu |
 |---|---|---|
-| 1 | **2 · Bases de connaissances** → `CM` → page du document `CM-01` → **Retirer le document** (confirmer) → onglet **Versions et index** → **Note** `v2 — sans la loi 2024/017` → **Publier** | version `# 2` publiée **sans** `CM-01` (15 documents contre 17 ; le retrait d'un document déjà publié est permis, l'ancienne version reste intacte) |
-| 2 | **6 · Exercices et sièges** → ligne de l'exercice de référence → **Cloner et rejouer** → ouvrir le nouvel exercice → **Marquer prêt** → **Lancer** | exercice « contrefactuel 1 » terminé (≈ 16 s) |
+| 1 | **Bases de connaissances** → `CM` → page du document `CM-01` → **Retirer le document** (confirmer) → onglet **Versions et index** → **Note** `v2 — sans la loi 2024/017` → **Publier** | version `# 2` publiée **sans** `CM-01` (15 documents contre 17 ; le retrait d'un document déjà publié est permis, l'ancienne version reste intacte) |
+| 2 | **Exercices** → ligne de l'exercice de référence → **Cloner et rejouer** → ouvrir le nouvel exercice → **Marquer prêt** → **Lancer** | exercice « contrefactuel 1 » terminé (≈ 16 s) |
 | 3 | **Analyse des lacunes** → filtre **Exercice** = le n° 1, **Code** `G1` | la lacune « **Responsabilité orpheline : autoriser le transfert de données personnelles à l'étranger** » (gravité 3, base *documented*) avec sa chaîne de preuves (événement 14, recherche négative, couverture) — **constaté** |
 | 4 | **KB `CM`** → **Documents** → **Choisir des fichiers** → `alerte/data/docs/CM/CM-01_Law_No_2024-017_of_23_December_2024_on_the_Protection_of_Personal_Data.pdf` (lecture seule ; **ne rien modifier dans `alerte/`**) ; métadonnées : Titre `Loi 2024/017 du 23 décembre 2024 sur la protection des données personnelles`, Juridiction `CM`, Langue `fr`, Type `law`, Fiabilité `official` | barre de progression ≈ **3 min** (OCR) ; document `needs_review` (« pages à relire » 2–24), 71 chunks, qualité 0,88 — **constaté** |
-| 5 | **1 · Pays, institutions, mandats** → **Registre des mandats** → ligne `CM-L15` → source : **Base de connaissances** `CM`, **Texte à rechercher** `transfert de données à caractère personnel vers un pays tiers autorisation préalable` → **Rechercher** → **Utiliser comme source** sur le **nouveau** document, **ARTICLE 32** → **Valider** | `CM-L15` passe à *validé* ; le texte de l'article est partiellement dégradé par l'OCR (normal, voir 5.4) |
+| 5 | **Pays et institutions** → **Registre des mandats** → ligne `CM-L15` → source : **Base de connaissances** `CM`, **Texte à rechercher** `transfert de données à caractère personnel vers un État étranger autorisation préalable` → **Rechercher** → **Utiliser comme source** sur le **nouveau** document, **ARTICLE 32** → **Valider** | `CM-L15` passe à *validé* ; le texte de l'article est partiellement dégradé par l'OCR (normal, voir 5.4) |
 | 6 | **Bases de connaissances** → `CM` → **Versions et index** → **Note** `v3 — avec la loi` → **Publier** | version `# 3` |
 | 7 | **Cloner et rejouer** → **Marquer prêt** → **Lancer** | exercice « contrefactuel 2 » terminé |
 | 8 | **Analyse des lacunes** → **Comparer des exercices** → **Exercice A** = n° 1, **Exercice B** = n° 2 | colonnes **Nouvelles / Persistantes / Résolues** : la lacune **G1** de l'étape 3 est **résolue** ; deux lacunes **nouvelles** apparaissent pour la même action : **G3 « Procédure manquante »** et **G4 « Dépendance vers une pièce manquante »** (le pouvoir existe désormais, mais sans procédure ni pièce préalable) — **constaté** (E : 43 lacunes dont G3 + G4 ; sans le texte : 42) |
@@ -629,7 +673,7 @@ Extensions : `X0` hypothèse d'agent, `X2` lacune signalée par un agent, `X4` o
 |---|---|
 | **Objectif** | Produire un rapport versionné et immuable à partir d'un exercice |
 | **Pré-requis** | Un exercice terminé |
-| **Navigation** | **C. Analyser** → **Rapports** (« Centre de rapports ») |
+| **Navigation** | **Analyser** → **Rapports** (« Centre de rapports ») |
 | **Action** | Section **Générer un rapport** : liste **Exercice** → **Générer** ; ouvrir le rapport ; **Publier (verrouiller)** ; **Télécharger md / json / csv / xlsx / pdf** |
 | **Saisie** | **Exercice** `EX-001 — Rising Waters CM — autopilot scripted (SANS IA)` |
 | **Résultat attendu** | Un rapport « v1 » (brouillon) avec : **couverture** (bandeau **SANS IA**, empreintes du snapshot et de la **tête du ledger**), **synthèse** (42 constats ; 38/38 citations vérifiées), contexte (institutions, bases, modèles), **constats** et **hypothèses** séparés, références internationales, **plan d'amélioration** (séparé des constats), revues humaines, **limites** et annexes (inventaire des bases, couverture, index des preuves), scorecard, métriques |
@@ -650,7 +694,7 @@ Extensions : `X0` hypothèse d'agent, `X2` lacune signalée par un agent, `X4` o
 |---|---|
 | **Objectif** | Lire les 13 dimensions AI Readiness et les métriques T1–T6, sans jamais confondre « non calculé » et zéro |
 | **Pré-requis** | Un exercice terminé |
-| **Navigation** | **C. Analyser** → **Évaluation** |
+| **Navigation** | **Analyser** → **Évaluation** |
 | **Action** | Choisir l'**Exercice** ; **Calculer** (chaque métrique) ; remplir le scorecard (réponses *Oui / Partiel / Non / Non évalué* + preuve) → **Enregistrer** |
 | **Saisie** | Exercice `EX-001` ; pour T1 : **base testée** + un jeu de questions (≥ 40) ; pour T5 : **identifiants d'exercices clonés** (séparés par des virgules) |
 | **Résultat attendu** (constaté) | **T2 citations vérifiées : 38/38 = 100 %, atteint** ; **T6 : 15,2 s, 76 appels, atteint** (note « mode SANS IA ») ; **T1 : « non calculée — aucun jeu de questions pour cette base »** ; T3/T4/T5/benchmark/contrôle négatif : « non calculée — non exécuté ». **Scorecard : 13 dimensions, toutes « non évaluée »**, score global « non calculé » |
@@ -669,7 +713,7 @@ Extensions : `X0` hypothèse d'agent, `X2` lacune signalée par un agent, `X4` o
 |---|---|
 | **Objectif** | Prouver que le journal n'a pas été modifié et lire chaque événement |
 | **Pré-requis** | Un exercice terminé |
-| **Navigation** | **C. Analyser** → **Audit et rejeu** → choisir l'exercice (ou lien « Audit et rejeu » depuis la salle) |
+| **Navigation** | **Analyser** → **Audit et rejeu** → choisir l'exercice (ou lien « Audit et rejeu » depuis la salle) |
 | **Action** | **Vérifier le ledger** ; filtrer la **Chronologie** (**Type**, **Siège**, **Contient le texte**) ; ouvrir une ligne ; **Exporter en JSONL** ; depuis la salle : **Trace de décision** d'un siège |
 | **Saisie** | Type `DECISION` ; Siège `MET` |
 | **Résultat attendu** | « **Ledger intact (284 entrées contrôlées)** » ; **Tête de chaîne** (hash), **Empreinte de rejeu**, **Ancres** (#17, #18…) ; chronologie (n°, Type, Acteur, Temps simulé, Visibilité, Résumé) ; export `.jsonl` (≈ 256 Ko) |

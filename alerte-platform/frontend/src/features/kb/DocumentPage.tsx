@@ -72,7 +72,7 @@ function DocumentView({ doc, kbId }: { doc: Doc; kbId: string }) {
             <Field label={t('kb.jurisdiction')}><Input {...register('jurisdiction')} /></Field>
             <Field label={t('kb.language')}><Input {...register('language')} /></Field>
             <Field label={t('kb.sourceUrl')}><Input type="url" {...register('source_url')} /></Field>
-            <Field label={t('kb.reliability')}><Select {...register('reliability')}>{['official', 'summary', 'unofficial', 'not_found'].map((v) => <option key={v}>{v}</option>)}</Select></Field>
+            <Field label={t('kb.reliability')}><Select {...register('reliability')}>{['official', 'summary', 'unofficial', 'unknown', 'not_found'].map((v) => <option key={v}>{v}</option>)}</Select></Field>
             <Field label={t('kb.validity')}><Select {...register('validity')}>{['in_force', 'replaced', 'unknown'].map((v) => <option key={v}>{v}</option>)}</Select></Field>
             <Field label={t('kb.license')}><Input {...register('license_spdx')} /></Field>
             <Field label={t('kb.redistribution')} hint={t('kb.redistributionHint')}><Select {...register('redistribution')}>{['allowed', 'restricted', 'unknown'].map((v) => <option key={v}>{v}</option>)}</Select></Field>

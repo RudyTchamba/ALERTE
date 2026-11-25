@@ -120,5 +120,6 @@
   },
   "crashTitle": "A display problem occurred",
   "crashHint": "Reload the page: your session and the exercise are kept. If the browser offers to translate the page, decline (the app has its own language switch).",
-  "reload": "Reload the page"
+  "reload": "Reload the page",
+  "replayShort": "REPLAY"
 }

@@ -5,6 +5,7 @@ Toutes les situations sont **fictives**. Voir `docs/runbooks/guide-test-complet-
 
 | Fichier | Usage |
 |---|---|
+| `actions.csv` | **Catalogue d'actions : à importer EN PREMIER** (Pays et institutions → Registre des mandats → Catalogue d'actions → Importer un CSV) |
 | `*.alerte-scenario.yaml` | Scénarios (écran Scénarios → Importer un YAML) |
 | `mandats-*.csv` | Registre de mandats (Pays et institutions → Mandats → Importer un CSV) |
 | `setup-*.json` | Pays, institutions, actions et agents (script `seed_rising_waters.py`) |

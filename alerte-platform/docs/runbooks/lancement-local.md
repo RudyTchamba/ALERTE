@@ -66,7 +66,7 @@ Contrôle de liaison frontend ↔ backend : `curl http://localhost:5173/api/v1/h
 
 ## 6. Préparer le jeu de données Rising Waters (facultatif mais recommandé)
 
-Les fichiers de démonstration sont **générés** à partir du prototype `alerte/data/` (lecture seule) dans `demo/rising-waters/` :
+Les fichiers de démonstration sont **déjà dans** `demo/rising-waters/` (ils sont dans le dépôt). Pour les **régénérer**, le script lit le prototype `alerte/` (lecture seule) qu'il cherche dans cet ordre : variable `ALERTE_LEGACY_DIR`, puis le dossier `alerte/` à la racine du dépôt, puis `alerte/` à côté du dépôt ; sinon option `--legacy <dossier>`. Pour suivre la démonstration à la main, utilisez plutôt le [guide pas à pas](guide-demonstration-pas-a-pas.md).
 
 ```bash
 cd alerte-platform/backend

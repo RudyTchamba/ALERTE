@@ -50,6 +50,22 @@ def suggest_metadata(first_text: str) -> dict:
     return out
 
 
+def missing_articles(labels: list[str | None]) -> list[int]:
+    """Numéros d'articles absents de la suite reconnue (ex. 52, 53 lus « §3 » par l'OCR). N'invente rien : signale seulement.
+    Ne s'applique qu'aux textes à numérotation entière continue (au moins 10 articles reconnus)."""
+    nums = set()
+    for a in labels:
+        m = re.search(r"(\d+)\s*$", (a or "").strip().rstrip(".-"))
+        if m and 0 < int(m.group(1)) < 1000:
+            nums.add(int(m.group(1)))
+    if len(nums) < 10:
+        return []
+    span = max(nums) - min(nums) + 1
+    gaps = [n for n in range(min(nums), max(nums) + 1) if n not in nums]
+    # une suite très lacunaire n'est pas un défaut d'OCR : loi modificative (articles qui renvoient à d'autres textes), considérants numérotés…
+    return gaps if len(gaps) <= 25 and len(gaps) / span <= 0.2 else []
+
+
 def _page_quality(method: str, chars: int, conf: float | None) -> float:
     base = min(1.0, chars / 400)
     if method == "ocr":
@@ -113,6 +129,15 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
     quality = sum(qualities) / len(qualities) if qualities else 0.0
     articles = sum(1 for d in drafts if d.article)
     warnings = list(ex.warnings)
+    gaps = missing_articles([d.article for d in drafts])
+    covered = sum(len(d.text) for d in drafts)
+    lost_text = ex.method != "csv" and chars_total >= MIN_USEFUL_CHARS and covered < 0.95 * chars_total
+    if lost_text:
+        warnings.append(f"texte non couvert par les chunks : {chars_total - covered} caractère(s) sur {chars_total} "
+                        f"({100 * (chars_total - covered) / chars_total:.1f} %) : relire le document")
+    if gaps:
+        warnings.append(f"suite des articles interrompue : {len(gaps)} numéro(s) absent(s) ou non reconnu(s) "
+                        f"({', '.join(map(str, gaps[:15]))}{'…' if len(gaps) > 15 else ''}) : relire les pages concernées")
     if chars_total < MIN_USEFUL_CHARS:
         warnings.append(f"moins de {MIN_USEFUL_CHARS} caractères utiles ({chars_total}) : scan vide ou mauvais fichier ?")
     if flags:
@@ -124,7 +149,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
         "pages": n_pages, "chars_total": chars_total, "chars_per_page": round(chars_total / max(1, n_pages), 1),
         "ocr_pages": sum(1 for p in ex.pages if p.method == "ocr"),
         "ocr_pct": round(100 * sum(1 for p in ex.pages if p.method == "ocr") / max(1, n_pages), 1),
-        "articles_detected": articles, "chunks": len(drafts), "language": doc_lang,
+        "articles_detected": articles, "missing_articles": gaps, "chunks": len(drafts), "language": doc_lang,
         "pages_to_review": pages_review, "review_reasons": review_reasons, "injection_flags": flags,
         "normalization": dict(stats), "warnings": warnings, "extraction_method": ex.method,
         "suggested_metadata": suggest_metadata(full_text),
@@ -161,7 +186,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
             rows.append(c)
         s.flush()
         fts_insert(s, [chunk_fts_row(c) for c in rows])
-        status = "needs_review" if (pages_review or quality < 0.5 or chars_total < MIN_USEFUL_CHARS) else "ready"
+        status = "needs_review" if (pages_review or gaps or lost_text or quality < 0.5 or chars_total < MIN_USEFUL_CHARS) else "ready"
         s.execute(update(DocumentVersion).where(DocumentVersion.id == version_id).values(
             status=status, extraction_method=ex.method, extraction_quality=round(quality, 3),
             pages_to_review=pages_review, quality_report=report, text_blob_sha256=pages_blob))

@@ -7,7 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 KBKind = Literal["national", "global_practices", "scenario", "prior_reports", "mixed"]
-Reliability = Literal["official", "summary", "unofficial", "not_found"]
+Reliability = Literal["official", "summary", "unofficial", "unknown", "not_found"]
 Validity = Literal["in_force", "replaced", "unknown"]
 Redistribution = Literal["allowed", "restricted", "unknown"]
 Evidence = Literal["documented", "inferred", "assumed"]
