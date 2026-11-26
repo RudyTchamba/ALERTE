@@ -143,7 +143,7 @@ def build_embedder(settings, *, revision: str = "", runtime: str = "", quantizat
         return FixtureEmbedder()
     if settings.embed_base_url and settings.embed_model:
         return OpenAICompatEmbedder(settings.embed_base_url, settings.embed_model, settings.embed_api_key,
-                                    batch_size=settings.embed_batch_size, revision=revision,
+                                    batch_size=settings.embed_batch_size, timeout_s=settings.embed_timeout_s, revision=revision,
                                     runtime=runtime or "openai-compat", quantization=quantization)
     return UnavailableEmbedder("ALERTE_EMBED_BASE_URL / ALERTE_EMBED_MODEL non définis")
 

@@ -121,7 +121,7 @@ def test_duplicates_and_input_controls(env):
 def test_new_version_is_append_only_and_preserves_published_set(env):
     ws = env.workspace()
     kb = env.kb(ws)
-    doc_id, v1 = env.add_doc(ws, kb, "loi.txt", LAW_FR.encode())
+    doc_id, v1 = env.add_doc(ws, kb, "loi.txt", LAW_FR.encode(), embed=True)
     kv1 = env.publish(ws, kb)
     from app.knowledge.ingest import ingest_version
     with env.session() as s:
@@ -130,7 +130,7 @@ def test_new_version_is_append_only_and_preserves_published_set(env):
         v2 = kbops.add_version(s, ws, doc, sha, size, "loi2.txt", "révision")
         s.commit()
         v2id = v2.id
-    ingest_version(env.rt, None, v2id, embed=False)
+    ingest_version(env.rt, None, v2id, embed=True)
     with env.session() as s:
         d = kbops.get_document(s, ws, doc_id)
         assert d.current_version_id == v2id
@@ -152,7 +152,7 @@ def test_published_records_are_immutable(env):
     from app.knowledge.models import ImmutableError, KBVersion
     ws = env.workspace()
     kb = env.kb(ws)
-    _, vid = env.add_doc(ws, kb, "loi.txt", LAW_FR.encode())
+    _, vid = env.add_doc(ws, kb, "loi.txt", LAW_FR.encode(), embed=True)
     kv = env.publish(ws, kb)
     with env.session() as s:
         c = s.scalars(select(Chunk).where(Chunk.document_version_id == vid)).first()
@@ -251,3 +251,16 @@ def test_ingest_failure_is_explicit(env):
     assert v.status == "failed" and v.quality_report["error"]
     with env.session() as s:
         assert s.get(KnowledgeBase, kb) is not None
+
+
+def test_publication_is_refused_until_every_chunk_has_a_vector(env):
+    from app.core.errors import Conflict
+    from app.knowledge.kbops import embed_kb
+    ws = env.workspace()
+    kb = env.kb(ws)
+    env.add_doc(ws, kb, "loi.txt", LAW_FR.encode())              # texte traité, AUCUN vecteur
+    with pytest.raises(Conflict) as e:
+        env.publish(ws, kb)
+    assert e.value.code == "kb.publish.vectors_incomplete"
+    embed_kb(env.rt, None, kb)                                    # vectorisation terminée -> publication possible
+    assert env.publish(ws, kb)

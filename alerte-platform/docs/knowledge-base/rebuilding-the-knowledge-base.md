@@ -37,7 +37,7 @@ ollama pull bge-m3
 OMP_THREAD_LIMIT=1 ALERTE_EMBED_BASE_URL=http://localhost:11434/v1 ALERTE_EMBED_MODEL=bge-m3 ALERTE_EMBED_PROVIDER=openai_compat \
 ALERTE_DATA_DIR=./data-kb-build .venv/bin/python -m app.cli knowledge embed --country CM
 ```
-**Machine lente** : ajouter `ALERTE_EMBED_BATCH_SIZE=2` (le client d'embeddings a un délai de 60 s par requête : un lot de 16 passages le dépasse sur CPU saturé et fait échouer le job). La pondération d'autorité de la recherche est neutre par défaut (`ALERTE_AUTHORITY_SPREAD=0`, voir `retrieval-evaluation.md`).
+**Machine lente** : ajouter `ALERTE_EMBED_BATCH_SIZE=2` (le client d'embeddings a un délai de 60 s par requête : un lot de 16 passages le dépasse sur CPU saturé et fait échouer le job). Si des `ReadTimeout` persistent (extraits longs, CPU seul), ajouter `ALERTE_EMBED_TIMEOUT_S=300` : relancer ensuite la même commande de construction ne recalcule que les vecteurs manquants. La pondération d'autorité de la recherche est neutre par défaut (`ALERTE_AUTHORITY_SPREAD=0`, voir `retrieval-evaluation.md`).
 
 L'étape est **reprenable** : elle ne calcule que les chunks sans vecteur ; interface : page de la base → *Versions et index* → calculer les embeddings. **Coût mesuré sur la machine de développement : ~7 s par passage (CPU saturé)** ; sur GPU ou une machine libre, prévoir des ordres de grandeur inférieurs.
 

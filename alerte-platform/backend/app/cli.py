@@ -359,7 +359,7 @@ def cmd_build(ctx: AppContext, a: argparse.Namespace) -> int:
     ws, kb_id = _resolve(ctx, a)
     steps = tuple(x for x in a.steps.split(",") if x)
     rep = BLD.build_kb(ctx.services["knowledge"], ConsoleJob(), kb_id, steps=steps, reembed=a.reembed, publish=a.publish, note=a.note)
-    _show({k: rep[k] for k in ("kb_id", "steps", "documents", "result", "published", "publish_refused", "embedding", "embedding_error") if k in rep})
+    _show({k: rep[k] for k in ("kb_id", "steps", "documents", "result", "published", "publish_refused", "vectorization", "embedding", "embedding_error") if k in rep})
     return 0 if rep["result"] == "ok" else 1
 
 

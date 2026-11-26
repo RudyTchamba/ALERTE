@@ -41,6 +41,7 @@ export function BuildTab({ kb, archived }: { kb: Kb; archived: boolean }) {
     onError: (e) => { setConfirm(null); toast.push(errorMessage(e, t), 'danger') },
   })
   const verify = useApiMutation(() => api.get<CoherenceReport>(`/knowledge-bases/${kbId}/check`), { onSuccess: setCheck, onError: (e) => toast.push(errorMessage(e, t), 'danger') })
+  const vectorsIncomplete = !!st.data && st.data.chunks > 0 && !st.data.embeddings.complete
   const publish = useApiMutation(() => api.post(`/knowledge-bases/${kbId}/publish`, { note: note || null }), {
     invalidate: [keys.kbVersions(kbId), keys.kb(kbId), ['kbs'], ['kb-status', kbId]], onSuccess: () => { setNote(''); toast.push(t('kb.publishedToast')) },
     onError: (e) => toast.push(errorMessage(e, t), 'danger'),
@@ -53,6 +54,11 @@ export function BuildTab({ kb, archived }: { kb: Kb; archived: boolean }) {
         {(s) => (
           <>
             <Section title={t('kb.build.state')}>
+              {s.chunks > 0 && !s.embeddings.complete && (
+                <p role="alert" data-testid="vectors-incomplete" className="mb-3 rounded border border-danger p-2 text-sm text-danger">
+                  {t('kb.build.vectorsIncomplete', { embedded: s.embeddings.embedded, chunks: s.embeddings.chunks })} {t('kb.build.vectorsBlocked')} {t('kb.build.vectorsRetry')}
+                </p>
+              )}
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <StatusBadge status={s.general_status} />
                 {Object.entries(s.documents_by_state).map(([k, n]) => <span key={k} className="inline-flex items-center gap-1 text-sm"><StatusBadge status={k} /> ×{n}</span>)}
@@ -95,10 +101,11 @@ export function BuildTab({ kb, archived }: { kb: Kb; archived: boolean }) {
       )}
       <Section title={t('kb.build.publishTitle')} className="mt-4">
         <p className="mb-2 text-sm text-muted">{t('kb.build.publishHint', { code: kb.code })}</p>
+        {vectorsIncomplete && <p className="mb-2 text-sm text-danger" data-testid="publish-blocked">{t('kb.build.vectorsBlocked')}</p>}
         <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); publish.mutate(undefined) }}>
           <label className="flex min-w-64 flex-col text-sm font-medium">{t('kb.versionNote')}
             <input className="mt-1 rounded border border-line bg-surface px-2 py-1 font-normal" value={note} onChange={(e) => setNote(e.target.value)} /></label>
-          <Button type="submit" variant="primary" disabled={archived} loading={publish.isPending}>{t('kb.build.publish', { code: kb.code })}</Button>
+          <Button type="submit" variant="primary" disabled={archived || vectorsIncomplete} loading={publish.isPending}>{t('kb.build.publish', { code: kb.code })}</Button>
         </form>
       </Section>
       <ConfirmDialog open={!!confirm} onClose={() => setConfirm(null)} danger={!!confirm?.danger} loading={build.isPending}

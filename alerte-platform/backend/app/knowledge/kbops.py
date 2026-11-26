@@ -381,6 +381,18 @@ def _rebuild_vector_index(rt: KnowledgeRuntime, kb_id: str, key: str, ids: list[
 
 
 # --------------------------------------------------------------------------- publication (kb_version)
+def missing_vectors(session: Session, kb: KnowledgeBase, version_ids: list[str]) -> tuple[int, int] | None:
+    """(extraits, extraits sans vecteur) des versions données, ou None si tout est vectorisé avec le modèle actif de la base."""
+    total = session.scalar(select(func.count()).select_from(Chunk).where(Chunk.document_version_id.in_(version_ids))) or 0
+    if not total:
+        return None
+    have = 0
+    if kb.embedder_key:
+        have = session.scalar(select(func.count()).select_from(ChunkEmbedding).join(Chunk, Chunk.id == ChunkEmbedding.chunk_id)
+                              .where(Chunk.document_version_id.in_(version_ids), ChunkEmbedding.embedder_key == kb.embedder_key)) or 0
+    return None if have >= total else (total, total - have)
+
+
 def publish_kb(session: Session, ws: str, kb_id: str, note: str | None) -> KBVersion:
     kb = get_kb(session, ws, kb_id, allow_archived=False)
     vers = session.scalars(select(DocumentVersion).join(Document, Document.current_version_id == DocumentVersion.id)
@@ -396,6 +408,12 @@ def publish_kb(session: Session, ws: str, kb_id: str, note: str | None) -> KBVer
                                  .order_by(Chunk.ordinal)).all()
         entries.append({"document_version_id": v.id, "blob_sha256": v.blob_sha256,
                         "chunks_sha256": hashlib.sha256("".join(hashes).encode()).hexdigest()})
+    missing = missing_vectors(session, kb, [v.id for v in items])
+    if missing:
+        total, absent = missing
+        raise Conflict(f"vectorisation incomplète : {total - absent}/{total} extraits ont un vecteur. Une base sans tous ses vecteurs "
+                       "ne peut pas être publiée : relancez le calcul des embeddings (étape « embed »), puis publiez.",
+                       code="kb.publish.vectors_incomplete", details={"chunks": total, "missing": absent, "embedder_key": kb.embedder_key})
     manifest = canonical_sha256({"kb_id": kb.id, "items": entries})
     last = session.scalar(select(KBVersion).where(KBVersion.kb_id == kb_id).order_by(KBVersion.version_no.desc()).limit(1))
     if last and last.manifest_sha256 == manifest:

@@ -89,4 +89,21 @@ describe('Build tab (per-base scope)', () => {
     expect(await screen.findByText('inconsistent')).toBeInTheDocument()
     expect(screen.getByText(/vecteurs 4\/12/)).toBeInTheDocument()
   })
+
+  it('makes an incomplete vectorization visible and blocks publication until every chunk has a vector', async () => {
+    mockFetch({ [`GET /knowledge-bases/${kb.id}/status`]: status })
+    renderPage(<BuildTab kb={kb} archived={false} />)
+    expect(await screen.findByTestId('vectors-incomplete')).toHaveTextContent(/4\/12 chunks have a vector/i)
+    expect(screen.getByTestId('publish-blocked')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /publish CM/i })).toBeDisabled()
+  })
+
+  it('allows publication once the vectors are complete', async () => {
+    mockFetch({ [`GET /knowledge-bases/${kb.id}/status`]: { ...status, embeddings: { embedded: 12, chunks: 12, embedder_key: 'k', complete: true } } })
+    renderPage(<BuildTab kb={kb} archived={false} />)
+    await screen.findByTestId('build-scope')
+    await screen.findAllByText('12/12') // vecteurs ET index lexical
+    expect(screen.queryByTestId('vectors-incomplete')).toBeNull()
+    expect(screen.getByRole('button', { name: /publish CM/i })).toBeEnabled()
+  })
 })

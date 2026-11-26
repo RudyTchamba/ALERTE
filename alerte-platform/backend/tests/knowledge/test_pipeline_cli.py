@@ -283,3 +283,20 @@ def test_failed_rebuild_keeps_the_last_published_version_and_refuses_to_publish(
     assert status("CM")["documents_by_state"] == {"ready": 1, "failed": 1} and status("CM")["active_version"] == 1
     # le document sain n'a pas bougé (chunks, vecteurs)
     assert {c[0] for c in v1["chunks"]} <= {c[0] for c in after["chunks"]} and set(v1["emb"]) <= set(after["emb"])
+
+
+def test_failed_vectorization_is_reported_and_blocks_publication(home, monkeypatch, capsys):
+    setup_kbs(home, "CM")
+    assert run("knowledge", "import", "--country", "CM", str(put(home, "s", "a.pdf", "VEC"))) == 0
+    monkeypatch.setenv("ALERTE_EMBED_PROVIDER", "openai_compat")      # aucun serveur configuré : la vectorisation échoue
+    monkeypatch.setenv("ALERTE_EMBED_BASE_URL", "")                  # une chaîne vide l'emporte aussi sur un éventuel fichier .env
+    monkeypatch.setenv("ALERTE_EMBED_MODEL", "")
+    get_settings.cache_clear()
+    capsys.readouterr()
+    assert run("knowledge", "build", "--country", "CM", "--publish") == 1
+    out = capsys.readouterr().out
+    assert '"result": "partial"' in out and '"vectorization"' in out and '"status": "failed"' in out
+    assert "publish_refused" in out and "vectorisation incomplète" in out
+    assert status("CM")["active_version"] is None                      # rien n'a été publié
+    assert run("knowledge", "publish", "--country", "CM") != 0         # la commande de publication directe est aussi refusée
+    assert run("knowledge", "check", "--country", "CM") == 1           # et la vérification signale la base comme incomplète
