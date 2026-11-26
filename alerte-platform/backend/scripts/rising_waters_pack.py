@@ -7,11 +7,16 @@ Sorties (toutes FICTIVES : le système d'IA HydroSense et les chiffres des évé
 
 * `cm01-rising-waters.fr.alerte-scenario.yaml` / `.en.…` et `ae01-rising-waters-twin.fr|en.…` : scénarios importables par l'écran
   « Scénarios » → « Importer un YAML » (format `alerte-scenario`) ;
-* `mandats-cm.csv`, `mandats-ae.csv` : registres de mandats du prototype (import CSV de l'écran « Pays et institutions »,
-  colonne `institution` = code d'institution) ;
+* `mandats-<pays>.csv` : registre de mandats issu de la NOUVELLE base de connaissances (`knowledge_bases/curation/mandates.<PAYS>.json`,
+  sources = codes des documents reconstruits `CM-01`…, jamais les anciens `CM-S01`). Import CSV de l'écran « Pays et institutions »,
+  colonne `institution` = code d'institution. **Aucun repli sur l'ancien prototype** : un pays sans registre curé n'a pas de fichier
+  (le script le dit) et chaque source citée doit exister dans `knowledge_bases/curation/documents.curation.json` ;
 * `setup-cm.json`, `setup-ae.json` : pays, institutions, catalogue d'actions et fiches d'agents (utilisés par `seed_rising_waters.py`) ;
 * `lacunes-attendues.PRIVE.json` : les lacunes que l'auteur du scénario comptait révéler. **À ne jamais importer dans le scénario** :
   elles servent seulement à l'évaluation indépendante (mesure T3, fixtures scellées).
+
+Le dossier `alerte/` du prototype ne sert plus QU'AUX scénarios (événements fictifs), aux rôles des sièges et au catalogue d'actions de
+l'auteur du scénario : ce ne sont pas des connaissances documentaires.
 
 Les étiquettes (`tags`) des événements sont dérivées des FAITS de l'événement (diffusion publique, dommage possible, sortie d'IA utilisée,
 canal exposé, acteur étranger…) — jamais des lacunes attendues.
@@ -39,6 +44,9 @@ def find_legacy() -> Path | None:
 
 LEGACY = (find_legacy() or Path("alerte-introuvable")) / "data"
 OUT = HERE.parent.parent / "demo" / "rising-waters"
+CURATION = HERE.parent.parent / "knowledge_bases" / "curation"   # registre curé de la NOUVELLE base de connaissances
+MANDATE_COLS = ["line_id", "country", "institution", "kind", "action", "description", "source_doc", "article", "procedure", "depends_on",
+                "dependency_ready", "evidence", "assumed_by", "quote", "audit_note"]
 
 FAULT_MAP = {"language_exclusion": "language_error", "data_abroad": "data_leaves_country", "": "none"}
 KIND_MAP = {"MET": "agency", "DPC": "agency", "OPS": "operator", "ART": "regulator", "MINSANTE": "ministry", "DPA": "regulator",
@@ -106,7 +114,44 @@ def build_scenario(src: Path, country: str, lang: str, code: str, title: str) ->
             "injects": injects}
 
 
-def build_setup(country: str) -> dict:
+def kb_document_codes() -> set[str]:
+    """Codes des documents de la NOUVELLE base (curation lue dans les PDF reconstruits)."""
+    return {d["code"] for d in json.loads((CURATION / "documents.curation.json").read_text(encoding="utf-8"))}
+
+
+def load_new_mandates(country: str, action_codes: set[str]) -> dict | None:
+    """Mandats d'un pays depuis la nouvelle base (`mandates.<PAYS>.json`) ; None si le pays n'a pas de registre curé.
+    Échoue (sans rien écrire) si une source n'existe pas dans la base ou si une action n'est pas au catalogue."""
+    f = CURATION / f"mandates.{country}.json"
+    if not f.is_file():
+        return None
+    data = json.loads(f.read_text(encoding="utf-8"))
+    codes, problems = kb_document_codes(), []
+    for m in data["mandates"]:
+        for src in m.get("sources") or []:
+            if src["document"] not in codes:
+                problems.append(f"{m['ref']} : source {src['document']!r} absente de la nouvelle base")
+        if m["action"] not in action_codes:
+            problems.append(f"{m['ref']} : action {m['action']!r} absente du catalogue d'actions")
+    if problems:
+        sys.exit(f"{f.name} incohérent avec la nouvelle base :\n  " + "\n  ".join(problems))
+    return data
+
+
+def mandate_rows(country: str, data: dict) -> list[dict]:
+    rows = []
+    for m in data["mandates"]:
+        srcs = m.get("sources") or []
+        rows.append({"line_id": m["ref"], "country": country, "institution": pf(country, m["institution"]), "kind": m["kind"],
+                     "action": m["action"], "description": m["description"],
+                     "source_doc": "; ".join(dict.fromkeys(x["document"] for x in srcs)),
+                     "article": "; ".join(x["article"] for x in srcs if x.get("article")), "procedure": "", "depends_on": "",
+                     "dependency_ready": "", "evidence": m["evidence_tag"], "assumed_by": "",
+                     "quote": " | ".join(x["quote"] for x in srcs if x.get("quote")), "audit_note": m.get("audit_note") or ""})
+    return rows
+
+
+def build_setup(country: str, mandates: dict | None = None) -> dict:
     roles = yaml.safe_load((LEGACY / "scenarios" / "roles" / f"{country.lower()}.yaml").read_text(encoding="utf-8"))["roles"]
     actions = yaml.safe_load((LEGACY / "mandates" / "actions.yaml").read_text(encoding="utf-8"))["actions"]
     insts, agents = [], []
@@ -120,11 +165,9 @@ def build_setup(country: str) -> dict:
                        "role_kind": "ai_system" if r.get("kind") == "ai_system" else "institution",
                        "mission": r.get("mission", ""), "instructions": instr,
                        "kb_collections": [c for c in (r.get("kb_countries") or []) if c in ("CM", "AE", "INT")]})
-    # institutions citées par le registre de mandats mais qui ne tiennent PAS de siège (pas d'agent)
-    extra = {"COORD": ("Conseil national de protection civile / comité de crise (le « chef d'exercice » du prototype n'est pas un siège)", "agency"),
-             "ONR": ("Observatoire national des risques (ONR)", "agency"), "MOI": ("Ministère de l'Intérieur (MOI)", "ministry")}
-    with (LEGACY / "mandates" / f"{country.lower()}_mandates.csv").open(encoding="utf-8") as fh:
-        used = {row["institution"] for row in csv.DictReader(fh)}
+    # institutions citées par les mandats de la NOUVELLE base mais qui ne tiennent PAS de siège (pas d'agent) ; aucune lecture des anciens registres
+    extra: dict[str, tuple[str, str]] = {i["code"]: (i["name"], i["kind"]) for i in (mandates or {}).get("institutions", [])}
+    used = {m["institution"] for m in mandates["mandates"]} if mandates else set()
     known = {i["code"] for i in insts}
     for code in sorted(used - {c[len(PREFIX[country]):] for c in known}):
         name, kind = extra.get(code, (code, "other"))
@@ -149,6 +192,7 @@ def main() -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)  # les fichiers existants sont REMPLACÉS un à un (jamais supprimés avant génération)
     expected = {}
+    action_codes = {a["code"] for a in build_setup("CM")["actions"]}
     for cc, stem, code, titles in (
             ("CM", "cm01_rising_waters", "CM-01", {"fr": "Rising Waters — Cameroun", "en": "Rising Waters — Cameroon"}),
             ("AE", "ae01_rising_waters_twin", "AE-01", {"fr": "Rising Waters — Émirats (jumeau)", "en": "Rising Waters — UAE twin"})):
@@ -158,17 +202,19 @@ def main() -> int:
             doc = build_scenario(LEGACY / "scenarios" / f"{stem}.yaml", cc, lang, code, titles[lang])
             name = f"{stem.replace('_', '-')}.{lang}.alerte-scenario.yaml"
             (out / name).write_text(yaml.safe_dump(doc, sort_keys=False, allow_unicode=True, width=120), encoding="utf-8")
-        (out / f"setup-{cc.lower()}.json").write_text(json.dumps(build_setup(cc), ensure_ascii=False, indent=2), encoding="utf-8")
-        with (LEGACY / "mandates" / f"{cc.lower()}_mandates.csv").open(encoding="utf-8", newline="") as fh:
-            rd = csv.DictReader(fh)
-            rows = list(rd)
-            cols = rd.fieldnames or []
-        with (out / f"mandats-{cc.lower()}.csv").open("w", encoding="utf-8", newline="") as fh:
-            wr = csv.DictWriter(fh, fieldnames=cols, lineterminator="\n")
-            wr.writeheader()
-            for row in rows:
-                row["institution"] = pf(cc, row["institution"])
-                wr.writerow(row)
+        new_mandates = load_new_mandates(cc, action_codes)
+        (out / f"setup-{cc.lower()}.json").write_text(json.dumps(build_setup(cc, new_mandates), ensure_ascii=False, indent=2), encoding="utf-8")
+        target = out / f"mandats-{cc.lower()}.csv"
+        if new_mandates is None:
+            print(f"AVERTISSEMENT {cc} : aucun registre de mandats dans la nouvelle base (knowledge_bases/curation/mandates.{cc}.json) -> "
+                  f"{target.name} NON généré (aucun repli sur l'ancien prototype).")
+            if target.exists():
+                print(f"  {target.name} est déjà présent : il date d'une génération précédente depuis l'ANCIEN prototype ; ne l'importez pas.")
+        else:
+            with target.open("w", encoding="utf-8", newline="") as fh:
+                wr = csv.DictWriter(fh, fieldnames=MANDATE_COLS, lineterminator="\n")
+                wr.writeheader()
+                wr.writerows(mandate_rows(cc, new_mandates))
         s = yaml.safe_load((LEGACY / "scenarios" / f"{stem}.yaml").read_text(encoding="utf-8"))
         expected[code] = [{"seq": e["id"], "expected_gaps": e.get("expected_gaps") or []} for e in s["events"]]
     acts = build_setup("CM")["actions"]  # catalogue COMMUN aux deux pays (les codes d'action sont partagés)
@@ -181,10 +227,10 @@ def main() -> int:
         {"avertissement": "PRIVÉ : à ne JAMAIS importer dans un scénario ni montrer aux agents (évaluation T3 uniquement).", **expected},
         ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "README.md").write_text(
-        "# Pack Rising Waters (généré)\n\nGénéré par `backend/scripts/rising_waters_pack.py` à partir de `alerte/data/` (prototype, lecture seule).\n"
+        "# Pack Rising Waters (généré)\n\nGénéré par `backend/scripts/rising_waters_pack.py` : mandats depuis la NOUVELLE base (`knowledge_bases/curation/`), scénarios depuis `alerte/data/` (prototype, lecture seule).\n"
         "Toutes les situations sont **fictives**. Voir `docs/runbooks/guide-test-complet-interface.md`.\n\n"
         "| Fichier | Usage |\n|---|---|\n| `actions.csv` | **Catalogue d'actions : à importer EN PREMIER** (Pays et institutions → Registre des mandats → Catalogue d'actions → Importer un CSV) |\n| `*.alerte-scenario.yaml` | Scénarios (écran Scénarios → Importer un YAML) |\n"
-        "| `mandats-*.csv` | Registre de mandats (Pays et institutions → Mandats → Importer un CSV) |\n"
+        "| `mandats-*.csv` | Registre de mandats de la nouvelle base, sources `CM-xx` (Pays et institutions → Mandats → Importer un CSV) |\n"
         "| `setup-*.json` | Pays, institutions, actions et agents (script `seed_rising_waters.py`) |\n"
         "| `lacunes-attendues.PRIVE.json` | Lacunes visées par l'auteur ; **ne jamais importer dans le scénario** |\n", encoding="utf-8")
     print("pack écrit dans", out)

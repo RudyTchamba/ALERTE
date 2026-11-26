@@ -1,7 +1,7 @@
 """Import CSV (colonnes du prototype) : toujours `proposed`, sans source (les anciens `source_doc` ne résolvent plus).
 
 Colonnes : line_id,country,institution,kind,action,description,source_doc,article,procedure,depends_on,
-dependency_ready,evidence,assumed_by. `institution` = code d'institution de l'espace ; le `source_doc` d'origine est
+dependency_ready,evidence,assumed_by (+ colonnes optionnelles `quote` et `audit_note`, conservées en note). `institution` = code d'institution de l'espace ; le `source_doc` d'origine est
 conservé en note pour re-liaison manuelle.
 """
 from __future__ import annotations
@@ -30,7 +30,9 @@ def _row_to_create(row: dict[str, str], institutions: dict[str, str]) -> tuple[M
     evidence = (row.get("evidence") or "inferred").strip().lower()
     notes = [f"procédure d'origine : {procedure}" if procedure else "", f"source_doc d'origine (à re-lier) : "
              f"{(row.get('source_doc') or '').strip()} {(row.get('article') or '').strip()}".strip(),
-             f"assumé par : {row['assumed_by'].strip()}" if (row.get("assumed_by") or "").strip() else ""]
+             f"assumé par : {row['assumed_by'].strip()}" if (row.get("assumed_by") or "").strip() else "",
+             f"citation : {row['quote'].strip()}" if (row.get("quote") or "").strip() else "",
+             f"note d'audit : {row['audit_note'].strip()}" if (row.get("audit_note") or "").strip() else ""]
     data = MandateCreate(
         institution_id=institutions[code], kind=(row.get("kind") or "").strip().lower(),
         action_code=(row.get("action") or "").strip(), description=(row.get("description") or "").strip(),
