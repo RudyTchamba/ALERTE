@@ -3,6 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { PHASES, STEPS, stepFor, stepsOf } from '@/app/journey'
+import { useSetup } from '@/app/useSetup'
+
+/** « À faire maintenant » : calculé sur les données réelles ; monté seulement dans la phase Préparer (sinon 8 requêtes inutiles sur chaque page). */
+function NextAction() {
+  const { t } = useTranslation()
+  const { next: todo } = useSetup()
+  if (!todo) return null
+  return (
+        <p className="mt-2 rounded-md border border-brand/40 bg-brandsoft/50 px-3 py-2">
+          <strong>{t('journey.setup.nowTitle')} :</strong> {t(`journey.setup.steps.${todo.id}.action`)} — <span className="text-muted">{t(`journey.setup.steps.${todo.id}.${todo.detailKey}`, todo.detail)}</span>{' '}
+          <Link to={todo.to} className="inline-flex items-center gap-1 font-semibold">{t('journey.setup.open')}<ArrowRight className="h-4 w-4" aria-hidden /></Link>
+        </p>
+  )
+}
 
 /** Bandeau « où suis-je ? » : phase (Préparer / Conduire / Analyser), numéro d'étape, ce qu'on y fait et l'étape suivante. */
 export function JourneyBar() {
@@ -33,6 +47,7 @@ export function JourneyBar() {
           <span className="text-muted"> — {t(`journey.steps.${step.id}.next`)}</span>
         </p>
       )}
+      {step.phase === 'prepare' && <NextAction />}
     </nav>
   )
 }

@@ -253,3 +253,16 @@ def test_ui_scope_has_no_identity_parameters():
     from app.knowledge.runtime import KnowledgeRuntime
     assert list(inspect.signature(KnowledgeRuntime.ui_scope).parameters) == ["self", "session", "workspace_id", "kb_id", "purpose"]
     assert io  # (import utilisé par d'autres tests)
+
+
+def test_incomplete_vector_index_falls_back_to_lexical_and_is_flagged(env):
+    """Un périmètre partiellement vectorisé ne doit pas donner un rang sémantique aux seuls documents déjà vectorisés."""
+    ws = env.workspace()
+    kb = env.kb(ws)
+    corpus(env, ws, kb)
+    env.add_doc(ws, kb, "extra.txt", ("Article 1 - Les inondations imposent l'évacuation des quartiers riverains. " + "x " * 60).encode(),
+                embed=False, title="Texte non vectorisé")
+    sc = scope_of(env, ws, kb)
+    hits = env.rt.search.search(sc, "inondations évacuation quartiers", k=3)
+    assert hits and hits[0].doc_title == "Texte non vectorisé"
+    assert all(h.signals["degraded"] is True and h.signals["dense"] is None for h in hits)

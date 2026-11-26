@@ -1,0 +1,171 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Document Record (ALERTE KB)",
+ "type": "object",
+ "required": [
+  "document_id",
+  "code",
+  "collection",
+  "title",
+  "sha256",
+  "redistribution_status",
+  "reliability",
+  "validity"
+ ],
+ "properties": {
+  "document_id": {
+   "type": "string",
+   "description": "identifiant stable : doc_ + empreinte(SHA-256 du PDF, code)"
+  },
+  "code": {
+   "type": "string"
+  },
+  "collection": {
+   "enum": [
+    "CM",
+    "AE",
+    "GL",
+    "ITU"
+   ]
+  },
+  "title": {
+   "type": "string"
+  },
+  "original_filename": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "original_path": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "chemin relatif dans le dépôt de l'ancien projet"
+  },
+  "sha256": {
+   "type": "string",
+   "pattern": "^[0-9a-f]{64}$"
+  },
+  "file_size": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "page_count": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "document_type": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "reference_number": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "publication_date": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "language": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "jurisdiction": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "domains": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "items": {
+    "type": "string"
+   }
+  },
+  "institution_codes": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "items": {
+    "type": "string"
+   }
+  },
+  "source_url": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "null tant qu'aucune URL n'est établie"
+  },
+  "reliability": {
+   "enum": [
+    "official",
+    "summary",
+    "unofficial",
+    "unknown",
+    "not_found"
+   ]
+  },
+  "validity": {
+   "enum": [
+    "in_force",
+    "replaced",
+    "unknown"
+   ]
+  },
+  "redistribution_status": {
+   "enum": [
+    "allowed",
+    "restricted",
+    "unknown"
+   ]
+  },
+  "license_spdx": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "license_evidence": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "curation_notes": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "extraction": {
+   "type": "object"
+  },
+  "extraction_status": {
+   "enum": [
+    "pending",
+    "ready",
+    "needs_review",
+    "failed"
+   ]
+  }
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Knowledge Record (ALERTE KB)",
+ "description": "Unité documentaire structurée (aujourd'hui : un article reconnu). Distincte des chunks, qu'elle référence.",
+ "type": "object",
+ "required": [
+  "record_id",
+  "document_id",
+  "record_type",
+  "content",
+  "source_hash",
+  "chunk_ids"
+ ],
+ "properties": {
+  "record_id": {
+   "type": "string",
+   "description": "kr_ + empreinte(SHA-256 PDF, article, empreintes des chunks)"
+  },
+  "document_id": {
+   "type": "string"
+  },
+  "document_code": {
+   "type": "string"
+  },
+  "collection": {
+   "type": "string"
+  },
+  "country": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "jurisdiction": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "institution_codes": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "items": {
+    "type": "string"
+   }
+  },
+  "domain": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "items": {
+    "type": "string"
+   }
+  },
+  "record_type": {
+   "enum": [
+    "article"
+   ]
+  },
+  "title": {
+   "type": "string"
+  },
+  "content": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "null si la redistribution n'est pas 'allowed' (voir content_withheld_reason)"
+  },
+  "content_withheld_reason": {
+   "type": "string"
+  },
+  "language": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "article_number": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "section": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "page_start": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "page_end": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "source_url": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "source_reference": {
+   "type": "string"
+  },
+  "reliability": {
+   "type": "string"
+  },
+  "validity": {
+   "type": "string"
+  },
+  "extraction_method": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "review_status": {
+   "enum": [
+    "unreviewed",
+    "needs_review",
+    "reviewed"
+   ]
+  },
+  "source_hash": {
+   "type": "string"
+  },
+  "chunk_ids": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ }
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, Tabs } from '@/components/ui'
 import { CountriesTab } from './CountriesTab'
@@ -7,7 +7,10 @@ import { MandatesTab } from './MandatesTab'
 
 export function CountriesPage() {
   const { t } = useTranslation()
-  const [tab, setTab] = useState('countries')
+  const [params, setParams] = useSearchParams()
+  const wanted = params.get('tab') ?? ''
+  const tab = ['countries', 'institutions', 'mandates'].includes(wanted) ? wanted : 'countries'
+  const setTab = (id: string) => setParams({ tab: id }, { replace: true })
   return (
     <>
       <PageHeader title={t('geo.title')} term="mandate" description={t('geo.description')} />

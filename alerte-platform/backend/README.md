@@ -186,7 +186,7 @@ L'interface le fait depuis `/access`. Pour un jeu de données de démonstration 
 ## 11. Tests
 
 ```bash
-python -m pytest -m "not model and not gpu"        # 517 tests collectés ; aucun serveur de modèle requis
+python -m pytest -m "not model and not gpu"        # 539 réussis, 2 ignorés (mesuré le 2026-11-24) ; aucun serveur de modèle requis
 python -m pytest tests/knowledge -q                # un module
 python -m ruff check app tests                     # lint
 ```
@@ -216,7 +216,7 @@ backend/
     evaluation/         mesures T1–T6, scorecard
     reports/            rapports versionnés immuables, rendus MD/JSON/CSV/XLSX/PDF
   migrations/           Alembic
-  tests/                517 tests
+  tests/                541 tests
   CONTRACTS.md          contrats entre modules
 ```
 

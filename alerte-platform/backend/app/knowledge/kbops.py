@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from ..contracts import VectorRecord
 from ..core.canonical_json import canonical_sha256
+from ..core.db import utcnow
 from ..core.errors import AppError, Conflict, NotFound, Unprocessable
 from ..core.jobs import JobContext
 from .embedders import EmbedderError, blob_to_vec, vec_to_blob
@@ -47,7 +48,8 @@ def slugify_code(s: str, fallback: str = "KB") -> str:
 
 # --------------------------------------------------------------------------- téléversement
 def store_upload(rt: KnowledgeRuntime, session: Session, stream: BinaryIO, filename: str) -> tuple[str, int, str]:
-    """Contrôles d'entrée : extension blanche, taille max, signature réelle ; stockage par hash. Renvoie (sha, taille, ext)."""
+    """ANCIEN stockage adressé par contenu (`blobs/<sha[:2]>/<sha>`), conservé pour la compatibilité : versions existantes,
+    imports d'archives et tests. Les nouveaux imports utilisent `store_original` (dossier du périmètre)."""
     name = (filename or "").replace("\\", "/").rsplit("/", 1)[-1]
     ext = ("." + name.rsplit(".", 1)[-1].lower()) if "." in name else ""
     if ext not in ALLOWED_EXTENSIONS:
@@ -72,6 +74,40 @@ def store_upload(rt: KnowledgeRuntime, session: Session, stream: BinaryIO, filen
     return sha, size, ext
 
 
+def store_original(rt: KnowledgeRuntime, session: Session, kb: KnowledgeBase, stream: BinaryIO, filename: str) -> tuple[str, int, str]:
+    """Reçoit un fichier source et le range à son emplacement de RÉFÉRENCE : `<data>/blobs/knowledge_sources/<périmètre de la base>/`.
+
+    Contrôles d'entrée : extension blanche, taille max, signature réelle, fichier non vide, doublon (SHA-256) dans la base ;
+    un fichier refusé n'est jamais conservé. Renvoie (sha256, taille, chemin relatif). Le nom du fichier n'a aucun rôle d'identité."""
+    from .services import pipeline as PL
+    from .services import sources as S
+    name = (filename or "").replace("\\", "/").rsplit("/", 1)[-1]
+    ext = ("." + name.rsplit(".", 1)[-1].lower()) if "." in name else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        raise AppError(f"extension non autorisée : {ext or '(aucune)'}", code="kb.document.bad_type", status_code=415,
+                       details={"allowed": sorted(ALLOWED_EXTENSIONS)})
+    limit = rt.settings.upload_max_mb * 1024 * 1024
+    try:
+        staged = S.stage_stream(rt.settings.sources_dir, stream, max_bytes=limit)
+    except ValueError as exc:
+        raise AppError(f"fichier trop volumineux (maximum {rt.settings.upload_max_mb} Mo)",
+                       code="kb.document.too_large", status_code=413) from exc
+    try:
+        if staged.size == 0:
+            raise Unprocessable("fichier vide", code="kb.document.empty")
+        try:
+            with staged.tmp.open("rb") as fh:
+                sniff_kind(ext, fh.read(4096), staged.tmp)
+        except ExtractionError as exc:
+            raise AppError(str(exc), code=exc.code, status_code=415) from exc
+        _check_duplicate(session, kb.id, staged.sha256)
+        rel = S.place(rt.settings.sources_dir, staged, PL.kb_scope(kb), name)
+    except BaseException:
+        staged.discard()
+        raise
+    return staged.sha256, staged.size, rel
+
+
 def _check_duplicate(session: Session, kb_id: str, sha: str) -> None:
     dup = session.execute(select(Document.id, Document.code).join(DocumentVersion, DocumentVersion.document_id == Document.id)
                           .where(DocumentVersion.kb_id == kb_id, DocumentVersion.blob_sha256 == sha,
@@ -81,8 +117,15 @@ def _check_duplicate(session: Session, kb_id: str, sha: str) -> None:
                        details={"document_id": dup[0], "document_code": dup[1], "sha256": sha})
 
 
+def _provenance(filename: str, extra: dict | None = None) -> dict:
+    out = {"origin": "upload", "upload_filename": filename, "recorded_at": utcnow().isoformat(timespec="seconds")}
+    out.update(extra or {})
+    return out
+
+
 def create_document(session: Session, ws: str, kb: KnowledgeBase, sha: str, size: int, filename: str,
-                    meta: dict[str, Any]) -> tuple[Document, DocumentVersion]:
+                    meta: dict[str, Any], *, storage_path: str | None = None, provenance: dict | None = None,
+                    migration_filename: str | None = None, download_name: str | None = None) -> tuple[Document, DocumentVersion]:
     _check_duplicate(session, kb.id, sha)
     name = (filename or "document").replace("\\", "/").rsplit("/", 1)[-1][:300]
     stem = name.rsplit(".", 1)[0]
@@ -102,23 +145,103 @@ def create_document(session: Session, ws: str, kb: KnowledgeBase, sha: str, size
     session.add(doc)
     session.flush()
     ver = DocumentVersion(workspace_id=ws, kb_id=kb.id, document_id=doc.id, version_no=1, blob_sha256=sha, bytes=size,
-                          original_name=name, status="processing", mime=None)
+                          original_name=name, status="processing", mime=None, storage_path=storage_path,
+                          migration_filename=migration_filename, download_name=download_name,
+                          provenance=provenance or _provenance(name), processing_state="uploaded")
     session.add(ver)
     session.flush()
+    from .services.pipeline import set_state
+    set_state(session, ver, "uploaded", "fichier reçu et enregistré")
     return doc, ver
 
 
 def add_version(session: Session, ws: str, doc: Document, sha: str, size: int, filename: str,
-                note: str | None) -> DocumentVersion:
+                note: str | None, *, storage_path: str | None = None, provenance: dict | None = None) -> DocumentVersion:
     _check_duplicate(session, doc.kb_id, sha)
     last = session.scalar(select(DocumentVersion).where(DocumentVersion.document_id == doc.id)
                           .order_by(DocumentVersion.version_no.desc()).limit(1))
     ver = DocumentVersion(workspace_id=ws, kb_id=doc.kb_id, document_id=doc.id, version_no=(last.version_no + 1) if last else 1,
                           blob_sha256=sha, bytes=size, original_name=(filename or "document")[:300], status="processing",
-                          supersedes_id=last.id if last else None, note=note)
+                          supersedes_id=last.id if last else None, note=note, storage_path=storage_path,
+                          provenance=provenance or _provenance((filename or "document")[:300]), processing_state="uploaded")
     session.add(ver)
     session.flush()
+    from .services.pipeline import set_state
+    set_state(session, ver, "uploaded", "nouvelle version reçue")
     return ver
+
+
+def create_kb(rt: KnowledgeRuntime, session: Session, ws: str, *, code: str | None, name: str, kind: str = "national",
+              scope_kind: str | None = None, country_id: str | None = None, domain: str | None = None,
+              languages: list[str] | None = None, description: str | None = None, chunking_params: dict | None = None) -> KnowledgeBase:
+    """Crée une base (API et CLI). Le dossier de ses documents sources est `blobs/knowledge_sources/<code>` (ou `organizations/<code>`
+    pour une organisation comme l'ITU, qui n'est pas un pays)."""
+    from .chunking import DEFAULT_PARAMS
+    from .models import SCOPE_KINDS
+    from .services import sources as S
+    if country_id and rt.country_lookup:
+        rt.country_lookup(session, ws, country_id)  # 404 si autre espace
+    code = code or slugify_code(name)
+    sk = scope_kind or ("global" if kind == "global_practices" else "country")
+    if sk not in SCOPE_KINDS:
+        raise Unprocessable(f"type de périmètre inconnu : {sk} (valides : {', '.join(SCOPE_KINDS)})", code="kb.scope_kind.invalid")
+    try:
+        S.scope_relpath(sk, code)  # le code doit pouvoir servir de nom de dossier
+    except S.SourceError as exc:
+        raise Unprocessable(str(exc), code=exc.code) from exc
+    if session.scalar(select(KnowledgeBase.id).where(KnowledgeBase.workspace_id == ws, KnowledgeBase.code == code)):
+        raise Conflict("code de base déjà utilisé", code="kb.code_taken")
+    kb = KnowledgeBase(workspace_id=ws, code=code, name=name, description=description, country_id=country_id, domain=domain,
+                       kind=kind, scope_kind=sk, languages=languages or [], chunking_params={**DEFAULT_PARAMS, **(chunking_params or {})})
+    session.add(kb)
+    session.flush()
+    return kb
+
+
+def list_unregistered(rt: KnowledgeRuntime, session: Session, kb: KnowledgeBase) -> list[dict]:
+    """Fichiers du dossier du périmètre qui n'ont AUCUN enregistrement documentaire dans cette base (ex. après une migration)."""
+    from .services import pipeline as PL
+    from .services import sources as S
+    scope = PL.kb_scope(kb)
+    d = S.scope_dir(rt.settings.sources_dir, scope)
+    if not d.is_dir():
+        return []
+    known = {x for x in session.scalars(select(DocumentVersion.storage_path).where(DocumentVersion.kb_id == kb.id,
+                                                                                   DocumentVersion.storage_path.is_not(None)))}
+    out = []
+    for p in sorted(d.iterdir()):
+        rel = f"{scope}/{p.name}"
+        if p.is_file() and rel not in known:
+            out.append({"path": rel, "name": p.name, "bytes": p.stat().st_size})
+    return out
+
+
+def adopt_file(rt: KnowledgeRuntime, session: Session, kb: KnowledgeBase, relpath: str, meta: dict[str, Any], *,
+               provenance: dict | None = None, download_name: str | None = None) -> tuple[Document, DocumentVersion]:
+    """Enregistre un fichier DÉJÀ rangé dans le dossier du périmètre de cette base (aucune copie, aucun déplacement)."""
+    from .services import pipeline as PL
+    from .services import sources as S
+    scope = PL.kb_scope(kb)
+    if not relpath.startswith(scope + "/") or relpath.count("/") != scope.count("/") + 1:
+        raise AppError(f"ce fichier n'est pas dans le dossier du périmètre de la base ({scope})", code="kb.adopt.wrong_scope", status_code=422)
+    try:
+        path = S.resolve(rt.settings.sources_dir, relpath)
+    except S.SourceError as exc:
+        raise AppError(str(exc), code=exc.code, status_code=422) from exc
+    if not path.is_file():
+        raise NotFound("fichier introuvable", code="kb.adopt.missing")
+    ext = path.suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise AppError(f"extension non autorisée : {ext}", code="kb.document.bad_type", status_code=415)
+    try:
+        with path.open("rb") as fh:
+            sniff_kind(ext, fh.read(4096), path)
+    except ExtractionError as exc:
+        raise AppError(str(exc), code=exc.code, status_code=415) from exc
+    sha, size = S.sha256_file(path), path.stat().st_size
+    prov = {"origin": "adopted", "recorded_at": utcnow().isoformat(timespec="seconds")} | (provenance or {})
+    return create_document(session, kb.workspace_id, kb, sha, size, path.name, meta, storage_path=relpath, provenance=prov,
+                           migration_filename=path.name, download_name=download_name)
 
 
 def retire_document(session: Session, ws: str, doc_id: str) -> Document:
@@ -149,18 +272,12 @@ def embed_kb(rt: KnowledgeRuntime, job: JobContext | None, kb_id: str, *, versio
     with rt.factory() as s:
         kb = s.get(KnowledgeBase, kb_id)
         _check_fingerprint(kb, key, reembed)
-        if kb.embedder_key and kb.embedder_key != key:  # reembed explicite : on repart de zéro
-            old = kb.embedder_key
-            ids = s.scalars(select(Chunk.id).where(Chunk.kb_id == kb_id)).all()
-            for i in range(0, len(ids), 500):
-                s.execute(delete(ChunkEmbedding).where(ChunkEmbedding.chunk_id.in_(ids[i:i + 500])))
-            kb.embedder_key = None
-            s.commit()
-            try:
-                rt.vector_for(old).delete(ids)
-            except Exception as exc:  # noqa: BLE001
-                log.warning("nettoyage de l'ancien index vectoriel impossible : %s", exc)
-        if kb.embedder_key is None:
+        old_key = None
+        if kb.embedder_key and kb.embedder_key != key:
+            # `reembed` explicite : les anciens vecteurs sont CONSERVÉS jusqu'à ce que les nouveaux soient complets (bascule en fin de
+            # calcul) ; une interruption ou un échec laisse l'ancien index intact.
+            old_key = kb.embedder_key
+        elif kb.embedder_key is None:
             kb.embedder_key, kb.embedder_fingerprint = key, dataclasses.asdict(fp)
             s.commit()
         q = select(Chunk.id, Chunk.text, Chunk.kb_id, Chunk.document_version_id).where(
@@ -180,7 +297,7 @@ def embed_kb(rt: KnowledgeRuntime, job: JobContext | None, kb_id: str, *, versio
         if len(vecs) != len(batch) or any(len(v) != fp.dimension for v in vecs):
             raise EmbedderError("dimension/nombre de vecteurs incohérent avec l'empreinte : refus de mélanger")
         with rt.factory() as s:  # un commit par lot : une interruption ne perd que le lot en cours
-            s.add_all([ChunkEmbedding(chunk_id=b[0], embedder_key=key, dim=fp.dimension, vector=vec_to_blob(v))
+            s.add_all([ChunkEmbedding(chunk_id=b[0], embedder_key=key, dim=fp.dimension, vector=vec_to_blob(v), created_at=utcnow())
                        for b, v in zip(batch, vecs, strict=True)])
             s.commit()
         try:
@@ -191,46 +308,76 @@ def embed_kb(rt: KnowledgeRuntime, job: JobContext | None, kb_id: str, *, versio
         done += len(batch)
         if job:
             job.update(lo + (hi - lo) * (i + len(batch)) / max(1, len(pending)), f"embeddings {done}/{len(pending)}")
+    if old_key:  # bascule : tous les chunks de la base ont maintenant un vecteur de la nouvelle empreinte
+        with rt.factory() as s:
+            kb = s.get(KnowledgeBase, kb_id)
+            missing = s.scalar(select(func.count()).select_from(Chunk).where(
+                Chunk.kb_id == kb_id, ~select(ChunkEmbedding.chunk_id).where(
+                    ChunkEmbedding.chunk_id == Chunk.id, ChunkEmbedding.embedder_key == key).exists())) or 0
+            if missing == 0:
+                kb.embedder_key, kb.embedder_fingerprint = key, dataclasses.asdict(fp)
+                ids = s.scalars(select(Chunk.id).where(Chunk.kb_id == kb_id)).all()
+                for i in range(0, len(ids), 500):
+                    s.execute(delete(ChunkEmbedding).where(ChunkEmbedding.chunk_id.in_(ids[i:i + 500]),
+                                                           ChunkEmbedding.embedder_key == old_key))
+                s.commit()
+                try:
+                    rt.vector_for(old_key).delete(ids)
+                except Exception as exc:  # noqa: BLE001
+                    log.warning("nettoyage de l'ancien index vectoriel impossible : %s", exc)
     return {"embedded": done, "already_embedded": total_in_kb - len(pending) if not version_ids else None,
-            "embedder_key": key, "index_pending": index_pending}
+            "embedder_key": key, "index_pending": index_pending, "switched_from": old_key}
 
 
 # --------------------------------------------------------------------------- reindex
 def reindex_kb(rt: KnowledgeRuntime, job: JobContext | None, kb_id: str) -> dict:
-    """Régénère FTS5 (et `search_text`) puis l'index vectoriel depuis SQLite, sans toucher aux chunks."""
-    n = 0
+    """Régénère FTS5 (et `search_text`) d'UNE base depuis SQLite, sans toucher aux chunks ni aux autres bases.
+
+    ATOMIQUE : tout est calculé d'abord (lecture seule), puis la suppression et la réinsertion des lignes FTS de cette base se font
+    dans UNE transaction : un lecteur voit l'ancien index jusqu'au commit ; en cas d'échec, l'index précédent est conservé."""
+    prepared: list[tuple[str, str, dict]] = []
     with rt.factory() as s:
-        fts_delete_kb(s, kb_id)
         ids = s.scalars(select(Chunk.id).where(Chunk.kb_id == kb_id).order_by(Chunk.document_version_id, Chunk.ordinal)).all()
-        key = s.get(KnowledgeBase, kb_id).embedder_key
-        s.commit()
-    for i in range(0, len(ids), 500):  # un commit par lot (jamais de mise à jour de job dans une transaction ouverte)
+    for i in range(0, len(ids), 500):
         with rt.factory() as s:
             for c in s.scalars(select(Chunk).where(Chunk.id.in_(ids[i:i + 500]))):
                 st = analyze(c.text)
-                if st != c.search_text:
-                    s.execute(update(Chunk).where(Chunk.id == c.id).values(search_text=st))
-                    c.search_text = st
-                fts_insert(s, [chunk_fts_row(c)])
-                n += 1
-            s.commit()
+                c.search_text = st
+                prepared.append((c.id, st, chunk_fts_row(c)))
         if job:
-            job.update(0.5 * min(1, (i + 500) / max(1, len(ids))), f"index lexical {min(i + 500, len(ids))}/{len(ids)}")
+            job.update(0.8 * min(1.0, (i + 500) / max(1, len(ids))), f"analyse {min(i + 500, len(ids))}/{len(ids)}")
+    with rt.factory() as s:
+        fts_delete_kb(s, kb_id)
+        for cid, st, row in prepared:
+            s.execute(update(Chunk).where(Chunk.id == cid).values(search_text=st))
+            fts_insert(s, [row])
+        s.commit()
+    if job:
+        job.update(1.0, f"{len(prepared)} chunk(s) réindexé(s)")
+    n = len(prepared)
+    with rt.factory() as s:
+        key = s.get(KnowledgeBase, kb_id).embedder_key
     vectors = 0
-    if key:
-        vec = rt.vector_for(key)
-        for i in range(0, len(ids), 500):
-            part = ids[i:i + 500]
-            vec.delete(part)
-            with rt.factory() as s:
-                rows = s.execute(select(ChunkEmbedding.chunk_id, ChunkEmbedding.vector, Chunk.kb_id, Chunk.document_version_id)
-                                 .join(Chunk, Chunk.id == ChunkEmbedding.chunk_id)
-                                 .where(ChunkEmbedding.embedder_key == key, Chunk.id.in_(part))).all()
-            vec.upsert([VectorRecord(r[0], r[2], r[3], blob_to_vec(r[1]).tolist()) for r in rows])
-            vectors += len(rows)
-            if job:
-                job.update(0.5 + 0.5 * min(1, (i + 500) / max(1, len(ids))), f"index vectoriel {vectors}")
+    if key:  # l'index vectoriel (Chroma) est une copie reconstructible des vecteurs SQLite (source de vérité)
+        try:
+            vectors = _rebuild_vector_index(rt, kb_id, key, ids)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("reconstruction de l'index vectoriel impossible : %s", exc)
     return {"chunks_indexed": n, "vectors_indexed": vectors, "embedder_key": key}
+
+
+def _rebuild_vector_index(rt: KnowledgeRuntime, kb_id: str, key: str, ids: list[str]) -> int:
+    vec, total = rt.vector_for(key), 0
+    for i in range(0, len(ids), 500):
+        part = ids[i:i + 500]
+        vec.delete(part)
+        with rt.factory() as s:
+            rows = s.execute(select(ChunkEmbedding.chunk_id, ChunkEmbedding.vector, Chunk.kb_id, Chunk.document_version_id)
+                             .join(Chunk, Chunk.id == ChunkEmbedding.chunk_id)
+                             .where(ChunkEmbedding.embedder_key == key, Chunk.id.in_(part))).all()
+        vec.upsert([VectorRecord(r[0], r[2], r[3], blob_to_vec(r[1]).tolist()) for r in rows])
+        total += len(rows)
+    return total
 
 
 # --------------------------------------------------------------------------- publication (kb_version)

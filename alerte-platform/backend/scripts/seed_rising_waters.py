@@ -110,6 +110,8 @@ def main() -> int:
             api.job(r["job"]["id"])
             cf = api.call("POST", f"/imports/{r['import']['id']}/confirm", json={"mode": "new_kb", "code": coll})
             kbs[coll] = api.job(cf["job"]["id"])["result"]["kb_id"]
+            if coll == cc and cc in countries:  # une base nationale est rattachée à son pays (relation enregistrée, pas seulement affichée)
+                api.call("PATCH", f"/knowledge-bases/{kbs[coll]}", json={"country_id": countries[cc]})
             api.call("POST", f"/knowledge-bases/{kbs[coll]}/publish", json={"note": "Import du prototype (droits de redistribution inconnus)"})
         print(f"[3] Bases importées et publiées : {', '.join(sorted(kbs))} (sans embeddings : recherche lexicale seule, signalée « dégradée »)")
 

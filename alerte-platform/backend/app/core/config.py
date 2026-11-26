@@ -70,6 +70,12 @@ class Settings(BaseSettings):
         return f"sqlite:///{(self.resolved_data_dir / 'db' / 'alerte.sqlite').as_posix()}"
 
     @property
+    def sources_dir(self) -> Path:
+        """Documents sources, organisés par périmètre : <ALERTE_DATA_DIR>/blobs/knowledge_sources/<CODE>/<fichier>
+        (pays et base globale) ou .../organizations/<CODE>/<fichier> (organisations, ex. ITU)."""
+        return self.blobs_dir / "knowledge_sources"
+
+    @property
     def blobs_dir(self) -> Path:
         return self.resolved_data_dir / "blobs"
 
@@ -91,7 +97,7 @@ class Settings(BaseSettings):
 
     def ensure_dirs(self) -> None:
         for d in (self.resolved_data_dir, self.resolved_data_dir / "db", self.blobs_dir, self.vector_dir,
-                  self.anchors_dir, self.exports_dir):
+                  self.anchors_dir, self.exports_dir, self.sources_dir):
             d.mkdir(parents=True, exist_ok=True)
 
 

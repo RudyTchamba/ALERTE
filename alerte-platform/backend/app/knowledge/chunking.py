@@ -5,12 +5,13 @@ import bisect
 import re
 from dataclasses import dataclass
 
+MIN_ORPHAN_CHARS = 120  # en dessous : simple titre de section, pas du contenu
 DEFAULT_PARAMS = {"strategy": "article-aware", "max_chars": 2000, "overlap_chars": 200,
                   "window_tokens": 512, "window_overlap": 0.25, "tokens_per_word": 1.3}
 
 _NUM = r"(?:premier|1er|\d+(?:[.\-]\d+)*[A-Za-z]?(?:\s*(?:bis|ter|quater))?)"
 ARTICLE_RE = re.compile(
-    rf"^[ \t]*(?:#{{1,6}}[ \t]*)?(?:\*\*)?((?:ARTICLE|Article|Art\.?|ART\.?)[ \t]*{_NUM}"
+    rf"^[ \t]*(?:#{{1,6}}[ \t]*)?(?:\*\*)?((?:ARTICLE|Article|Art\.?|ART\.?)[ \t]*\(?{_NUM}\)?"
     r"|المادة[ \t]*\(?(?:[0-9٠-٩]+|الأولى|الاولى)\)?)"
     r"(?:\*\*)?(?P<rest>[^\n]*)$", re.M)
 SECTION_RE = re.compile(
@@ -134,11 +135,17 @@ def chunk_pages(pages: list[tuple[int | None, str]], params: dict | None = None)
             end = heads[i + 1].start() if i + 1 < len(heads) else len(full)
             # un titre de section placé juste avant le prochain article ne doit pas polluer l'article courant
             seg = full[m.start():end]
+            rest_start = None
             for sp, _ in sections:
                 if m.start() < sp < end and i + 1 < len(heads):
                     seg = full[m.start():sp]
+                    rest_start = sp
                     break
             emit(seg, m.start(), " ".join(m.group(1).replace("**", "").replace("#", "").split()))
+            if rest_start is not None and len(full[rest_start:end].strip()) >= MIN_ORPHAN_CHARS:
+                # texte placé entre un titre de section et le prochain article RECONNU (numéro d'article mal lu par l'OCR, par ex.
+                # « ARTICLE §3 ») : ne jamais le perdre ; il devient un chunk sans article, à relire
+                emit(full[rest_start:end], rest_start, None)
     else:
         emit(full, 0, None, windows=True)
     return drafts

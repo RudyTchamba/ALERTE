@@ -40,6 +40,8 @@ export interface Kb {
   country_id: string | null
   domain: string | null
   kind: KBKind | string
+  scope_kind?: string
+  scope_path?: string
   languages: string[]
   embedder_key: string | null
   embedder_fingerprint: string | null
@@ -58,6 +60,12 @@ export interface DocVersion {
   extraction_method: string | null
   extraction_quality: number | null
   pages_to_review: number[]
+  processing_state?: string
+  processing_error?: string | null
+  storage_path?: string | null
+  migration_filename?: string | null
+  download_name?: string | null
+  provenance?: Record<string, unknown> | null
   supersedes_id: string | null
   note: string | null
   created_at: string
@@ -604,3 +612,35 @@ export type ReformVerification = { found: false } | {
   found: true; ok: boolean; content_ok: boolean; ledger_ok: boolean; anchor_ok: boolean; ledger_checked: number | null
   verified_citations: boolean; sha256: string; created_at: string | null; content: ReformContent; anchors: ReformAnchors; model: string
 }
+
+/** Pipeline documentaire : états détaillés d'une version (voir backend `services/pipeline.py`). */
+export const IN_FLIGHT_STATES = ['validating', 'queued', 'extracting', 'ocr_processing', 'structuring', 'chunking', 'embedding', 'indexing'] as const
+export const PROCESSING_STATES = ['uploaded', ...IN_FLIGHT_STATES, 'ready', 'needs_review', 'failed', 'retired'] as const
+
+export interface KbStatus {
+  kb_id: string
+  code: string
+  name: string
+  scope_kind: string
+  scope_path: string
+  documents: number
+  documents_by_state: Record<string, number>
+  documents_ready: number
+  documents_waiting: number
+  documents_running: number
+  documents_failed: number
+  documents_needing_review: number
+  chunks: number
+  embeddings: { embedded: number; chunks: number; embedder_key: string | null; complete: boolean }
+  lexical_index: { rows: number; chunks: number; complete: boolean }
+  vector_index: { status: string }
+  active_version: number | null
+  last_build_at: string | null
+  general_status: string
+}
+export interface CoherenceCheck { id: string; ok: boolean; detail: string }
+export interface CoherenceReport { kb_id: string; ok: boolean; checks: CoherenceCheck[]; status: KbStatus }
+export interface DocEvent { state: string; message: string | null; job_id: string | null; at: string }
+export interface DocEvents { version: DocVersion; events: DocEvent[] }
+export interface UnregisteredFiles { scope_path: string; files: { path: string; name: string; bytes: number }[] }
+export interface AdoptResult { documents: { path: string; document_id?: string; version_id?: string; error?: string; code?: string }[]; jobs: JobRef[] }

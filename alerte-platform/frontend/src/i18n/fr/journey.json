@@ -13,8 +13,8 @@
       "desc": "Construire tout ce dont l'exercice a besoin : institutions, documents, mandats, agents, permissions, scénario et sièges."
     },
     "conduct": {
-      "short": "{{n}}. Conduire",
-      "name": "Conduire l'exercice",
+      "short": "{{n}}. Jouer",
+      "name": "Jouer l'exercice",
       "desc": "Voir arriver les événements, les institutions décider et échanger, et intervenir comme animateur ou comme joueur."
     },
     "analyse": {
@@ -88,5 +88,92 @@
     "scenario": "Un scénario avec au moins un événement (Scénarios).",
     "exercise": "Un exercice (Exercices et sièges).",
     "finished": "Un exercice terminé : les lacunes et les rapports sont produits à partir d'un exercice déjà joué."
+  },
+  "setup": {
+    "title": "Votre préparation, étape par étape",
+    "lead": "Chaque état est calculé sur ce qui est réellement enregistré dans l'espace de travail, pas sur les pages que vous avez ouvertes.",
+    "status": {
+      "done": "Fait",
+      "partial": "À compléter",
+      "todo": "À faire",
+      "locked": "Après : {{needs}}",
+      "lockedShort": "Après les étapes précédentes"
+    },
+    "nowTitle": "À faire maintenant",
+    "nowAll": "Toute la préparation est faite : lancez ou analysez un exercice.",
+    "open": "Ouvrir",
+    "steps": {
+      "country": {
+        "title": "Pays",
+        "why": "Le pays est le périmètre juridique : les institutions et les bases de connaissances s'y rattachent.",
+        "action": "Ajouter un pays",
+        "none": "Aucun pays pour l'instant.",
+        "some": "{{n}} pays."
+      },
+      "institutions": {
+        "title": "Institutions",
+        "why": "Chaque institution appartient à un pays ; un agent en représentera une pendant l'exercice.",
+        "action": "Ajouter les institutions",
+        "none": "Aucune institution pour l'instant.",
+        "some": "{{n}} institution(s)."
+      },
+      "kb": {
+        "title": "Bases de connaissances",
+        "why": "Des collections de textes (lois, décrets, plans) rattachées à un pays. Un agent ne lit que les bases publiées auxquelles il est autorisé.",
+        "action": "Ouvrir les bases",
+        "none": "Aucune base pour l'instant.",
+        "some": "{{n}} base(s) · {{published}} publiée(s) · {{noCountry}} sans pays rattaché."
+      },
+      "mandates": {
+        "title": "Mandats",
+        "why": "Qui doit ou peut faire quoi, avec sa source (un article de texte). Sans source retrouvée dans une base, un mandat reste « proposé » : il n'est pas documenté.",
+        "action": "Valider les mandats",
+        "none": "Aucun mandat : importez le CSV ou saisissez-les.",
+        "some": "{{n}} mandat(s) · {{validated}} validé(s) avec source · {{reviewed}} registre(s) revu(s) complet(s) sur {{inst}} institution(s)."
+      },
+      "agents": {
+        "title": "Agents",
+        "why": "Un agent IA incarne une institution précise pendant l'exercice.",
+        "action": "Configurer les agents",
+        "none": "Aucun agent pour l'instant.",
+        "some": "{{n}} agent(s) · {{noInst}} sans institution."
+      },
+      "access": {
+        "title": "Permissions agent × base",
+        "why": "Elles décident quelles bases chaque agent peut consulter. Sans accès, un agent ne peut rien citer.",
+        "action": "Accorder les accès",
+        "some": "{{withKb}} agent(s) sur {{n}} ont au moins une base ; {{without}} sans accès."
+      },
+      "scenario": {
+        "title": "Scénario",
+        "why": "La suite d'événements envoyés aux institutions, avec les actions qu'elles doivent mener.",
+        "action": "Créer ou importer un scénario",
+        "none": "Aucun scénario pour l'instant.",
+        "some": "{{n}} scénario(s)."
+      },
+      "exercise": {
+        "title": "Exercice et sièges",
+        "why": "Un exercice joue un scénario ; chaque siège associe une institution à un agent IA ou à une personne.",
+        "action": "Préparer l'exercice",
+        "none": "Aucun exercice pour l'instant.",
+        "some": "{{n}} exercice(s)."
+      },
+      "readiness": {
+        "title": "Vérification de préparation",
+        "why": "Des contrôles bloquants et des avertissements avant le lancement, avec la correction à faire pour chacun.",
+        "action": "Contrôler l'exercice",
+        "none": "Aucun exercice vérifié.",
+        "some": "{{n}} exercice(s) prêt(s) ou déjà lancé(s)."
+      },
+      "run": {
+        "title": "Lancement et analyse",
+        "why": "Jouer l'exercice, puis examiner les lacunes, le rapport et l'audit.",
+        "action": "Entrer dans la salle",
+        "none": "Aucun exercice joué.",
+        "running": "Un exercice a démarré mais n'est pas terminé.",
+        "some": "{{n}} exercice(s) terminé(s)."
+      }
+    },
+    "unavailable": "Certaines données ne peuvent pas être lues avec ce jeton (droits insuffisants) : l'état de la préparation n'est pas affiché."
   }
 }

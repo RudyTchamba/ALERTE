@@ -30,10 +30,10 @@ Read = require_role("facilitator", "auditor", "observer")
 Facilitator = require_role("facilitator")
 
 
-def _gap_out(session: Session, g: Any) -> GapOut:
+def _gap_out(session: Session, g: Any, ref: dict | None = None) -> GapOut:
     out = GapOut.model_validate(g)
     out.section = service.section(g)
-    out.reference_status = service.reference_status(session, g.id)
+    out.reference_status = ref if ref is not None else service.reference_status(session, g.id)
     return out
 
 
@@ -52,7 +52,8 @@ def list_gaps(exercise: str | None = None, country: str | None = None, instituti
     rows = service.list_gaps(session, p.workspace_id, p.role, exercise=exercise, country=country, institution=institution,
                              domain=domain, category=category, code=code, severity=severity, status=status, basis=basis,
                              confidence=confidence, origin=origin, include_stale=include_stale)
-    return [_gap_out(session, g) for g in rows]
+    refs = service.reference_statuses(session, [g.id for g in rows])
+    return [_gap_out(session, g, refs[g.id]) for g in rows]
 
 
 @router.get("/gaps/compare", tags=["gaps"])

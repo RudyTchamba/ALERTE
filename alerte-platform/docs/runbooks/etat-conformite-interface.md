@@ -20,13 +20,13 @@
 | Espace cible | Existe ? | Nom exact dans l'interface | Route | Statut / écart |
 |---|---|---|---|---|
 | Workspace Home | oui | **Accueil** (+ écran d'entrée) | `/`, `/access` | **Partiel** : pas de liste/sélecteur d'espaces ; un jeton = un espace ; pas de description d'espace (nom + slug seulement) |
-| Country & Institutional Manager | oui | **1 · Pays, institutions, mandats** (onglets *Pays*, *Institutions*) | `/studio/countries` | Opérationnel (pas de champ « contacts ») |
-| Knowledge Base Manager | oui | **2 · Bases de connaissances** (+ page de base : *Documents, Qualité et couverture, Versions et index, Test de recherche, Export / import*) | `/studio/knowledge[/:id[/documents/:id]]` | Opérationnel |
-| Mandate Registry | **onglet**, pas une page | onglet **Registre des mandats** (*Revue du registre*, *Mandats*, *Catalogue d'actions*) | `/studio/countries` | **Partiel** : correction et historique en API seulement |
-| Agent Manager | oui | **3 · Agents** (+ section *Profils de modèle*) | `/studio/agents` | Opérationnel |
-| Knowledge Access Mapping | oui | **4 · Accès aux connaissances** | `/studio/access` | Opérationnel |
-| Scenario Builder | oui | **5 · Scénarios** (+ constructeur) | `/studio/scenarios[/:id]` | Opérationnel (branches **absentes**) |
-| Participants & Readiness | oui (dans la page d'exercice) | **6 · Exercices et sièges** (*Sièges*, *Préparation de l'exercice*) | `/studio/exercises[/:id]` | Opérationnel (délai humain non exposé) |
+| Country & Institutional Manager | oui | **Pays et institutions** (onglets *Pays*, *Institutions*) | `/studio/countries` | Opérationnel (pas de champ « contacts ») |
+| Knowledge Base Manager | oui | **Bases de connaissances** (+ page de base : *Documents, Qualité et couverture, Versions et index, Test de recherche, Export / import*) | `/studio/knowledge[/:id[/documents/:id]]` | Opérationnel |
+| Mandate Registry | **onglet**, pas une page | onglet **Registre des mandats** (*Revue du registre*, *Mandats*, *Catalogue d'actions*) | `/studio/countries` | **Partiel** : correction du texte et historique en API seulement ; **ajout/retrait de source sur un mandat existant : opérationnel dans l'interface depuis le 2026-11-24** (bouton **Sources**, UI) |
+| Agent Manager | oui | **Agents** (+ section *Profils de modèle*) | `/studio/agents` | Opérationnel |
+| Knowledge Access Mapping | oui | **Accès aux connaissances** | `/studio/access` | Opérationnel |
+| Scenario Builder | oui | **Scénarios** (+ constructeur) | `/studio/scenarios[/:id]` | Opérationnel (branches **absentes**) |
+| Participants & Readiness | oui (dans la page d'exercice) | **Exercices** (*Sièges*, *Préparation de l'exercice*) | `/studio/exercises[/:id]` | Opérationnel (délai humain non exposé) |
 | Simulation Room | oui | **Salle de simulation** | `/room[/:id]` | Opérationnel (correction : pas de bouton) |
 | Player Seat | oui | page **sans menu**, lien personnel | `/play#t=…` | Opérationnel |
 | Observer View | oui | page **sans menu**, lien personnel | `/watch#t=…` | Opérationnel (vue publique seule) |
@@ -119,3 +119,32 @@
 
 ## 8. Tests exécutés (cette mission)
 Voir le compte rendu final : suite backend complète, suite frontend (typecheck, lint, tests, build), ruff, migrations sur environnement vierge, parcours Rising Waters CM et AE, contrefactuel, commandes de simulation, siège humain, observateur, isolation, altération du ledger, rapports ×5 formats, évaluation.
+
+
+## 7. Mise à jour du 2026-11-24 (stabilisation après fusion)
+
+| Sujet | Avant | Maintenant | Preuve |
+|---|---|---|---|
+| Source d'un mandat **importé** | impossible dans l'interface (seulement à la création) → blocage de l'ancienne étape 7.3 | bouton **Sources** par ligne (recherche dans la base, **Utiliser comme source**, **Enregistrer les sources**, retrait) ; colonne **Réf.** pour repérer `CM-L10` | **UI** navigateur réel (CM-L10, CM-L13, CM-L14), tests TS |
+| Parcours de préparation | 5 compteurs (« fait » dès qu'un objet existe) | 10 étapes à **état réel** (KB non publiée / sans pays = « à compléter » ; mandat « fait » seulement s'il est validé **avec source** ; étapes verrouillées tant que le prérequis manque) + barre « **À faire maintenant** » sur chaque page de préparation | **UI** + **TEST** (`setup.test.ts`, 9 cas) |
+| Base de connaissances ↔ pays | champ facultatif, invisible dans la liste, non modifiable après import | colonne **Pays / juridiction**, menu **Rattacher à un pays**, avertissement pour une base nationale sans pays | **UI** |
+| Institution ↔ pays | liste « — » par défaut | pays **obligatoire** quand un pays existe, préchoisi s'il est unique | **UI** |
+| Revue du registre | texte demandant de tout passer en « revu complet » | panneau d'aide + guide : « revu complet » **uniquement** après une revue humaine réelle | **DOC/UI** |
+| `GET /gaps` | 1 requête SQL par lacune | 1 requête pour toutes (74 → 36 ms médian, 42 lacunes) | **TEST** + mesure |
+| Pages de l'équipe (`/present`, `/alerte`, `/what-if`, `/responsibilities`, vérification de projet de texte, signatures Ed25519, juge IA) | non auditées | **s'affichent sans erreur** (smoke navigateur 23 routes) ; leur **contenu fonctionnel n'est pas audité** ici | **UI** (affichage seulement) |
+| Tests | 517 backend / 56 frontend | **539 réussis + 2 ignorés** / **88** | **TEST** |
+
+Écarts restants (ouverts) : voir [stabilisation-rapport-final.md](../audits/stabilisation-rapport-final.md).
+
+
+## 8. Mise à jour du 2026-11-24 (base de connaissances reconstruite à partir des PDF)
+
+| Sujet | État | Preuve |
+|---|---|---|
+| Corpus | **44 PDF** de `alerte/` → 44 documents, 2 133 pages, 3 886 chunks, 1 565 Knowledge Records (export) ; l'ancienne archive de 45 documents / 4 235 passages n'est plus la source | RÉEL (`docs/knowledge-base/build-report.md`) |
+| Pipeline | un seul pipeline (interface et `kb_build.py` appellent les mêmes endpoints) ; correctifs : texte perdu au découpage, pages scan avec cachet, articles « (n) », suite d'articles interrompue, index vectoriel incomplet | TEST + RÉEL |
+| Recherche hybride | **non opérationnelle sur le corpus** : embeddings BGE-M3 non terminés (≈ 6–20 s/passage sur cette machine) ; recherche **lexicale étiquetée dégradée** | RÉEL |
+| Qualité mesurée | Recall@5 lexical 0,667 (même langue 1,000 ; langue croisée 0,333) ; T1 (≥ 0,80) **non atteint** globalement | RÉEL (`retrieval-evaluation.md`) |
+| Droits / publication | 2 `allowed`, 1 `restricted`, 41 `unknown` ; texte publié dans Git seulement pour `allowed` | RÉEL |
+| Vocabulaire de fiabilité | `unknown` ajouté (`official|summary|unofficial|unknown|not_found`) | TEST |
+| Graphe de mandats | `knowledge_bases/CM/graph/` : 14 mandats, institutions, relations, sources résolues vers les chunks | RÉEL |

@@ -16,6 +16,9 @@ dist/
 # Données et secrets d'exécution
 data/
 data-demo/
+data-kb-build/
+# export complet (texte de documents aux droits non confirmés) : jamais publié
+knowledge_bases/_local/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm

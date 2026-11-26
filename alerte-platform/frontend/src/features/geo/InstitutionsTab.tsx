@@ -96,7 +96,7 @@ function InstitutionDialog({ inst, countries, defaultCountry, onClose }: { inst:
   const { register, handleSubmit, setError, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
-      code: inst?.code ?? '', name: inst?.name ?? '', name_local: inst?.name_local ?? '', country_id: inst?.country_id ?? defaultCountry,
+      code: inst?.code ?? '', name: inst?.name ?? '', name_local: inst?.name_local ?? '', country_id: inst?.country_id ?? (defaultCountry || (countries.length === 1 ? countries[0].id : '')),
       kind: (inst?.kind as InstitutionKind) ?? 'other', domains: joinList(inst?.domains), description: inst?.description ?? '',
     },
   })
@@ -115,11 +115,14 @@ function InstitutionDialog({ inst, countries, defaultCountry, onClose }: { inst:
   return (
     <Dialog open onClose={onClose} title={inst ? t('geo.editInstitution') : t('geo.newInstitution')}
       footer={<><Button onClick={onClose}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="inst-form" loading={save.isPending}>{t('common.save')}</Button></>}>
-      <form id="inst-form" className="flex flex-col gap-3" noValidate onSubmit={handleSubmit((v) => save.mutate(v))}>
+      <form id="inst-form" className="flex flex-col gap-3" noValidate onSubmit={handleSubmit((v) => {
+        if (!v.country_id && countries.length > 0) { setError('country_id', { message: t('geo.countryRequired') }); return }  // une institution appartient à un pays
+        save.mutate(v)
+      })}>
         <Field label={t('common.code')} required hint={t('geo.codeHint')} error={errors.code && t('geo.codeInvalid')}><Input data-autofocus disabled={!!inst} {...register('code')} /></Field>
         <Field label={t('common.name')} required error={errors.name && t('common.required')}><Input {...register('name')} /></Field>
         <Field label={t('geo.nameLocal')}><Input {...register('name_local')} /></Field>
-        <Field label={t('geo.country')}>
+        <Field label={t('geo.country')} required={countries.length > 0} hint={t('geo.institutionCountryHint')} error={errors.country_id?.message}>
           <Select {...register('country_id')}><option value="">—</option>{countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
         </Field>
         <Field label={t('common.kind')}>

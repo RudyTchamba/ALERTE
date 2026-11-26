@@ -64,7 +64,7 @@ DOC_SCHEMA = {
     "type": "object", "required": ["document_id", "code", "title", "reliability", "validity", "redistribution", "version"],
     "properties": {
         "document_id": _S, "code": {"type": "string", "maxLength": 64}, "title": {"type": "string", "maxLength": 500},
-        "reliability": {"enum": ["official", "summary", "unofficial", "not_found"]},
+        "reliability": {"enum": ["official", "summary", "unofficial", "unknown", "not_found"]},
         "validity": {"enum": ["in_force", "replaced", "unknown"]},
         "redistribution": {"enum": ["allowed", "restricted", "unknown"]},
         "evidence_default": {"enum": ["documented", "inferred", "assumed"]},

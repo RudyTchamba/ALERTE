@@ -55,7 +55,7 @@ def import_csv(session: Session, workspace_id: str, text: str, principal: Any = 
         try:
             data, notes = _row_to_create(row, institutions)
             if not service.action_exists(session, workspace_id, data.action_code):
-                raise ValueError(f"action absente du catalogue : {data.action_code!r}")
+                raise ValueError(f"action absente du catalogue : {data.action_code!r} (créez-la d'abord : « Catalogue d'actions », bouton « Importer un CSV »)")
         except (ValueError, ValidationError) as exc:
             rep.errors.append(ImportRowError(line=n, import_ref=ref, error=str(exc).splitlines()[0][:300]))
             continue
@@ -70,5 +70,41 @@ def import_csv(session: Session, workspace_id: str, text: str, principal: Any = 
             rep.mandate_ids.append(m.id)
         if ref:
             existing.add(ref)
+        rep.created += 1
+    return rep
+
+
+ACTION_COLUMNS = ("code", "label", "domain", "derivation", "justification", "reference_note")
+
+
+def import_actions_csv(session: Session, workspace_id: str, text: str, *, dry_run: bool = False) -> ImportReport:
+    """Import CSV du catalogue d'actions (colonnes : code,label,domain,derivation,justification,reference_note).
+
+    Idempotent : un code déjà présent est ignoré. Une dérivation `scenario_author` exige une justification."""
+    from .schemas import ActionCreate
+    reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")))
+    rep = ImportReport(dry_run=dry_run, created=0, skipped=0, errors=[])
+    seen: set[str] = set()
+    for n, row in enumerate(reader, start=2):
+        code = (row.get("code") or "").strip()
+        if not code:
+            rep.errors.append(ImportRowError(line=n, import_ref=None, error="colonne « code » vide"))
+            continue
+        if code in seen or service.action_exists(session, workspace_id, code):
+            rep.skipped += 1
+            continue
+        try:
+            data = ActionCreate(code=code, label=(row.get("label") or "").strip(), domain=(row.get("domain") or "").strip() or None,
+                                derivation=(row.get("derivation") or "scenario_author").strip(),
+                                justification=(row.get("justification") or "").strip() or None,
+                                reference_note=(row.get("reference_note") or "").strip() or None)
+            service._check_action(data.derivation, data.justification)  # mêmes règles en essai à blanc et en réel
+            if not dry_run:
+                with session.begin_nested():
+                    service.create_action(session, workspace_id, data)
+        except (ValueError, ValidationError, AppError) as exc:
+            rep.errors.append(ImportRowError(line=n, import_ref=code, error=str(getattr(exc, "message", exc)).splitlines()[0][:300]))
+            continue
+        seen.add(code)
         rep.created += 1
     return rep

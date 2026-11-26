@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import re
+import threading
 import unicodedata
 from collections import Counter
-from functools import lru_cache
 
 ANALYZER_VERSION = "1"
 
@@ -139,10 +139,19 @@ _STOP = set("le la les des du de un une et est sont dans pour par sur avec que q
             "في من على الى إلى عن مع هذا هذه التي الذي او أو و ان أن".split())
 
 
-@lru_cache(maxsize=2)
+_local = threading.local()
+
+
 def _stemmer(lang: str):  # noqa: ANN202
-    import snowballstemmer
-    return snowballstemmer.stemmer(lang)
+    """Un stemmer PAR THREAD : les stemmers Snowball gardent un état interne (`current`, curseurs) et ne sont pas réentrants ;
+    partagés entre deux jobs d'ingestion simultanés ils lèvent des IndexError aléatoires (constaté avec job_workers=2)."""
+    cache = getattr(_local, "stemmers", None)
+    if cache is None:
+        cache = _local.stemmers = {}
+    if lang not in cache:
+        import snowballstemmer
+        cache[lang] = snowballstemmer.stemmer(lang)
+    return cache[lang]
 
 
 def normalize_arabic(text: str) -> str:

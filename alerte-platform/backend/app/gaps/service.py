@@ -49,15 +49,28 @@ def get_gap(session: Session, workspace_id: str, gap_id: str, role: str = "owner
     return g
 
 
-def reference_status(session: Session, gap_id: str) -> dict[str, Any]:
-    rows = session.execute(select(GapReference.status, InternationalReference.jurisdiction)
-                           .join(InternationalReference, InternationalReference.id == GapReference.reference_id)
-                           .where(GapReference.gap_id == gap_id, GapReference.status != "rejected")).all()
+def _reference_status_from(rows: list[tuple[str, str]]) -> dict[str, Any]:
     juris = sorted({j.strip().lower() for _s, j in rows})
     ok = len(juris) >= MIN_JURISDICTIONS
     return {"status": "sufficient" if ok else "insufficient_sources", "jurisdictions": juris, "count": len(juris),
             "accepted": sum(1 for s, _j in rows if s == "accepted"),
             "message": None if ok else f"sources internationales insuffisantes : {len(juris)} trouvée(s) (minimum {MIN_JURISDICTIONS} juridictions)"}
+
+
+def reference_statuses(session: Session, gap_ids: list[str]) -> dict[str, dict[str, Any]]:
+    """Statut des sources internationales de plusieurs lacunes en UNE requête (évite 1 requête par lacune sur `GET /gaps`)."""
+    by_gap: dict[str, list[tuple[str, str]]] = {g: [] for g in gap_ids}
+    if gap_ids:
+        for gid, status, juris in session.execute(
+                select(GapReference.gap_id, GapReference.status, InternationalReference.jurisdiction)
+                .join(InternationalReference, InternationalReference.id == GapReference.reference_id)
+                .where(GapReference.gap_id.in_(gap_ids), GapReference.status != "rejected")).all():
+            by_gap[gid].append((status, juris))
+    return {g: _reference_status_from(r) for g, r in by_gap.items()}
+
+
+def reference_status(session: Session, gap_id: str) -> dict[str, Any]:
+    return reference_statuses(session, [gap_id])[gap_id]
 
 
 def list_gaps(session: Session, workspace_id: str, role: str, *, exercise: str | None = None, country: str | None = None,

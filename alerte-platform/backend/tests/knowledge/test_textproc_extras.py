@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from app.knowledge.indexes import Fts5Index
-from app.knowledge.search import AUTHORITY
+from app.knowledge.search import _AUTHORITY_BASE, AUTHORITY, AUTHORITY_SPREAD
 from app.knowledge.textproc import analyze, expand_query
 
 
@@ -16,4 +16,23 @@ def test_crisis_thesaurus_links_agent_words_to_legal_vocabulary():
 
 
 def test_official_sources_outrank_secondary_ones():
-    assert AUTHORITY["official"] > AUTHORITY["summary"] > AUTHORITY["unofficial"]
+    """Le barème d'autorité reste ordonné ; son AMPLITUDE est réglable (ALERTE_AUTHORITY_SPREAD)."""
+    assert _AUTHORITY_BASE["official"] > _AUTHORITY_BASE["summary"] > _AUTHORITY_BASE["unofficial"]
+
+
+def test_authority_weighting_is_neutral_by_default_because_rrf_scores_are_tightly_spaced():
+    """Mesuré (docs/knowledge-base/retrieval-evaluation.md) : même un facteur de 0,96 enterrait un texte « unofficial » (loi 86/016, art. 3)
+    dont le passage était le meilleur résultat lexical. Défaut neutre ; l'amplitude est un réglage explicite."""
+    assert AUTHORITY_SPREAD == 0.0
+    assert len(set(AUTHORITY.values())) == 1
+
+
+def test_stemming_is_thread_safe():
+    """Régression : un stemmer Snowball partagé plantait (IndexError) quand deux jobs d'ingestion analysaient du texte en parallèle."""
+    import concurrent.futures as cf
+
+    from app.knowledge.textproc import analyze
+    text = "Les opérateurs de téléphonie mobile diffusent immédiatement les alertes officielles aux populations concernées. " * 40
+    with cf.ThreadPoolExecutor(8) as ex:
+        out = list(ex.map(lambda _: analyze(text), range(64)))
+    assert len(set(out)) == 1

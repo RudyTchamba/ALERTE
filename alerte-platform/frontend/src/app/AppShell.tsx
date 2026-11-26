@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   BookOpenText, Bot, FileBarChart2, Flag, FlaskConical, Gauge, Grid3x3, Home, KeyRound, Landmark, LogOut, Menu, Network, Radio, ScrollText,
-  SearchCheck, ShieldCheck, TriangleAlert, Workflow, X,
+  SearchCheck, ShieldCheck, TriangleAlert, Workflow, X, CircleHelp,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { LANGS, setLanguage, type Lang } from '@/i18n'
@@ -24,15 +24,21 @@ export function FictionalBanner() {
   )
 }
 
-const NAV: { group: string; items: { to: string; key: string; end?: boolean }[] }[] = [
-  { group: '', items: [{ to: '/', key: 'home', end: true }] },
-  { group: 'studio', items: [
-    { to: '/studio/countries', key: 'countries' },
-    { to: '/studio/knowledge', key: 'knowledge' },
-    { to: '/studio/agents', key: 'agents' },
-    { to: '/studio/access', key: 'access' },
-    { to: '/studio/scenarios', key: 'scenarios' },
-    { to: '/studio/exercises', key: 'exercises' },
+type NavItem = { to: string; key: string; icon: ComponentType<{ className?: string }>; end?: boolean }
+type NavGroup = { group: string; step?: number; hint?: string; items: NavItem[] }
+
+/** Navigation par phases d'un exercice : Préparer → Jouer → Analyser. */
+const NAV: NavGroup[] = [
+  { group: 'prepare', step: 1, hint: 'prepareHint', items: [
+    { to: '/studio/countries', key: 'countries', icon: Landmark },
+    { to: '/studio/knowledge', key: 'knowledge', icon: BookOpenText },
+    { to: '/studio/agents', key: 'agents', icon: Bot },
+    { to: '/studio/access', key: 'access', icon: ShieldCheck },
+    { to: '/studio/scenarios', key: 'scenarios', icon: Workflow },
+  ] },
+  { group: 'play', step: 2, hint: 'playHint', items: [
+    { to: '/studio/exercises', key: 'exercises', icon: Flag },
+    { to: '/room', key: 'room_live', icon: Radio },
   ] },
   { group: 'analyze', step: 3, hint: 'analyzeHint', items: [
     { to: '/responsibilities', key: 'responsibilities', icon: Grid3x3 },
@@ -45,8 +51,8 @@ const NAV: { group: string; items: { to: string; key: string; end?: boolean }[] 
   { group: 'system', items: [
     { to: '/about/architecture', key: 'architecture', icon: Network },
     { to: '/settings/tokens', key: 'tokens', icon: KeyRound },
+    { to: '/help/glossary', key: 'glossary', icon: CircleHelp },
   ] },
-  { group: 'settings', items: [{ to: '/settings/tokens', key: 'tokens' }, { to: '/help/glossary', key: 'glossary' }] },
 ]
 
 function NavEntry({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
@@ -116,22 +122,20 @@ export function AppShell() {
         <nav id="main-nav" aria-label={t('nav.main')} className="px-3 py-4 lg:sticky lg:top-[3.25rem] lg:max-h-[calc(100vh-3.25rem)] lg:overflow-y-auto">
           <div className="mb-4"><NavEntry item={{ to: '/', key: 'home', icon: Home, end: true }} onNavigate={close} /></div>
           {NAV.map((g) => (
-            <div key={g.group} className="mb-4">
-              {g.group && <p className="mb-1 px-2 text-xs font-bold tracking-wider text-muted uppercase">{t(`nav.${g.group}`)}</p>}
-              <ul>
-                {g.items.map((i) => (
-                  <li key={i.to}>
-                    <NavLink to={i.to} end={i.end} onClick={() => setOpen(false)}
-                      className={({ isActive }) => cn('block rounded px-2 py-1.5 text-sm no-underline', isActive ? 'bg-brandsoft font-semibold text-brand' : 'text-ink hover:bg-surface2')}>
-                      {t(`nav.${i.key}`)}
-                    </NavLink>
-                  </li>
-                ))}
+            <div key={g.group} className="mb-5">
+              <div className="mb-1.5 flex items-center gap-2 px-2.5">
+                {g.step && <span aria-hidden className="grid h-5 w-5 place-items-center rounded-md border border-line bg-surface2 text-xs font-bold text-brand tabular">{g.step}</span>}
+                <p className="eyebrow">{t(`nav.${g.group}`)}</p>
+              </div>
+              {g.hint && <p className="mb-1.5 px-2.5 text-xs leading-snug text-muted">{t(`nav.${g.hint}`)}</p>}
+              <ul className="flex flex-col gap-0.5">
+                {g.items.map((i) => <li key={i.to}><NavEntry item={i} onNavigate={close} /></li>)}
               </ul>
             </div>
           ))}
         </nav>
-        <main id="main" tabIndex={-1} className="min-w-0 flex-1 p-4 lg:p-6"><JourneyBar /><Outlet /></main>
+        </div>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 p-4 lg:p-8"><div className="mx-auto max-w-[1600px]"><JourneyBar /><Outlet /></div></main>
       </div>
     </div>
   )

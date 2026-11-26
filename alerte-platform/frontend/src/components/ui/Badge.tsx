@@ -30,6 +30,8 @@ const STATUS_TONE: Record<string, Tone> = {
   // exercise
   draft: 'neutral', ready: 'info', running: 'ok', paused: 'warn', interrupted: 'danger', completed: 'ok', stopped: 'neutral', archived: 'neutral',
   // jobs / documents / versions
+  uploaded: 'neutral', validating: 'info', extracting: 'info', ocr_processing: 'info', structuring: 'info', chunking: 'info', embedding: 'info', indexing: 'info',
+  empty: 'neutral', errors: 'danger', pending: 'warn', lexical_only: 'warn', vectors_incomplete: 'warn',
   queued: 'neutral', needs_review: 'warn', done: 'ok', failed: 'danger', published: 'ok', retired: 'neutral', indexed: 'ok', ingested: 'ok', ingesting: 'info',
   // decisions
   recorded: 'ok', not_verified: 'danger', not_recorded: 'danger',

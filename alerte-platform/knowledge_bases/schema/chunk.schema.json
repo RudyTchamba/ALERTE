@@ -1,0 +1,107 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Chunk (ALERTE KB)",
+ "type": "object",
+ "required": [
+  "chunk_id",
+  "document_id",
+  "ordinal",
+  "text_sha256"
+ ],
+ "properties": {
+  "chunk_id": {
+   "type": "string",
+   "description": "ck_ + empreinte(SHA-256 PDF, ordinal, empreinte du texte)"
+  },
+  "document_id": {
+   "type": "string"
+  },
+  "document_code": {
+   "type": "string"
+  },
+  "ordinal": {
+   "type": "integer"
+  },
+  "page_start": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "page_end": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "article": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "section": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "language": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "jurisdiction": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "doc_type": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "reliability": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "validity": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "evidence_tag": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "documented|inferred|assumed (défaut du document)"
+  },
+  "text_sha256": {
+   "type": "string"
+  },
+  "app_chunk_id": {
+   "type": "string",
+   "description": "ULID interne à l'instance (non stable)"
+  },
+  "char_count": {
+   "type": "integer"
+  },
+  "text": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "null si la redistribution n'est pas 'allowed'"
+  },
+  "content_withheld_reason": {
+   "type": "string"
+  }
+ }
+}

@@ -91,7 +91,7 @@ une autre machine : le même code s'exécute sur un poste de développement, une
 | Backend | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic, SQLite (WAL, FTS5), ChromaDB, pdfplumber/pypdfium2, Tesseract, WeasyPrint, openpyxl |
 | IA | modèles servis via API compatible OpenAI (Ollama, vLLM, TEI…) ; embeddings BGE-M3 |
 | Frontend | React 19, TypeScript 5.9, Vite 8, Tailwind CSS 4, TanStack Query, React Router 7 |
-| Qualité | pytest (517 tests), Vitest (56 tests), ruff, oxlint, axe-core, GitHub Actions (ubuntu/windows/macos — écrite, non encore exécutée) |
+| Qualité | pytest (539 tests, 2 ignorés), Vitest (88 tests), ruff, oxlint, axe-core, GitHub Actions (ubuntu/windows/macos — écrite, non encore exécutée) |
 
 Licences : dépendances open source ; **PyMuPDF (AGPL) est exclu**.
 
@@ -231,7 +231,7 @@ Une KB s'exporte en archive portable (ZIP + manifeste + SHA-256) ; l'import est 
 ## 15. Tests
 
 ```bash
-cd backend && python -m pytest -m "not model and not gpu"            # 517 tests collectés, sans serveur de modèle
+cd backend && python -m pytest -m "not model and not gpu"            # 539 réussis, 2 ignorés, sans serveur de modèle
 cd backend && ALERTE_EMBED_BASE_URL=http://localhost:11434/v1 ALERTE_EMBED_MODEL=bge-m3 python -m pytest -m model tests/knowledge   # embeddings RÉELS
 cd frontend && npm run typecheck && npm run lint && npm test && npm run build
 ```
@@ -262,7 +262,7 @@ Détails : sections « Problèmes courants » de [backend/README.md](backend/REA
 ## 18. État réel de validation
 
 Légende : **IMPL** implémenté · **FIX** testé avec fixtures/scripts (déterministe, **sans IA**) · **RÉEL** testé avec un vrai modèle · **—** non vérifié · **LIM** limite connue.
-Mise à jour : 2026-11-23. Résultats mesurés : backend 517 tests collectés (suite complète : 515 réussis, 0 échec, 2 ignorés = les deux tests `-m model`, dont un seul a été exécuté à part : celui des embeddings) ; frontend 56 tests, typecheck, lint, build OK.
+Mise à jour : 2026-11-24. Résultats mesurés : backend 541 tests collectés (suite complète : 539 réussis, 0 échec, 2 ignorés = les deux tests `-m model`) ; frontend 88 tests, typecheck, lint, build OK.
 
 | Fonctionnalité | IMPL | FIX | RÉEL | Remarques |
 |---|:-:|:-:|:-:|---|

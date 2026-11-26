@@ -32,6 +32,7 @@ from .models import (
     KnowledgeBase,
 )
 from .runtime import KnowledgeRuntime
+from .services import pipeline as PL
 from .textproc import ANALYZER_VERSION, analyze
 
 EXPORTER = {"name": "alerte-platform/knowledge", "version": "0.1.0"}
@@ -148,10 +149,10 @@ def _build_export(rt: KnowledgeRuntime, s: Session, ex: KBExport, plan: dict, pr
         for d, v in plan["rows"]:
             src = None
             if plan["originals"]:
-                if rt.blobs.exists(v.blob_sha256):
+                if PL.original_exists(rt, v):  # emplacement de référence (knowledge_sources) ou ancien stockage par contenu
                     ext = Path(v.original_name or "").suffix.lower() or ".bin"
                     src = "data/sources/" + af.safe_source_name(d.code, v.version_no, ext, used)
-                    sources[src] = rt.blobs.path_for(v.blob_sha256)
+                    sources[src] = PL.original_path(rt, v)
                 else:
                     warnings.append(f"original indisponible pour {d.code} v{v.version_no}")
             docs.append(_doc_record(d, v, src, d.current_version_id == v.id, not plan["chunks"]))
@@ -382,6 +383,8 @@ def confirm_import(rt: KnowledgeRuntime, job: JobContext | None, import_id: str,
                     original_name=v.get("original_name"), extraction_method=v.get("extraction_method"),
                     extraction_quality=v.get("extraction_quality"), pages_to_review=v.get("pages_to_review"),
                     quality_report=v.get("quality_report"), status=v["status"], note=v.get("note"),
+                    processing_state=v["status"] if v["status"] in ("ready", "needs_review") else "failed",
+                    provenance={"origin": "archive_import", "archive_manifest_sha256": p.manifest_sha256},
                     supersedes_id=(last.id if (existing is not None and last) else None)))
                 s.flush()
                 if existing is not None or rec.get("is_current", True):
