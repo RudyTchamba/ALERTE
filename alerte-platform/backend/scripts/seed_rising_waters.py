@@ -7,8 +7,9 @@ Prérequis : backend démarré ; `python scripts/rising_waters_pack.py` déjà e
     python scripts/seed_rising_waters.py --until 4 --country AE   # jumeau Émirats jusqu'aux mandats
     python scripts/seed_rising_waters.py --token <jeton> --from 5 --until 6   # reprendre dans un espace existant
 
-Étapes : 1 espace · 2 pays, institutions, actions · 3 bases de connaissances (import des archives du prototype, publication) ·
-4 mandats (import CSV, statut « proposé ») · 5 agents et droits d'accès · 6 scénario (import YAML) · 7 exercice et sièges ·
+Étapes : 1 espace · 2 pays, institutions, actions · 3 base de connaissances RECONSTRUITE à partir des PDF (vérifiée complète, publiée ;
+elle doit déjà exister : `python -m app.cli knowledge build --country CC`, aucun import de l'ancien prototype) ·
+4 mandats de la nouvelle base (import CSV, statut « proposé ») · 5 agents et droits d'accès · 6 scénario (import YAML) · 7 exercice et sièges ·
 8 préparation + lancement (autopilot **scripted = SANS IA**).
 
 Ne supprime ni ne modifie rien : n'ajoute que des objets. Relancer l'étape 1 crée un NOUVEL espace (jamais de doublon silencieux :
@@ -18,9 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
@@ -100,23 +99,29 @@ def main() -> int:
 
     kbs = {x["code"]: x["id"] for x in api.call("GET", "/knowledge-bases")}
     if a.start <= 3 <= a.until:
-        tmp = Path(tempfile.mkdtemp(prefix="alerte-legacy-kb-"))
-        subprocess.run([sys.executable, str(HERE / "legacy_to_archive.py"), "--out", str(tmp)], check=True, capture_output=True)
-        for coll in (cc, "GL"):
-            if coll in kbs:
-                continue
-            f = tmp / f"alerte-kb-{coll}.zip"
-            r = api.call("POST", "/knowledge-bases/import", files={"file": (f.name, f.read_bytes())})
-            api.job(r["job"]["id"])
-            cf = api.call("POST", f"/imports/{r['import']['id']}/confirm", json={"mode": "new_kb", "code": coll})
-            kbs[coll] = api.job(cf["job"]["id"])["result"]["kb_id"]
-            if coll == cc and cc in countries:  # une base nationale est rattachée à son pays (relation enregistrée, pas seulement affichée)
-                api.call("PATCH", f"/knowledge-bases/{kbs[coll]}", json={"country_id": countries[cc]})
-            api.call("POST", f"/knowledge-bases/{kbs[coll]}/publish", json={"note": "Import du prototype (droits de redistribution inconnus)"})
-        print(f"[3] Bases importées et publiées : {', '.join(sorted(kbs))} (sans embeddings : recherche lexicale seule, signalée « dégradée »)")
+        # La base de connaissances est celle RECONSTRUITE à partir des PDF (CLI `python -m app.cli knowledge build`) : ce script n'importe
+        # plus l'ancienne archive du prototype et ne construit rien. Il vérifie que la base du pays est complète, puis la publie.
+        if cc not in kbs:
+            sys.exit(f"[3] la base {cc} n'existe pas dans cet espace. Construisez-la d'abord à partir des PDF : "
+                     f"`python -m app.cli knowledge build --country {cc}` (voir docs/knowledge-base/cli-et-pipeline.md), puis relancez avec --from 3.")
+        st = api.call("GET", f"/knowledge-bases/{kbs[cc]}/status")
+        if st["general_status"] != "ready":
+            e = st["embeddings"]
+            sys.exit(f"[3] la base {cc} n'est pas complète (état « {st['general_status']} », vecteurs {e['embedded']}/{e['chunks']}). "
+                     f"Terminez sa construction : `python -m app.cli knowledge build --country {cc}`, puis relancez avec --from 3.")
+        if cc in countries:  # une base nationale est rattachée à son pays (relation enregistrée, pas seulement affichée)
+            api.call("PATCH", f"/knowledge-bases/{kbs[cc]}", json={"country_id": countries[cc]})
+        if st["active_version"] is None:
+            api.call("POST", f"/knowledge-bases/{kbs[cc]}/publish", json={"note": "Base reconstruite à partir des PDF"})
+        missing = [c for c in ("GL",) if c not in kbs]
+        print(f"[3] Base {cc} reconstruite, complète et publiée." + (f" Non construites (agents sans accès à ces bases) : {', '.join(missing)}." if missing else ""))
 
     if a.start <= 4 <= a.until:
-        rep = api.call("POST", "/mandates/import-csv", content=(PACK / f"mandats-{cc.lower()}.csv").read_bytes(),
+        mandates_csv = PACK / f"mandats-{cc.lower()}.csv"
+        if not mandates_csv.exists():
+            sys.exit(f"[4] {mandates_csv.name} absent : aucun registre de mandats de la nouvelle base pour {cc} "
+                     f"(knowledge_bases/curation/mandates.{cc}.json). Rien n'est repris de l'ancien prototype.")
+        rep = api.call("POST", "/mandates/import-csv", content=mandates_csv.read_bytes(),
                        headers={**api.h, "content-type": "text/csv"})
         print(f"[4] Mandats importés (statut « proposé », sans source) : {rep}")
 

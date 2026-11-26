@@ -32,7 +32,7 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 
 ### Ce que cette version ne fait PAS (à savoir avant de commencer)
 * Un espace n'a **pas de champ « description »** : seulement un nom et un identifiant court facultatif.
-* Les **embeddings** (recherche vectorielle) ne sont calculés que si un serveur d'embeddings est configuré (`lancement-local.md` §2) ; une base construite sans cette étape (étape 5.2 bis) **n'en contient pas** : la recherche est alors **lexicale** (« dégradée », signalée). Le raccourci `seed_rising_waters.py` importe encore l'**ancienne archive du prototype** (voie dépréciée, conservée pour la démonstration rapide) ; pour le corpus reconstruit, suivre l'étape 5.
+* Les **embeddings** (recherche vectorielle) ne sont calculés que si un serveur d'embeddings est configuré (`lancement-local.md` §2) ; une base construite sans cette étape (étape 5.2 bis) **n'en contient pas** : la recherche est alors **lexicale** (« dégradée », signalée). Le raccourci `seed_rising_waters.py` **n'importe plus l'ancienne archive du prototype** : son étape 3 vérifie que la base du pays a été **reconstruite à partir des PDF** (`python -m app.cli knowledge build --country CM`, état `ready`, vecteurs complets), puis la publie ; sinon il s'arrête avec la commande à lancer.
 * Le **mode « Modèle réel »** n'a été validé qu'avec un très petit modèle (`qwen2.5:1.5b-instruct`), qui ne sait pas citer correctement : la démonstration se fait en **« Scénarisé (SANS IA) »**, qui prouve la plateforme, **jamais** que les agents raisonnent bien.
 * Détail complet : `etat-conformite-interface.md`. Cas de test : `matrice-tests-fonctionnels-et-extremes.md`.
 
@@ -270,7 +270,8 @@ Un mandat dit « telle institution peut/doit faire **telle action** ». L'import
 
 *Autres moyens* : bouton **Nouvelle action** (une par une) ; ou `python scripts/seed_rising_waters.py --token <jeton> --from 2 --until 2`. Les codes d'action sont **communs** aux deux pays (le jumeau Émirats réutilise ce même catalogue). *Vérification : [API] import CSV (essai à blanc puis réel, idempotent) et test automatisé ; [UI] bouton ajouté dans cette version.*
 
-### 7.1 Importer le registre du prototype (avec essai à blanc)
+### 7.1 Importer le registre de mandats de la nouvelle base (avec essai à blanc)
+> `mandats-cm.csv` est généré par `scripts/rising_waters_pack.py` à partir de **`knowledge_bases/curation/mandates.CM.json`** (nouvelle base) : chaque source est un code de document reconstruit (`CM-10`, `CM-05`…), jamais un ancien code du prototype (`CM-S01`). L'import ne crée **pas** de lien vers un extrait : le code cité, la citation et la note d'audit sont conservés dans la **note** du mandat, à relier ensuite à l'extrait (« Ajouter une source »). Un pays sans registre curé (aujourd'hui `AE`) n'a **pas** de fichier de mandats : rien n'est repris de l'ancien prototype.
 | Élément | Ce que je veux lire |
 |---|---|
 | **Objectif** | Charger les 14 lignes de mandats du Cameroun |
@@ -776,7 +777,7 @@ Rejouez Rising Waters en y combinant : (1) base sans la loi 2024/017 (étape 20)
 | **Objectif** | Jouer la **même histoire** avec les institutions et les textes des Émirats |
 | **Pré-requis** | Étapes 1–15 faites pour le Cameroun |
 | **Navigation** | Mêmes écrans, nouvelles données |
-| **Action** | **Raccourci** : `.venv/bin/python scripts/seed_rising_waters.py --token <jeton> --country AE --lang en --from 2 --until 8`. **Pas à pas** : (a) pays *Émirats arabes unis* `AE` ; (b) 10 institutions `AE-HYDRO, AE-MET, AE-DPC, AE-OPS, AE-ART, AE-MINSANTE, AE-DPA, AE-CTD, AE-ANTIC, AE-MOI` ; (c) importer `alerte-kb-AE.zip` (9 documents) puis **publier** ; (d) **Importer un CSV** `demo/rising-waters/mandats-ae.csv` (17 lignes) ; (e) agents + accès `AE` + `GL` ; (f) **Importer un YAML** `ae01-rising-waters-twin.en.alerte-scenario.yaml` ; (g) exercice + sièges ; (h) lancer |
+| **Action** | **Raccourci** : `.venv/bin/python scripts/seed_rising_waters.py --token <jeton> --country AE --lang en --from 2 --until 8`. **Pas à pas** : (a) pays *Émirats arabes unis* `AE` ; (b) 10 institutions `AE-HYDRO, AE-MET, AE-DPC, AE-OPS, AE-ART, AE-MINSANTE, AE-DPA, AE-CTD, AE-ANTIC, AE-MOI` ; (c) base `AE` **reconstruite à partir des PDF** (`python -m app.cli knowledge build --country AE`, pas encore faite) puis **publiée** ; (d) mandats `AE` : **aucun registre dans la nouvelle base pour l'instant** (`mandates.AE.json` absent) — le `mandats-ae.csv` présent dans le dépôt date de l'ancien prototype et **ne doit pas être importé** ; (e) agents + accès `AE` + `GL` ; (f) **Importer un YAML** `ae01-rising-waters-twin.en.alerte-scenario.yaml` ; (g) exercice + sièges ; (h) lancer |
 | **Saisie** | Équivalences du scénario : MET → NCM ; DPC → NCEMA ; ART → TDRA ; MINSANTE → Ministère de la Santé et de la Prévention ; DPA → UAE Data Office ; CTD → Municipalité de Dubaï ; ANTIC → UAE Cybersecurity Council ; OPS → opérateur générique |
 | **Résultat attendu** | Exercice jumeau terminé (constaté : **33 s**, 9 sièges, 17 mandats importés) |
 | **Vérification** | Filtre **Exercice** dans l'Analyse des lacunes : institutions `AE-*` seulement ; l'exercice Cameroun n'affiche que `MET…` |

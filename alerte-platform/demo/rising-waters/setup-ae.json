@@ -52,12 +52,6 @@
       "code": "AE-ANTIC",
       "name": "UAE Cybersecurity Council",
       "kind": "agency"
-    },
-    {
-      "code": "AE-MOI",
-      "name": "Ministère de l'Intérieur (MOI)",
-      "kind": "ministry",
-      "seat": false
     }
   ],
   "actions": [
