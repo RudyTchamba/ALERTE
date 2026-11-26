@@ -38,6 +38,8 @@ from .models import (
 )
 from .runtime import KnowledgeRuntime
 from .schemas import (
+    AdoptRequest,
+    BuildRequest,
     DocumentUpdate,
     EmbedRequest,
     ExpectedCreate,
@@ -49,6 +51,8 @@ from .schemas import (
     PublishRequest,
     SearchRequest,
 )
+from .services import build as bld
+from .services import pipeline
 
 router = APIRouter()
 Read = require_role("facilitator", "auditor")
@@ -68,7 +72,7 @@ def _job(ctx: AppContext, kind: str, fn, ws: str, payload: dict | None = None) -
 
 def kb_out(kb: KnowledgeBase) -> dict:
     return {"id": kb.id, "code": kb.code, "name": kb.name, "description": kb.description, "country_id": kb.country_id,
-            "domain": kb.domain, "kind": kb.kind, "languages": kb.languages or [], "embedder_key": kb.embedder_key,
+            "domain": kb.domain, "kind": kb.kind, "scope_kind": kb.scope_kind, "scope_path": pipeline.kb_scope(kb), "languages": kb.languages or [], "embedder_key": kb.embedder_key,
             "embedder_fingerprint": kb.embedder_fingerprint, "chunking_params": kb.chunking_params, "status": kb.status,
             "archived_at": kb.archived_at.isoformat() if kb.archived_at else None}
 
@@ -86,7 +90,9 @@ def doc_out(d: Document, v: DocumentVersion | None = None) -> dict:
 
 def ver_out(v: DocumentVersion, full: bool = False) -> dict:
     out = {"id": v.id, "version_no": v.version_no, "status": v.status, "bytes": v.bytes, "blob_sha256": v.blob_sha256,
-           "original_name": v.original_name, "extraction_method": v.extraction_method,
+           "original_name": v.original_name, "processing_state": v.processing_state, "processing_error": v.processing_error,
+           "storage_path": v.storage_path, "migration_filename": v.migration_filename, "download_name": v.download_name,
+           "provenance": v.provenance, "extraction_method": v.extraction_method,
            "extraction_quality": v.extraction_quality, "pages_to_review": v.pages_to_review or [],
            "supersedes_id": v.supersedes_id, "note": v.note, "created_at": v.created_at.isoformat()}
     if full:
@@ -108,17 +114,9 @@ def list_kbs(include_archived: bool = False, p: Principal = Depends(Read), sessi
 def create_kb(body: KBCreate, p: Principal = Depends(Write), session: Session = Depends(get_session),
               ctx: AppContext = Depends(get_ctx)) -> dict:
     rt = rt_of(ctx)
-    if body.country_id and rt.country_lookup:
-        rt.country_lookup(session, p.workspace_id, body.country_id)  # 404 si autre espace
-    code = body.code or kbops.slugify_code(body.name)
-    if session.scalar(select(KnowledgeBase.id).where(KnowledgeBase.workspace_id == p.workspace_id, KnowledgeBase.code == code)):
-        raise Conflict("code de base déjà utilisé", code="kb.code_taken")
-    from .chunking import DEFAULT_PARAMS
-    kb = KnowledgeBase(workspace_id=p.workspace_id, code=code, name=body.name, description=body.description,
-                       country_id=body.country_id, domain=body.domain, kind=body.kind, languages=body.languages,
-                       chunking_params={**DEFAULT_PARAMS, **(body.chunking_params or {})})
-    session.add(kb)
-    session.flush()
+    kb = kbops.create_kb(rt, session, p.workspace_id, code=body.code, name=body.name, kind=body.kind, scope_kind=body.scope_kind,
+                         country_id=body.country_id, domain=body.domain, languages=body.languages, description=body.description,
+                         chunking_params=body.chunking_params)
     return kb_out(kb)
 
 
@@ -151,14 +149,19 @@ def archive_kb(kb_id: str, p: Principal = Depends(Write), session: Session = Dep
 # --------------------------------------------------------------------------- documents
 @router.get("/knowledge-bases/{kb_id}/documents", tags=["knowledge"])
 def list_documents(kb_id: str, limit: int = Query(50, ge=1, le=200), cursor: str | None = None,
-                   status: str | None = None, p: Principal = Depends(Read), session: Session = Depends(get_session)) -> dict:
+                   status: str | None = None, state: str | None = None, p: Principal = Depends(Read),
+                   session: Session = Depends(get_session)) -> dict:
+    """Documents d'une base avec leur DERNIÈRE version (y compris un document importé et pas encore traité)."""
     get_kb(session, p.workspace_id, kb_id)
-    q = select(Document, DocumentVersion).outerjoin(DocumentVersion, DocumentVersion.id == Document.current_version_id) \
+    q = select(Document, DocumentVersion).outerjoin(
+        DocumentVersion, (DocumentVersion.document_id == Document.id) & DocumentVersion.id.in_(pipeline.latest_ids(kb_id))) \
         .where(Document.kb_id == kb_id, Document.workspace_id == p.workspace_id).order_by(Document.id).limit(limit + 1)
     if cursor:
         q = q.where(Document.id > cursor)
     if status:
         q = q.where(DocumentVersion.status == status)
+    if state:
+        q = q.where(DocumentVersion.processing_state == state)
     rows = session.execute(q).all()
     items = [doc_out(d, v) for d, v in rows[:limit]]
     return {"items": items, "next_cursor": rows[limit - 1][0].id if len(rows) > limit else None}
@@ -179,8 +182,9 @@ async def upload_document(kb_id: str, request: Request, file: UploadFile = File(
     def work() -> dict:
         kb = get_kb(session, p.workspace_id, kb_id, allow_archived=False)
         clean = _clean_meta(meta)
-        sha, size, _ = kbops.store_upload(rt, session, file.file, file.filename or "")
-        doc, ver = kbops.create_document(session, p.workspace_id, kb, sha, size, file.filename or "", clean)
+        sha, size, rel = kbops.store_original(rt, session, kb, file.file, file.filename or "")
+        doc, ver = kbops.create_document(session, p.workspace_id, kb, sha, size, file.filename or "", clean, storage_path=rel)
+        pipeline.mark_queued(session, ver)
         session.commit()  # le job (autre thread) doit voir les lignes
         from .ingest import ingest_version
         job = _job(ctx, "kb_ingest", lambda jc: ingest_version(rt, jc, ver.id), p.workspace_id, {"version_id": ver.id})
@@ -206,7 +210,7 @@ def _clean_meta(meta: dict) -> dict:
 @router.get("/documents/{doc_id}", tags=["knowledge"])
 def get_doc(doc_id: str, p: Principal = Depends(Read), session: Session = Depends(get_session)) -> dict:
     d = get_document(session, p.workspace_id, doc_id)
-    return doc_out(d, session.get(DocumentVersion, d.current_version_id) if d.current_version_id else None)
+    return doc_out(d, pipeline.latest_version(session, d.id))
 
 
 @router.patch("/documents/{doc_id}", tags=["knowledge"])
@@ -222,7 +226,7 @@ def patch_doc(doc_id: str, body: DocumentUpdate, p: Principal = Depends(Write), 
         if k in ("title", "reliability", "validity", "redistribution", "evidence_default") and v is None:
             continue
         setattr(d, k, v)
-    return doc_out(d, session.get(DocumentVersion, d.current_version_id) if d.current_version_id else None)
+    return doc_out(d, pipeline.latest_version(session, d.id))
 
 
 @router.delete("/documents/{doc_id}", status_code=200, tags=["knowledge"])
@@ -244,9 +248,10 @@ def new_version(doc_id: str, file: UploadFile = File(...), note: str | None = Fo
                 ctx: AppContext = Depends(get_ctx)) -> dict:
     rt = rt_of(ctx)
     d = get_document(session, p.workspace_id, doc_id)
-    get_kb(session, p.workspace_id, d.kb_id, allow_archived=False)
-    sha, size, _ = kbops.store_upload(rt, session, file.file, file.filename or "")
-    ver = kbops.add_version(session, p.workspace_id, d, sha, size, file.filename or "", note)
+    kb = get_kb(session, p.workspace_id, d.kb_id, allow_archived=False)
+    sha, size, rel = kbops.store_original(rt, session, kb, file.file, file.filename or "")
+    ver = kbops.add_version(session, p.workspace_id, d, sha, size, file.filename or "", note, storage_path=rel)
+    pipeline.mark_queued(session, ver)
     session.commit()
     from .ingest import ingest_version
     job = _job(ctx, "kb_ingest", lambda jc: ingest_version(rt, jc, ver.id), p.workspace_id, {"version_id": ver.id})
@@ -283,6 +288,84 @@ def version_chunks(doc_id: str, version_no: int, limit: int = Query(50, ge=1, le
                                                Chunk.ordinal > cursor).order_by(Chunk.ordinal).limit(limit + 1)).all()
     items = [KnowledgeRuntime.chunk_dict(c) for c in rows[:limit]]
     return {"items": items, "next_cursor": rows[limit - 1].ordinal if len(rows) > limit else None}
+
+
+# --------------------------------------------------------------------------- traitement individuel, historique, construction par base
+@router.get("/documents/{doc_id}/versions/{version_no}/events", tags=["knowledge"])
+def version_events(doc_id: str, version_no: int, p: Principal = Depends(Read), session: Session = Depends(get_session)) -> dict:
+    _, v = _version(session, p.workspace_id, doc_id, version_no)
+    return {"version": ver_out(v), "events": pipeline.events(session, v.id)}
+
+
+@router.post("/documents/{doc_id}/versions/{version_no}/reprocess", status_code=202, tags=["knowledge"])
+def reprocess_version(doc_id: str, version_no: int, p: Principal = Depends(Write), session: Session = Depends(get_session),
+                      ctx: AppContext = Depends(get_ctx)) -> dict:
+    """Relance INDIVIDUELLE : seul ce document est retraité (chunks, FTS et vecteurs de cette version recréés, sans doublon)."""
+    rt = rt_of(ctx)
+    d, v = _version(session, p.workspace_id, doc_id, version_no)
+    get_kb(session, p.workspace_id, d.kb_id, allow_archived=False)
+    if not pipeline.original_exists(rt, v):
+        raise Conflict("fichier source introuvable : réimportez le document", code="kb.reprocess.source_missing")
+    pipeline.prepare_reprocess(session, p.workspace_id, v.id)
+    session.commit()
+    from .ingest import ingest_version
+    return {"job": _job(ctx, "kb_ingest", lambda jc: ingest_version(rt, jc, v.id), p.workspace_id, {"version_id": v.id})}
+
+
+@router.get("/knowledge-bases/{kb_id}/status", tags=["knowledge"])
+def kb_status_route(kb_id: str, p: Principal = Depends(Read), session: Session = Depends(get_session),
+                    ctx: AppContext = Depends(get_ctx)) -> dict:
+    return bld.kb_status(rt_of(ctx), session, get_kb(session, p.workspace_id, kb_id))
+
+
+@router.get("/knowledge-bases/{kb_id}/check", tags=["knowledge"])
+def kb_check_route(kb_id: str, files: bool = True, p: Principal = Depends(Read), session: Session = Depends(get_session),
+                   ctx: AppContext = Depends(get_ctx)) -> dict:
+    return bld.check_coherence(rt_of(ctx), session, get_kb(session, p.workspace_id, kb_id), verify_files=files)
+
+
+@router.post("/knowledge-bases/{kb_id}/build", status_code=202, tags=["knowledge"])
+def kb_build_route(kb_id: str, body: BuildRequest | None = None, p: Principal = Depends(Write),
+                   session: Session = Depends(get_session), ctx: AppContext = Depends(get_ctx)) -> dict:
+    """Construit CETTE base uniquement (documents en attente, embeddings manquants, index, contrôle ; publication si demandée)."""
+    rt = rt_of(ctx)
+    get_kb(session, p.workspace_id, kb_id, allow_archived=False)
+    b = body or BuildRequest()
+    return {"job": _job(ctx, "kb_build", lambda jc: bld.build_kb(rt, jc, kb_id, steps=tuple(b.steps), reembed=b.reembed,
+                                                                 publish=b.publish, note=b.note), p.workspace_id,
+                        {"kb_id": kb_id, "steps": b.steps})}
+
+
+@router.get("/knowledge-bases/{kb_id}/unregistered", tags=["knowledge"])
+def kb_unregistered(kb_id: str, p: Principal = Depends(Read), session: Session = Depends(get_session),
+                    ctx: AppContext = Depends(get_ctx)) -> dict:
+    """Fichiers présents dans le dossier du périmètre de cette base mais sans enregistrement documentaire."""
+    return {"scope_path": pipeline.kb_scope(get_kb(session, p.workspace_id, kb_id)),
+            "files": kbops.list_unregistered(rt_of(ctx), session, get_kb(session, p.workspace_id, kb_id))}
+
+
+@router.post("/knowledge-bases/{kb_id}/adopt", status_code=202, tags=["knowledge"])
+def kb_adopt(kb_id: str, body: AdoptRequest, p: Principal = Depends(Write), session: Session = Depends(get_session),
+             ctx: AppContext = Depends(get_ctx)) -> dict:
+    rt = rt_of(ctx)
+    kb = get_kb(session, p.workspace_id, kb_id, allow_archived=False)
+    meta = _clean_meta(body.meta)
+    out, jobs = [], []
+    for rel in body.files:
+        try:
+            doc, ver = kbops.adopt_file(rt, session, kb, rel, dict(meta))
+            pipeline.mark_queued(session, ver)
+            session.commit()
+            out.append({"path": rel, "document_id": doc.id, "version_id": ver.id})
+        except AppError as exc:  # un fichier refusé n'arrête pas les autres
+            session.rollback()
+            out.append({"path": rel, "error": exc.message if hasattr(exc, "message") else str(exc), "code": exc.code})
+    from .ingest import ingest_version
+    for o in out:
+        if "version_id" in o:
+            vid = o["version_id"]
+            jobs.append(_job(ctx, "kb_ingest", lambda jc, vid=vid: ingest_version(rt, jc, vid), p.workspace_id, {"version_id": vid}))
+    return {"documents": out, "jobs": jobs}
 
 
 # --------------------------------------------------------------------------- qualité, publication, index

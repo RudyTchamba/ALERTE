@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form'
 import { api } from '@/api/client'
 import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
-import type { ChunkList, Doc, DocVersion, JobRef, Preview } from '@/api/loose'
+import type { ChunkList, Doc, DocEvents, DocVersion, JobRef, Preview } from '@/api/loose'
 import type { DocumentUpdate } from '@/api/types'
-import { Badge, Button, Card, ConfirmDialog, EmptyState, Field, Input, KeyValue, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/ui'
+import { Badge, Button, Card, ConfirmDialog, EmptyState, Field, Input, KeyValue, Mono, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { fmtBytes, fmtDateTime, fmtPct } from '@/lib/format'
 import { JobProgress } from './JobProgress'
@@ -58,9 +58,15 @@ function DocumentView({ doc, kbId }: { doc: Doc; kbId: string }) {
     onSuccess: (r) => setJob(r.job.id), onError: (e) => toast.push(errorMessage(e, t), 'danger'),
   })
 
+  const events = useApiQuery<DocEvents>(['doc-events', doc.id, cur?.version_no], cur ? `/documents/${doc.id}/versions/${cur.version_no}/events` : null, { refetchInterval: 5000 })
+  const reprocess = useApiMutation(() => api.post<{ job: JobRef }>(`/documents/${doc.id}/versions/${cur?.version_no}/reprocess`, {}), {
+    invalidate: [keys.doc(doc.id), keys.kbDocs(kbId), ['doc-events', doc.id, cur?.version_no]], onSuccess: (r) => setJob(r.job.id), onError: (e) => toast.push(errorMessage(e, t), 'danger'),
+  })
+  const prov = cur?.provenance ?? null
+
   return (
     <>
-      <PageHeader title={doc.title} description={doc.code} actions={<><StatusBadge status={cur?.status} /><Button variant="danger" onClick={() => setRetire(true)}>{t('kb.retire')}</Button></>} />
+      <PageHeader title={doc.title} description={doc.code} actions={<><StatusBadge status={cur?.processing_state ?? cur?.status} /><Button variant="danger" onClick={() => setRetire(true)}>{t('kb.retire')}</Button></>} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h2 className="mb-2 font-semibold">{t('kb.metadata')}</h2>
@@ -86,7 +92,14 @@ function DocumentView({ doc, kbId }: { doc: Doc; kbId: string }) {
             ['#', `v${cur.version_no}`], [t('kb.file'), cur.original_name ?? '—'], [t('kb.size'), fmtBytes(cur.bytes)],
             [t('kb.extraction'), cur.extraction_method ?? '—'], [t('kb.quality'), cur.extraction_quality == null ? '—' : fmtPct(cur.extraction_quality)],
             [t('kb.toReview'), cur.pages_to_review.length ? cur.pages_to_review.join(', ') : '—'], [t('common.createdAt'), fmtDateTime(cur.created_at)],
+            [t('kb.processingState'), <StatusBadge key="ps" status={cur.processing_state ?? cur.status} />],
+            [t('kb.storagePath'), cur.storage_path ? <Mono key="sp">{cur.storage_path}</Mono> : t('kb.legacyStorage')],
+            ['SHA-256', cur.blob_sha256 ? <Mono key="sh">{cur.blob_sha256}</Mono> : '—'],
           ]} /> : <p className="text-sm text-muted">—</p>}
+          {cur?.processing_error && <p role="alert" className="mt-2 text-sm text-danger">{cur.processing_error}</p>}
+          {cur && !['retired'].includes(cur.processing_state ?? '') && ['failed', 'uploaded', 'queued', 'ready', 'needs_review'].includes(cur.processing_state ?? cur.status) && (
+            <div className="mt-2"><Button loading={reprocess.isPending} onClick={() => reprocess.mutate(undefined)}>{t('kb.reprocess')}</Button></div>
+          )}
           <div className="mt-3">
             <label className="text-sm font-medium" htmlFor="newver">{t('kb.newVersion')}</label>
             <div className="flex flex-wrap items-center gap-2"><input id="newver" type="file" onChange={(e) => { const f = e.target.files?.[0]; if (f) newVersion.mutate(f) }} /></div>
@@ -100,12 +113,26 @@ function DocumentView({ doc, kbId }: { doc: Doc; kbId: string }) {
           <ul className="mt-1 flex flex-wrap gap-2">{cur.pages_to_review.map((p) => <li key={p}><Badge tone="warn">{t('kb.page')} {p}</Badge></li>)}</ul>
         </Section>
       )}
+      <Section title={t('kb.provenance')} className="mt-4">
+        {prov ? <KeyValue items={Object.entries(prov).map(([k, v]) => [k, typeof v === 'string' ? v : JSON.stringify(v)] as [string, string])} /> : <p className="text-sm text-muted">—</p>}
+        {cur && (cur.migration_filename || cur.download_name) && <p className="mt-1 text-xs text-muted">{t('kb.nameNotice')}</p>}
+      </Section>
+      <Section title={t('kb.processingHistory')} className="mt-4">
+        <QueryState q={events} what="(/events)">
+          {(e) => e.events.length === 0 ? <p className="text-sm text-muted">—</p> : (
+            <Table caption={t('kb.processingHistory')}>
+              <THead><Tr><Th>{t('common.createdAt')}</Th><Th>{t('common.status')}</Th><Th>{t('kb.message')}</Th></Tr></THead>
+              <TBody>{e.events.map((x, i) => <Tr key={`${x.at}-${i}`}><Td>{fmtDateTime(x.at)}</Td><Td><StatusBadge status={x.state} /></Td><Td className="text-sm">{x.message ?? '—'}</Td></Tr>)}</TBody>
+            </Table>
+          )}
+        </QueryState>
+      </Section>
       <Section title={t('kb.versionHistory')} className="mt-4">
         <QueryState q={versions} what="(/versions)">
           {(rows) => (
             <Table caption={t('kb.versionHistory')}>
               <THead><Tr><Th>#</Th><Th>{t('common.status')}</Th><Th>{t('kb.file')}</Th><Th>{t('common.createdAt')}</Th><Th>{t('kb.note')}</Th></Tr></THead>
-              <TBody>{rows.map((v) => <Tr key={v.id}><Td>v{v.version_no}</Td><Td><StatusBadge status={v.status} /></Td><Td>{v.original_name}</Td><Td>{fmtDateTime(v.created_at)}</Td><Td>{v.note ?? '—'}</Td></Tr>)}</TBody>
+              <TBody>{rows.map((v) => <Tr key={v.id}><Td>v{v.version_no}</Td><Td><StatusBadge status={v.processing_state ?? v.status} /></Td><Td>{v.original_name}</Td><Td>{fmtDateTime(v.created_at)}</Td><Td>{v.note ?? '—'}</Td></Tr>)}</TBody>
             </Table>
           )}
         </QueryState>

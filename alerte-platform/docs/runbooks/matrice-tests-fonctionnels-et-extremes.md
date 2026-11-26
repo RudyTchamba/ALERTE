@@ -29,6 +29,15 @@
 | KB-03 | P0 | KB-02 | Publier `v1` ; republier sans changement | v1 ; 2ᵉ refus « aucun changement » | versions immuables | API |
 | KB-04 | P0 | KB vide | Nouvelle base → Documents → téléverser un PDF scanné | ingestion SSE ≈ 3 min, `needs_review`, pages/articles, qualité 0,88 | extraction/OCR | API |
 | KB-05 | P1 | KB-04 | téléverser le **même** fichier | refus `kb.document.duplicate` (SHA-256) | doublon | TEST |
+| KB-P01 | P0 | base CM | Importer 10 PDF + même nom/contenu différent + copie du même contenu + fichier invalide + fichier nommé `AE-01_ITU_…` | 12 documents ; copie refusée (409 SHA-256), invalide refusé seul ; collision conservée avec suffixe ; fichier au nom trompeur reste dans la base choisie sans pays/type déduits ; un fichier par PDF, aucun lien | import multiple | TEST (`test_pipeline_api.py`, `test_pipeline_cli.py`) |
+| KB-P02 | P0 | CM et AE | Construire CM seulement | aucune ligne d'AE ne change (documents, versions, chunks, FTS, vecteurs, événements, fichiers) ; sans `--country` : refus | isolation | TEST + CLI-RÉEL |
+| KB-P03 | P0 | CM prête | Ajouter 1 PDF puis `build` | seuls ses chunks sont calculés ; anciens vecteurs inchangés (même date) | incrémental | TEST |
+| KB-P04 | P0 | doc « extracting » | Arrêt simulé → `recover` → `retry` | `failed` puis `ready`, aucun chunk dupliqué, historique conservé | reprise | TEST |
+| KB-P05 | P0 | dossier migré | `sources-migrate` simulation / `--apply`, `adopt`, `sources-verify` | simulation n'écrit rien ; source intacte ; ITU sous `organizations/` ; fichier modifié à la main détecté | migration | TEST + CLI-RÉEL |
+| KB-P06 | P0 | registre de curation | `curate` | métadonnées appliquées au PDF désigné par SHA-256 ; un PDF au nom ressemblant à un code reste sans métadonnées | indépendance du nom | TEST + CLI-RÉEL |
+| KB-P07 | P0 | 2 bases | recherche CM / AE par l'API | aucun résultat de l'autre base ; CLI et API donnent le même état | cohérence CLI/API | TEST |
+| KB-P08 | P1 | interface | aperçu avant envoi, métadonnées par fichier, relance, périmètre affiché, confirmation nommant la base | voir `kbPipeline.test.tsx` | interface | TEST (jsdom) ; clic réel ABS |
+| KB-P09 | P0 | 8 threads | analyse lexicale parallèle (deux jobs d'ingestion simultanés) | aucune `IndexError` (stemmer par thread) | concurrence | TEST |
 | KB-06 | P1 | doc | Validité = `replaced` | exclu des recherches courantes | obsolète | TEST |
 | KB-07 | P0 | KB-02 | Test de recherche « état d'urgence » | CM-09 Art. 6 en tête | retrieval | API |
 | KB-08 | P1 | KB-02 | recherche FR sur doc EN / sans résultat / sans article | résultats ou « Aucun résultat » ; mode dégradé affiché | multilingue, vide | API |

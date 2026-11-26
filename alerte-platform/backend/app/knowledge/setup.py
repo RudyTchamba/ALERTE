@@ -17,6 +17,9 @@ def register(ctx) -> None:  # noqa: ANN001
     lookup = getattr(ws, "get_country", None)
     rt = KnowledgeRuntime(ctx.settings, ctx.session_factory, ctx.blobs, ctx.jobs, embedder, country_lookup=lookup)
     rt.signer = getattr(ctx.services.get("ledger"), "signer", None)  # signe les archives exportées (Ed25519)
+    from .services.pipeline import recover_interrupted
+    if ctx.recover_on_start:
+        recover_interrupted(ctx.session_factory)  # versions restées « en cours » après un arrêt : failed, relançables
     ctx.services["knowledge"] = rt
     ctx.services["search"] = rt.search
     ctx.services["embedder"] = embedder

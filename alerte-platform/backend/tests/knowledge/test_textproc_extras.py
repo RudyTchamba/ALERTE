@@ -25,3 +25,14 @@ def test_authority_weighting_is_neutral_by_default_because_rrf_scores_are_tightl
     dont le passage était le meilleur résultat lexical. Défaut neutre ; l'amplitude est un réglage explicite."""
     assert AUTHORITY_SPREAD == 0.0
     assert len(set(AUTHORITY.values())) == 1
+
+
+def test_stemming_is_thread_safe():
+    """Régression : un stemmer Snowball partagé plantait (IndexError) quand deux jobs d'ingestion analysaient du texte en parallèle."""
+    import concurrent.futures as cf
+
+    from app.knowledge.textproc import analyze
+    text = "Les opérateurs de téléphonie mobile diffusent immédiatement les alertes officielles aux populations concernées. " * 40
+    with cf.ThreadPoolExecutor(8) as ex:
+        out = list(ex.map(lambda _: analyze(text), range(64)))
+    assert len(set(out)) == 1

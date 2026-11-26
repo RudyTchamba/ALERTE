@@ -20,6 +20,7 @@ class KBCreate(BaseModel):
     country_id: str | None = None
     domain: str | None = Field(default=None, max_length=100)
     kind: KBKind = "national"
+    scope_kind: Literal["country", "global", "organization"] | None = None  # défaut : global si kind=global_practices, sinon country
     languages: list[str] = Field(default_factory=list)
     chunking_params: dict[str, Any] | None = None
 
@@ -116,3 +117,21 @@ class ExpectedUpdate(BaseModel):
     citation: str | None = None
     status: Literal["present", "missing", "replaced"] | None = None
     matched_document_id: str | None = None
+
+
+class BuildRequest(BaseModel):
+    """Construction d'UNE base (le périmètre est la base de l'URL : jamais global)."""
+
+    model_config = ConfigDict(extra="forbid")
+    steps: list[Literal["process", "embed", "index", "check"]] = Field(default_factory=lambda: ["process", "embed", "index"])
+    reembed: bool = False
+    publish: bool = False
+    note: str | None = None
+
+
+class AdoptRequest(BaseModel):
+    """Enregistre des fichiers DÉJÀ présents dans le dossier du périmètre (chemins relatifs fournis par `unregistered`)."""
+
+    model_config = ConfigDict(extra="forbid")
+    files: list[str] = Field(min_length=1, max_length=500)
+    meta: dict[str, Any] = Field(default_factory=dict)

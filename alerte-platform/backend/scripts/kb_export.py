@@ -59,7 +59,7 @@ def main() -> int:
     ap.add_argument("--api", default="http://localhost:8020")
     ap.add_argument("--token", required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--collections", default="CM,AE,GL,ITU")
+    ap.add_argument("--collections", required=True, help="périmètre OBLIGATOIRE, ex. CM ou CM,AE (aucun défaut global)")
     a = ap.parse_args()
     c = httpx.Client(base_url=a.api.rstrip("/") + "/api/v1", headers={"Authorization": f"Bearer {a.token}"}, timeout=600)
 

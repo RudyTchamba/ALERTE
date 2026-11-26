@@ -30,7 +30,12 @@ RELIABILITY = ("official", "summary", "unofficial", "unknown", "not_found")
 VALIDITY = ("in_force", "replaced", "unknown")
 REDISTRIBUTION = ("allowed", "restricted", "unknown")
 EVIDENCE = ("documented", "inferred", "assumed")
-VERSION_STATUS = ("processing", "ready", "needs_review", "failed", "retired")
+VERSION_STATUS = ("processing", "ready", "needs_review", "failed", "retired")  # état historique (conservé : compatibilité API/archives)
+# États de traitement détaillés (un par version de document). `status` en est DÉRIVÉ (LEGACY_STATUS) : jamais deux vérités.
+IN_FLIGHT_STATES = ("uploaded", "validating", "queued", "extracting", "ocr_processing", "structuring", "chunking", "embedding", "indexing")
+PROCESSING_STATES = IN_FLIGHT_STATES + ("ready", "needs_review", "failed", "retired")
+LEGACY_STATUS = {**{st: "processing" for st in IN_FLIGHT_STATES}, "ready": "ready", "needs_review": "needs_review", "failed": "failed", "retired": "retired"}
+SCOPE_KINDS = ("country", "global", "organization")  # périmètre d'une base : pays / base globale / organisation (ITU n'est pas un pays)
 
 
 class KnowledgeBase(Base, TimestampMixin):
@@ -45,6 +50,7 @@ class KnowledgeBase(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     domain: Mapped[str | None] = mapped_column(String(100), nullable=True)
     kind: Mapped[str] = mapped_column(String(24), default="national")
+    scope_kind: Mapped[str] = mapped_column(String(16), default="country")  # country | global | organization (voir SCOPE_KINDS)
     languages: Mapped[list | None] = mapped_column(JSON, nullable=True)
     embedder_key: Mapped[str | None] = mapped_column(String(32), nullable=True)
     embedder_fingerprint: Mapped[dict | None] = mapped_column(JSON, nullable=True)
@@ -98,8 +104,32 @@ class DocumentVersion(Base):
     pages_to_review: Mapped[list | None] = mapped_column(JSON, nullable=True)
     quality_report: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="processing")
+    # --- stockage physique de référence : <data>/blobs/knowledge_sources/<périmètre>/<nom physique> (chemin RELATIF, jamais absolu)
+    storage_path: Mapped[str | None] = mapped_column(String(600), nullable=True)
+    migration_filename: Mapped[str | None] = mapped_column(String(300), nullable=True)  # nom du fichier au moment de la migration
+    download_name: Mapped[str | None] = mapped_column(String(300), nullable=True)       # nom de téléchargement d'origine, si réellement connu
+    provenance: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    processing_state: Mapped[str] = mapped_column(String(20), default="uploaded")
+    processing_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("document_version.id"), nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class DocumentEvent(Base):
+    """Historique de traitement d'une version de document (une ligne par changement d'état ou événement notable)."""
+
+    __tablename__ = "document_event"
+    __table_args__ = (Index("ix_document_event_version", "document_version_id", "created_at"),)
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspace.id"), index=True)
+    kb_id: Mapped[str] = mapped_column(String(26), index=True)
+    document_id: Mapped[str] = mapped_column(ForeignKey("document.id"), index=True)
+    document_version_id: Mapped[str] = mapped_column(ForeignKey("document_version.id"))
+    state: Mapped[str] = mapped_column(String(20))
+    message: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    job_id: Mapped[str | None] = mapped_column(String(26), nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
@@ -137,6 +167,7 @@ class ChunkEmbedding(Base):
     embedder_key: Mapped[str] = mapped_column(String(32), primary_key=True)
     dim: Mapped[int] = mapped_column(Integer)
     vector: Mapped[bytes] = mapped_column(LargeBinary)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=utcnow)  # date de génération
 
 
 class KBVersion(Base):

@@ -17,6 +17,7 @@ from .extract import ExtractionError, OcrEngine, extract
 from .indexes import chunk_fts_row, fts_insert
 from .models import Chunk, ChunkEmbedding, Document, DocumentVersion, KBVersionItem, KnowledgeBase
 from .runtime import KnowledgeRuntime
+from .services import pipeline as PL
 from .textproc import analyze, detect_language, normalize_text, scan_injection, strip_repeated_lines
 
 log = logging.getLogger("alerte.knowledge.ingest")
@@ -83,25 +84,34 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
         v = s.get(DocumentVersion, version_id)
         doc = s.get(Document, v.document_id)
         kb = s.get(KnowledgeBase, v.kb_id)
-        meta = dict(sha=v.blob_sha256, name=v.original_name or "", kb_id=kb.id, ws=v.workspace_id, doc_id=doc.id,
+        meta = dict(sha=v.blob_sha256, name=v.original_name or "", path=PL.original_path(rt, v), kb_id=kb.id, ws=v.workspace_id, doc_id=doc.id,
                     title=doc.title, evidence=doc.evidence_default, params=kb.chunking_params, doc_lang=doc.language)
 
+    jid = getattr(job, "job_id", None) if job else None
+
+    def state(st: str, msg: str | None = None) -> None:
+        with rt.factory() as s2:
+            PL.set_state(s2, version_id, st, msg, job_id=jid)
+            s2.commit()
+
     prog(0.05, "extraction du texte")
+    state("extracting", "extraction du texte")
     try:
         ocr = OcrEngine(rt.settings.ocr_langs, rt.settings.tessdata_dir) if Path(meta["name"]).suffix.lower() == ".pdf" else None
-        ex = extract(rt.blobs.path_for(meta["sha"]), Path(meta["name"]).suffix, ocr)
+        ex = extract(meta["path"], Path(meta["name"]).suffix, ocr, on_ocr=lambda n: state("ocr_processing", f"OCR de la page {n}"))
     except Exception as exc:  # noqa: BLE001 - échec explicite, jamais silencieux
         msg = str(exc)[:400]
         with rt.factory() as s:
+            PL.set_state(s, version_id, "failed", f"extraction impossible : {msg}", job_id=jid, error=f"extraction impossible : {msg}")
             s.execute(update(DocumentVersion).where(DocumentVersion.id == version_id).values(
-                status="failed", quality_report={"error": msg,
-                                                 "code": getattr(exc, "code", "kb.document.unreadable")}))
+                quality_report={"error": msg, "code": getattr(exc, "code", "kb.document.unreadable")}))
             s.commit()
         if isinstance(exc, ExtractionError):
             raise
         raise ExtractionError(msg) from exc
 
     prog(0.35, "normalisation et détection de structure")
+    state("structuring", "normalisation et détection de la structure")
     stats: Counter = Counter()
     texts = [normalize_text(p.text, stats) for p in ex.pages]
     if ex.paged:
@@ -116,6 +126,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
             drafts.append(ChunkDraft(r, None, None, off, off + len(r)))
             off += len(r) + 1
     else:
+        state("chunking", "découpage en chunks")
         drafts = chunk_pages([(p.number, t) for p, t in zip(ex.pages, texts, strict=True)], meta["params"])
     full_text = "\n".join(texts)
     doc_lang = meta["doc_lang"] or detect_language(full_text)
@@ -158,6 +169,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
     }
 
     prog(0.55, "indexation lexicale")
+    state("indexing", "indexation lexicale (FTS5)")
     with rt.factory() as s:
         in_published = s.scalar(select(KBVersionItem.document_version_id).where(
             KBVersionItem.document_version_id == version_id))
@@ -188,8 +200,10 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
         fts_insert(s, [chunk_fts_row(c) for c in rows])
         status = "needs_review" if (pages_review or gaps or lost_text or quality < 0.5 or chars_total < MIN_USEFUL_CHARS) else "ready"
         s.execute(update(DocumentVersion).where(DocumentVersion.id == version_id).values(
-            status=status, extraction_method=ex.method, extraction_quality=round(quality, 3),
+            extraction_method=ex.method, extraction_quality=round(quality, 3),
             pages_to_review=pages_review, quality_report=report, text_blob_sha256=pages_blob))
+        PL.set_state(s, version_id, status, f"{len(drafts)} chunk(s) ; {len(pages_review)} page(s) à relire" if status == "needs_review"
+                     else f"{len(drafts)} chunk(s)", job_id=jid)
         d_obj = s.get(Document, meta["doc_id"])
         if not d_obj.language and doc_lang != "und":
             d_obj.language = doc_lang
@@ -200,6 +214,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
                               "chunks": len(drafts), "pages_to_review": pages_review, "warnings": warnings}
     if embed and not _embedder_unavailable(rt):
         prog(0.7, "embeddings")
+        state("embedding", "calcul des embeddings de ce document")
         try:
             from .kbops import embed_kb
             result["embedding"] = embed_kb(rt, job, meta["kb_id"], version_ids=[version_id], _span=(0.7, 1.0))
@@ -212,6 +227,9 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
                 s.commit()
     elif embed:
         result["embedding_error"] = "serveur d'embeddings non configuré (recherche lexicale seule)"
+    with rt.factory() as s:  # état final (après un passage éventuel par `embedding`)
+        PL.set_state(s, version_id, status, "traitement terminé", job_id=jid)
+        s.commit()
     return result
 
 

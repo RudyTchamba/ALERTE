@@ -140,40 +140,52 @@ Les **identifiants (codes)** ci-dessous sont ceux du scénario : ils doivent êt
 
 ## Étape 5 — Construire les bases de connaissances à partir des PDF originaux
 
-**Décision actuelle** : les bases sont **reconstruites par le pipeline d'ALERTE à partir des PDF originaux** du dossier `alerte/` (lecture seule). L'ancienne archive prétraitée du prototype (45 documents, 4 235 passages) **n'est plus utilisée** : elle contenait des fichiers mal étiquetés (par exemple « décret 98/031 » qui était un rapport IDNDR) et des chunks sans pages. Détail et chiffres : [docs/knowledge-base/build-report.md](../knowledge-base/build-report.md).
+**Décision actuelle** : les bases sont **reconstruites par le pipeline d'ALERTE à partir des PDF originaux**, rangés dans `data/blobs/knowledge_sources/` (copie non destructive du projet historique `alerte/`, jamais modifié). L'ancienne archive prétraitée du prototype (45 documents, 4 235 passages) **n'est plus utilisée** : elle contenait des fichiers mal étiquetés (par exemple « décret 98/031 » qui était un rapport IDNDR) et des chunks sans pages. Détail et chiffres : [docs/knowledge-base/build-report.md](../knowledge-base/build-report.md).
 
 **Résultat de la construction de référence** (mesuré, voir le rapport) : **44 PDF** → 44 documents uniques (0 doublon), 2 133 pages, **3 684 chunks** (CM 1 322 · GL 2 083 · AE 186 · ITU 93), 4 bases publiées en `v1`. Ces valeurs viennent de l'exécution réelle ; si vous reconstruisez, les vôtres peuvent différer légèrement (OCR).
 
 **Droits documentaires — à comprendre d'abord.** Sur 44 documents : **2 `allowed`** (GL-05, GL-06 : œuvres du gouvernement fédéral des États-Unis), **1 `restricted`** (GL-07 : usage non commercial), **41 `unknown`**. L'application les utilise tous normalement ; l'**export « Publication ouverte »** refuse ceux qui ne sont pas `allowed` ; le dépôt GitHub ne reçoit le **texte** que des documents `allowed` ([publication-policy.md](../knowledge-base/publication-policy.md)).
 
 ### 5.1 Préparer l'environnement et les fichiers (une fois)
+Les PDF **vivent dans** `<ALERTE_DATA_DIR>/blobs/knowledge_sources/` : `CM/`, `AE/`, `GL/` et `organizations/ITU/` (l'ITU est une organisation, pas un pays). Détail : [cli-et-pipeline.md](../knowledge-base/cli-et-pipeline.md). **Sur une machine chargée, lancer avec `OMP_THREAD_LIMIT=1`** (une page OCR passe de ≈ 400 s à ≈ 3 s) et un dossier de données isolé (`ALERTE_DATA_DIR=./data-kb-build`).
 ```bash
-cd alerte-platform/backend
-.venv/bin/python scripts/kb_inventory.py --source ../../alerte --out ../knowledge_bases/inventory   # inventaire : SHA-256, pages, pages sans texte
-# modèles OCR français/arabe sans droits administrateur : voir docs/knowledge-base/rebuilding-the-knowledge-base.md §2
+cd alerte-platform/backend && export ALERTE_DATA_DIR=./data-kb-build OMP_THREAD_LIMIT=1
+SRC=<dossier du projet historique alerte>/data/docs
+python -m app.cli workspace create --name "ALERTE — Corpus"            # jeton propriétaire affiché une fois
+for c in CM AE GL; do python -m app.cli knowledge kb-create --code $c --name $c; done
+python -m app.cli knowledge kb-create --code ITU --name ITU --scope-kind organization
+python -m app.cli knowledge sources-migrate --map CM=$SRC/CM --map AE=$SRC/AE --map GL=$SRC/GL --map organizations/ITU=$SRC/ITU     # SIMULATION
+python -m app.cli knowledge sources-migrate --map CM=$SRC/CM --map AE=$SRC/AE --map GL=$SRC/GL --map organizations/ITU=$SRC/ITU --apply --manifest m.jsonl
+python -m app.cli knowledge adopt --country CM --manifest m.jsonl      # idem AE, GL, ITU
+python -m app.cli knowledge curate --country CM --curation ../knowledge_bases/curation/documents.curation.json --manifest m.jsonl
+python -m app.cli knowledge build --country CM --steps process,index   # UNE base à la fois ; sans --country : refus
+python -m app.cli knowledge status --country CM --documents ; python -m app.cli knowledge check --country CM
 ```
-**Sur une machine chargée, lancer le backend avec `OMP_THREAD_LIMIT=1`** (mesuré : une page OCR passe de ≈ 400 s à ≈ 3 s). Backend isolé conseillé (`ALERTE_DATA_DIR=./data-kb-build`) pour ne pas mélanger avec vos données.
 
-### 5.2 Importer les PDF (voie graphique, ou script équivalent)
+### 5.2 Importer des PDF depuis l'interface (plusieurs à la fois)
 | Élément | Ce que je veux lire |
 |---|---|
-| **Objectif** | Créer les bases `CM`, `AE`, `GL`, `ITU` et y importer chaque PDF avec ses métadonnées |
-| **Pré-requis** | 5.1 ; étapes 2 à 4 (le pays rattache la base) |
-| **Navigation** | **Bases de connaissances** → **Nouvelle base de connaissances** (nom, type, **pays**, domaine, langues) → page de la base → onglet **Documents** → téléverser un PDF → fiche du document (titre, type, langue, **fiabilité**, **validité**, **droits**) |
-| **Action** | Pour chaque PDF : téléverser, renseigner/vérifier les métadonnées lues **dans le PDF** (`knowledge_bases/curation/documents.curation.json`), suivre le job d'extraction |
-| **Équivalent script** | `python -u scripts/kb_build.py --api http://localhost:8020 --create-workspace "ALERTE — Corpus PDF" --stage setup,ingest,publish` (mêmes endpoints que l'interface) |
-| **Résultat attendu** | Chaque document passe `ready` ou **`needs_review`** (pages à relire, ou « suite des articles interrompue ») ; 44 documents au total (CM 17 · AE 9 · GL 16 · ITU 2) |
-| **Vérification** | onglet **Qualité et couverture** : pages OCR, pages à relire, articles reconnus ; `GET /knowledge-bases` |
-| **Erreur possible** | « un document identique existe déjà » (SHA-256) ; OCR : « langues OCR absentes » ; PDF chiffré/illisible |
-| **Correction** | ne pas réimporter un doublon ; installer les modèles OCR ; fournir un PDF lisible |
-| **Étape suivante** | 5.3 |
+| **Objectif** | Importer un ou plusieurs PDF dans UNE base, en contrôlant chacun avant l'envoi |
+| **Pré-requis** | La base existe (étape 5.3) ; vous êtes sur sa page |
+| **Navigation** | **Bases de connaissances** → la base → onglet **Documents** |
+| **Action** | **Choisir des fichiers** (ou glisser-déposer) : une **liste d'aperçu** apparaît (nom, taille, SHA-256, titre, type, langue, juridiction, redistribution **modifiables par fichier**) sous le titre « N fichier(s) à importer dans la base CM » ; **Importer N fichier(s) dans CM** envoie chacun comme document indépendant |
+| **Résultat attendu** | Barre de progression par fichier ; chaque ligne du tableau passe par les états *reçu → extraction → OCR → structuration → découpage → indexation* puis **prêt** ou **à relire**. Un doublon (même SHA-256) ou un fichier invalide est refusé **seul** |
+| **Vérification** | Onglet **Construction** : compteurs par état, chunks, index ; page d'un document : **Historique de traitement**, **Provenance**, chemin `CM/…pdf` |
+| **Erreur possible** | état **échec** (message affiché) ; document resté « en attente » |
+| **Correction** | bouton **Relancer** (ou **Traiter**) sur la ligne : seul ce document est retraité |
+| **Étape suivante** | 5.2 ter |
 
-*Vérification : **[API/script]** import des 44 PDF jusqu'à la publication (≈ 25 min sur une machine chargée, dont ≈ 4 min pour le scan CM-01) ; **[UI]** le parcours cliqué de téléversement n'a pas été rejoué dans cette session : les libellés sont ceux de l'application, à confirmer.*
+*Vérification : **[CLI-RÉEL]** 44 PDF migrés (copie, hash identiques à la source) ; CM : 17 documents → 1 351 chunks ; **[TEST]** API (12 documents dont collisions, doublon, fichier invalide, nom trompeur) et interface (jsdom) ; **[ABS]** clic dans un navigateur réel non rejoué.*
 
-**À savoir sur les résultats** : (a) **CM-01** (loi 2024/017) est un scan : l'OCR lit parfois mal un numéro d'article (« 53 » lu « §3 ») → le pipeline signale désormais **« suite des articles interrompue : 8 numéro(s) absent(s) »** et met le document en `needs_review` ; (b) **CM-07** est le rapport IDNDR et **non** le décret 98/031 (le vrai décret est un document attendu, voir `expected_documents.jsonl`) ; (c) les titres de plusieurs autres fichiers du dossier source étaient inexacts (liste dans [corpus-inventory.md](../knowledge-base/corpus-inventory.md)).
+### 5.2 ter Construire une base (onglet **Construction**)
+Chaque bouton nomme la base (« … (CM) ») et demande confirmation ; il n'existe **pas** de construction globale. *Traiter les documents en attente* · *Calculer les embeddings manquants* · *Reconstruire l'index lexical* · *Construire cette base* · *Tout recalculer (nouveau modèle)* (l'ancien index reste actif jusqu'à la fin) · *Vérifier la cohérence* · *Publier*. Construire CM ne modifie **rien** dans AE **[TEST]**. Un panneau « fichiers présents mais non enregistrés » permet d'enregistrer des PDF déjà rangés dans le dossier (ex. après migration).
+
+**Droits documentaires — à comprendre d'abord.** Sur 44 documents : **2 `allowed`** (GL-05, GL-06), **1 `restricted`** (GL-07), **41 `unknown`**. L'application les utilise tous normalement ; l'**export « Publication ouverte »** refuse ceux qui ne sont pas `allowed` ; le dépôt GitHub ne reçoit le **texte** que des documents `allowed` ([publication-policy.md](../knowledge-base/publication-policy.md)). L'import ne publie jamais.
+
+**À savoir sur les résultats** : (a) **CM-01** (loi 2024/017) est un scan : l'OCR lit parfois mal un numéro d'article → `needs_review` ; (b) **CM-07** est désormais le **vrai décret 98/031** (14 chunks) ; l'ancien « CM-07 » (rapport IDNDR) a été retiré du corpus ; (c) plusieurs titres du dossier source étaient inexacts ([corpus-inventory.md](../knowledge-base/corpus-inventory.md)).
 
 ### 5.2 bis Calculer les embeddings (recherche hybride)
-Page de la base → **Versions et index** → calculer les embeddings (BGE-M3 via Ollama, `ALERTE_EMBED_BASE_URL`/`ALERTE_EMBED_MODEL`), ou `kb_build.py --stage embed`. **Sans cette étape la recherche est lexicale seule** (étiquette « dégradé ») et une requête dans une autre langue que le texte ne trouve pas le passage. Mesuré ici : ≈ 6 s par passage sur la machine de développement (CPU saturé) : l'opération est longue et **reprenable**. Un index partiellement vectorisé est affiché comme **incomplet**, jamais comme « hybride ».
+Page de la base → **Versions et index** → calculer les embeddings (BGE-M3 via Ollama, `ALERTE_EMBED_BASE_URL`/`ALERTE_EMBED_MODEL`), ou `python -m app.cli knowledge embed --country CM`. **Sans cette étape la recherche est lexicale seule** (étiquette « dégradé ») et une requête dans une autre langue que le texte ne trouve pas le passage. Mesuré ici : ≈ 6 s par passage sur la machine de développement (CPU saturé) : l'opération est longue et **reprenable**. Un index partiellement vectorisé est affiché comme **incomplet**, jamais comme « hybride ».
 
 ### 5.3 Créer une base vide et y ajouter un document (UC-01)
 | Élément | Ce que je veux lire |

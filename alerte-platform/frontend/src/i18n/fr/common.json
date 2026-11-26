@@ -116,10 +116,24 @@
     "institutional": "institutionnelle",
     "documentary": "documentaire",
     "artifact": "artefact",
-    "undetermined": "indéterminée"
+    "undetermined": "indéterminée",
+    "uploaded": "reçu",
+    "validating": "validation",
+    "extracting": "extraction du texte",
+    "ocr_processing": "OCR en cours",
+    "structuring": "structuration",
+    "chunking": "découpage",
+    "embedding": "embeddings",
+    "indexing": "indexation",
+    "empty": "vide",
+    "errors": "erreurs",
+    "pending": "en attente",
+    "lexical_only": "lexical seul",
+    "vectors_incomplete": "vecteurs incomplets"
   },
   "crashTitle": "Un problème d'affichage est survenu",
   "crashHint": "Rechargez la page : votre session et l'exercice sont conservés. Si le navigateur propose de traduire la page, refusez (l'application a son propre choix de langue).",
   "reload": "Recharger la page",
-  "replayShort": "REJEU"
+  "replayShort": "REJEU",
+  "remove": "Retirer"
 }

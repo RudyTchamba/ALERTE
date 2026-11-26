@@ -25,6 +25,8 @@ class AppContext:
     services: dict[str, Any] = field(default_factory=dict)
     # Résolution d'un jeton en Principal (enregistrée par le module workspaces)
     principal_resolver: Callable[[Session, str], Any] | None = None
+    # Faux pour la CLI : un processus d'outil ne doit pas déclarer « interrompus » les traitements d'un serveur qui tourne
+    recover_on_start: bool = True
 
     def service(self, name: str) -> Any:
         try:

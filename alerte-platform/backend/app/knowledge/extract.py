@@ -10,6 +10,7 @@ import io
 import logging
 import re
 import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -199,7 +200,7 @@ def fix_arabic_visual_order(text: str) -> str:
     return "\n".join(lines)
 
 # --------------------------------------------------------------------------- formats
-def extract_pdf(path: Path, ocr: OcrEngine | None) -> Extraction:
+def extract_pdf(path: Path, ocr: OcrEngine | None, on_ocr: Callable[[int], None] | None = None) -> Extraction:
     import pdfplumber
     import pypdfium2 as pdfium
 
@@ -231,6 +232,8 @@ def extract_pdf(path: Path, ocr: OcrEngine | None) -> Extraction:
                 reason = (ocr.error if ocr else "OCR désactivé") or "OCR indisponible"
                 pages.append(Page(i, txt, "none", None, f"page pauvre ({len(txt.strip())} car.) ; {reason}"))
                 continue
+            if on_ocr is not None and ocr_doc is None:
+                on_ocr(i)  # première page lue par OCR : l'état du document passe à « ocr_processing »
             try:
                 if ocr_doc is None:
                     ocr_doc = pdfium.PdfDocument(str(path))
@@ -312,12 +315,12 @@ def extract_csv(path: Path) -> Extraction:
     return Extraction([Page(None, "\n".join(rows))], "csv", paged=False, rows=rows, warnings=warns)
 
 
-def extract(path: Path, ext: str, ocr: OcrEngine | None) -> Extraction:
+def extract(path: Path, ext: str, ocr: OcrEngine | None, on_ocr: Callable[[int], None] | None = None) -> Extraction:
     with path.open("rb") as fh:
         head = fh.read(4096)
     kind = sniff_kind(ext, head, path)
     if kind == "pdf":
-        return extract_pdf(path, ocr)
+        return extract_pdf(path, ocr, on_ocr)
     if kind == "docx":
         return extract_docx(path)
     if kind == "csv":

@@ -55,4 +55,4 @@ def test_app_starts_through_alembic(tmp_path):
     with TestClient(create_app(s)) as c:
         assert c.get("/api/v1/health").status_code == 200
     db = sqlite3.connect(str(s.resolved_data_dir / "db" / "alerte.sqlite"))
-    assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0002"
+    assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0003"

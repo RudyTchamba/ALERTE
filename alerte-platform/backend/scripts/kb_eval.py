@@ -5,7 +5,7 @@ Les chunks « gold » ne sont jamais saisis à la main : ils sont RÉSOLUS dans 
 contiennent textuellement `evidence_quote`, et, si indiqué, l'article attendu). Une question dont la preuve n'est pas retrouvée
 est marquée `not_evaluable` (problème de couverture ou d'extraction du corpus), jamais comptée comme réussite ni comme échec.
 
-    python scripts/kb_eval.py --api http://localhost:8020 --token <jeton> --out ../knowledge_bases/evaluation --label lexical
+    python scripts/kb_eval.py --api http://localhost:8020 --token <jeton> --out ../knowledge_bases/evaluation --label lexical --collections CM
 """
 from __future__ import annotations
 
@@ -37,9 +37,11 @@ def main() -> int:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--label", default="run", help="étiquette du mode (ex. lexical, hybrid)")
     ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--collections", required=True, help="périmètre OBLIGATOIRE, ex. CM ou CM,AE (aucune évaluation globale par défaut)")
     a = ap.parse_args()
     c = httpx.Client(base_url=a.api.rstrip("/") + "/api/v1", headers={"Authorization": f"Bearer {a.token}"}, timeout=600)
-    questions = [json.loads(x) for x in (a.out / "questions.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+    scope = set(a.collections.split(","))
+    questions = [q for q in (json.loads(x) for x in (a.out / "questions.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()) if q["collection"] in scope]
     kbs = {k["code"]: k for k in c.get("/knowledge-bases").json()}
     # chunks par (collection, document)
     cache: dict[tuple[str, str], list[dict]] = {}
