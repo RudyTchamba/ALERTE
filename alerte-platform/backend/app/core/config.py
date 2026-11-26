@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     embed_model: str | None = None  # ex. bge-m3
     embed_provider: Literal["openai_compat", "fixture"] = "openai_compat"
     embed_batch_size: int = 16
+    embed_timeout_s: float = 60.0  # attente maximale d'une requête d'embedding (à augmenter sur machine lente : CPU seul, extraits longs)
 
     # --- Exécution ------------------------------------------------------------
     max_concurrent_exercises: int = 2

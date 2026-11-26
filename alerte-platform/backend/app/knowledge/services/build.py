@@ -135,7 +135,7 @@ def check_coherence(rt: Any, session: Session, kb: KnowledgeBase, *, verify_file
             elif S.sha256_file(p) != v.blob_sha256:
                 bad.append(f"{v.original_name} (SHA-256 différent)")
         add("source_files_intact", not bad, "fichiers sources présents et intègres" if not bad else f"à vérifier : {bad[:5]}")
-    return {"kb_id": kb.id, "ok": all(c["ok"] for c in checks if c["id"] != "embeddings_complete") , "checks": checks, "status": st}
+    return {"kb_id": kb.id, "ok": all(c["ok"] for c in checks), "checks": checks, "status": st}
 
 
 def build_kb(rt: Any, job: Any, kb_id: str, *, steps: tuple[str, ...] = DEFAULT_STEPS, reembed: bool = False,
@@ -187,11 +187,23 @@ def build_kb(rt: Any, job: Any, kb_id: str, *, steps: tuple[str, ...] = DEFAULT_
         kb = s.get(KnowledgeBase, kb_id)
         report["check"] = check_coherence(rt, s, kb)
         failed = [d for d in report["documents"] if d["status"] == "failed"]
-        report["result"] = "partial" if failed or report.get("embedding_error") else "ok"
+        st = report["check"]["status"]["embeddings"]
+        report["vectorization"] = {"status": "failed" if report.get("embedding_error") else "complete" if st["complete"] else "incomplete",
+                                   "embedded": st["embedded"], "chunks": st["chunks"], "error": report.get("embedding_error")}
+        vec_ok = report["vectorization"]["status"] == "complete"
+        vec_expected = "embed" in steps or publish      # une étape « traitement » seule n'a pas à produire de vecteurs
+        report["result"] = "partial" if failed or report.get("embedding_error") or (vec_expected and not vec_ok) else "ok"
         if publish:
-            if failed or not report["check"]["ok"]:
+            if failed or not report["check"]["ok"] or not vec_ok:
                 report["published"] = None
-                report["publish_refused"] = "des documents sont en échec ou la cohérence n'est pas validée : version précédente conservée"
+                why = []
+                if failed:
+                    why.append("des documents sont en échec")
+                if not vec_ok:
+                    why.append(f"vectorisation incomplète ({st['embedded']}/{st['chunks']})")
+                if not report["check"]["ok"] and not why:
+                    why.append("la cohérence n'est pas validée")
+                report["publish_refused"] = " ; ".join(why) + " : version précédente conservée"
             else:
                 kv = publish_kb(s, kb.workspace_id, kb_id, note or "construction")
                 s.commit()
