@@ -11,7 +11,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"   # local seulement (Ollama n'a pas d'authentification) ; pour un accès réseau : tunnel SSH, ou changer 127.0.0.1 en connaissance de cause + pare-feu
     environment:
       # Contexte par défaut d'Ollama : 4 096 jetons sans GPU puissant ; les prompts d'ALERTE vont jusqu'à ~4 000 + 1 024 en sortie -> 8 192 minimum.
       OLLAMA_CONTEXT_LENGTH: "${OLLAMA_CONTEXT_LENGTH:-8192}"

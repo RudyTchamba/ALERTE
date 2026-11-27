@@ -5,6 +5,9 @@ Ce document est la **référence unique** : toute commande ou tout fichier néce
 Conventions : `$R` = `alerte-platform/` (racine de la plateforme) · `$B` = `$R/backend` · `$SRC` = dossier des PDF sources (`<dépôt>/alerte/data/docs`, **lecture seule**, jamais modifié) · « venv » = `source $B/.venv/bin/activate` (Windows : `$B\.venv\Scripts\Activate.ps1`).
 Légende *Vérifié* : **EXÉC** exécuté lors de la préparation de ce document · **--help** option lue mais commande non lancée · **NT** non testé.
 
+## A0. Raccourci « de zéro » (recommandé)
+Le guide [demarrage-de-zero.md](demarrage-de-zero.md) enchaîne tout (installation, configuration, construction, validation, publication) pour quelqu'un qui vient de cloner. **Les commandes #10 à #17 ci-dessous sont regroupées dans UNE commande reprenable** : `python scripts/build_kb_from_pdfs.py --country CM --src <PDF>/CM [--publish]` (dossier `backend/`, venv activé). Les PDF sources ne sont **pas** dans le dépôt git : l'équipe les fournit.
+
 ## A. Commandes, dans l'ordre
 
 | # | Objectif | Dossier | Commande exacte | Produit / modifie | Résultat attendu | Vérifié | Risque |
@@ -19,7 +22,7 @@ Légende *Vérifié* : **EXÉC** exécuté lors de la préparation de ce documen
 | 6 | Santé des services | — | `curl http://localhost:8000/api/v1/health` puis `curl http://localhost:5173/api/v1/health` | — | `{"status":"ok"}` ×2 | **EXÉC** | — |
 | 7 | Serveur de modèles prêt | — | `curl http://localhost:11434/v1/models` (Ollama) | — | `bge-m3` et le modèle de génération listés | **EXÉC** | nom exact du modèle |
 | 8 | Mesurer le modèle (dimensionnement) | `$R` | `python3 scripts/llm_bench.py --url <URL>/v1 --model <nom exact> --calls 5` | rapport facultatif `--out` | médiane par appel | **EXÉC** (1,5 B, machine chargée) | machine au repos requise |
-| 9 | Générer le **pack de démonstration** | `$B` (venv) | `python scripts/rising_waters_pack.py` | `demo/rising-waters/*` (scénarios, `setup-*.json`, `mandats-cm.csv`, `actions.csv`, `lacunes-attendues.PRIVE.json`, README) | « pack écrit dans … » | **EXÉC** | **remplace les fichiers du pack** ; lit `alerte/data/scenarios` (rôles, scénarios) ; AE : avertissement, `mandats-ae.csv` **périmé, ne pas importer** |
+| 9 | (Facultatif : le pack est **déjà dans le dépôt**) Régénérer le **pack de démonstration** | `$B` (venv) | `python scripts/rising_waters_pack.py` | `demo/rising-waters/*` (scénarios, `setup-*.json`, `mandats-cm.csv`, `actions.csv`, `lacunes-attendues.PRIVE.json`, README) | « pack écrit dans … » | **EXÉC** | **remplace les fichiers du pack** ; lit `alerte/data/scenarios` (rôles, scénarios) ; AE : avertissement, `mandats-ae.csv` **périmé, ne pas importer** |
 | 10 | Créer l'espace (jeton propriétaire) | `$B` (venv) | `python -m app.cli workspace create --name "ALERTE — Demonstration"` | base SQLite | jeton affiché **une seule fois** | --help | jeton perdu = irrécupérable |
 | 11 | Créer les bases | `$B` | `for c in CM GL; do python -m app.cli knowledge kb-create --code $c --name $c; done` *(AE : seulement si construit, voir C)* | base, dossiers `blobs/knowledge_sources/<code>` | bases créées | --help | — |
 | 12 | Copier les PDF (simulation puis réel) | `$B` | `python -m app.cli knowledge sources-migrate --map CM=$SRC/CM` puis le même avec `--apply --manifest m.jsonl` | copies dans `blobs/knowledge_sources/CM`, `m.jsonl` | « N copiés » (la source reste intacte) | --help | l'option sans `--apply` ne fait que simuler |

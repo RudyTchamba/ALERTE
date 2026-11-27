@@ -18,6 +18,7 @@ La base de données reste **SQLite, un seul écrivain** (architecture V1) : une 
 
 | Vous avez… | Procédure |
 |---|---|
+| **rien d'installé, vous venez de cloner** | [demarrage-de-zero.md](../runbooks/demarrage-de-zero.md) |
 | une machine **Linux** (poste ou serveur) | [linux.md](linux.md) |
 | une machine **Windows** | [windows.md](windows.md) |
 | le compte **AWS Sandbox** (par le coéquipier qui détient les accès) | [aws-sandbox.md](aws-sandbox.md) |
