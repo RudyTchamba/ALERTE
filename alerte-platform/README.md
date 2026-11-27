@@ -114,6 +114,7 @@ L'**application** est légère (2 cœurs, 4 Go de RAM suffisent) ; les **modèle
 
 | Besoin | Document |
 |---|---|
+| **Partir de zéro après un `git clone`** (installer, configurer, construire, valider, publier la base) | [demarrage-de-zero.md](docs/runbooks/demarrage-de-zero.md) |
 | Toutes les commandes, dans l'ordre, et tous les fichiers (importés / générés) | [catalogue-commandes-et-fichiers.md](docs/runbooks/catalogue-commandes-et-fichiers.md) |
 | Variables du `.env` (fonction, obligatoire, test) | [configuration-env.md](docs/runbooks/configuration-env.md) |
 | Connaître les machines (GPU, VRAM, RAM) | [sonde-materielle.md](docs/runbooks/sonde-materielle.md) |

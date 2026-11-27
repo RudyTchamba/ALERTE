@@ -1,5 +1,7 @@
 # knowledge_bases — données de curation et d'évaluation des bases de connaissances d'ALERTE
 
+> **Ce dossier n'est PAS la base construite.** Après un `git clone` il ne contient ni passages, ni vecteurs, ni index : la base se construit sur votre machine à partir des PDF (fournis à part) avec [`demarrage-de-zero.md`](../docs/runbooks/demarrage-de-zero.md). Elle vit ensuite dans `backend/data/` (ignoré par git).
+
 Ce dossier contient les **données d'auteur versionnées** qui accompagnent la construction des bases. Les bases elles-mêmes (documents traités, passages, vecteurs, index) ne sont **pas** ici : elles sont reconstruites à partir des PDF par la CLI (`python -m app.cli knowledge …`) et vivent dans le dossier de données (`ALERTE_DATA_DIR`, ignoré par git). Procédure : [catalogue des commandes](../docs/runbooks/catalogue-commandes-et-fichiers.md) et [docs/knowledge-base/cli-et-pipeline.md](../docs/knowledge-base/cli-et-pipeline.md).
 
 ## Contenu réellement présent (vérifié le 27/11/2026)
