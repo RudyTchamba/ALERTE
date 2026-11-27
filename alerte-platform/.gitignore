@@ -34,3 +34,6 @@ Thumbs.db
 *.log
 tmp/
 .tmp/
+
+# Corrigé d'évaluation T3 (lacunes visées par l'auteur) : ne pas publier, régénéré localement par scripts/rising_waters_pack.py
+demo/rising-waters/lacunes-attendues.PRIVE.json

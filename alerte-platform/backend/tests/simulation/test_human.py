@@ -213,3 +213,23 @@ def test_invite_requires_named_human_seat(world, controller):
     r = world.client.post(f"{API}/exercises/{ex_id}/seats/MET/invite", headers=world.fac)
     assert r.status_code == 409 and r.json()["error"]["code"] == "seat.not_assigned"
     assert world.client.post(f"{API}/exercises/{ex_id}/seats/NOPE/invite", headers=world.fac).status_code == 404
+
+
+def test_human_legal_question_is_bounded_by_the_exercise_budget(world):
+    """La question juridique d'un siège humain compte dans le budget de l'exercice (plafond + extension - appels consommés)."""
+    from app.core.db import session_scope
+    from app.simulation.models import Exercise
+    for a in world.agents.agents.values():  # la limite PAR INJECT ne doit pas masquer la limite de budget testée ici
+        a["limits"] = {**(a.get("limits") or {}), "max_legal_calls_per_inject": 9}
+    ex_id, player = setup_human(world)
+    ok = world.client.post(f"{API}/seats/me/ask-legal", json={"question": "May we?"}, headers=player)
+    assert ok.status_code == 200
+    with session_scope(world.ctx.session_factory) as s:  # budget épuisé : 1 appel autorisé, 1 consommé (le conseiller en a déjà pris un)
+        ex = s.get(Exercise, ex_id)
+        ex.settings = {**ex.settings, "max_llm_calls": 1}
+        ex.llm_calls_used = 1
+    refused = world.client.post(f"{API}/seats/me/ask-legal", json={"question": "And again?"}, headers=player)
+    assert refused.status_code == 429 and refused.json()["error"]["code"] == "budget.exhausted"
+    with session_scope(world.ctx.session_factory) as s:  # une extension accordée à la reprise le rouvre
+        s.get(Exercise, ex_id).budget_extra = 5
+    assert world.client.post(f"{API}/seats/me/ask-legal", json={"question": "Now?"}, headers=player).status_code == 200

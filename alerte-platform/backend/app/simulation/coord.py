@@ -55,6 +55,15 @@ def evaluate(*, inject: dict, seat_institution: dict[str, str], recipients: list
     sigs: list[Signal] = []
     inst = lambda codes: sorted({seat_institution[c] for c in codes if c in seat_institution})  # noqa: E731
     real = [d for d in decisions if d.author != "fallback"]
+    # Un siège peut décider PLUSIEURS fois sur un même inject (décision provisoire au tour 1, révisée après la réponse reçue) : pour les
+    # règles de POSITION (chevauchement, conflit, absence de base, citation), seule sa DERNIÈRE décision porteuse d'une issue (ordre du
+    # journal) fait foi ; sinon il serait en conflit avec lui-même et sa décision provisoire produirait de faux signaux. Les hypothèses
+    # (gap_flags) levées dans n'importe laquelle de ses décisions restent comptées (`real`).
+    latest: dict[str, Dec] = {}
+    for d in real:
+        if d.outcome is not None:
+            latest[d.seat_code] = d
+    positions = list(latest.values())
     demands = [d.get("action_code") for d in inject.get("demands", []) if d.get("action_code")]
 
     def infer_action(seat: str) -> str | None:
@@ -81,7 +90,7 @@ def evaluate(*, inject: dict, seat_institution: dict[str, str], recipients: list
                                (sender, *targets)))
     # R-OVERLAP : >= 2 sièges `act` sur la même action sans chef de file
     by_action: dict[str, list[Dec]] = {}
-    for d in real:
+    for d in positions:
         if d.action_code:
             by_action.setdefault(d.action_code, []).append(d)
     for code, ds in by_action.items():
@@ -99,7 +108,7 @@ def evaluate(*, inject: dict, seat_institution: dict[str, str], recipients: list
         if acts and decl:
             sigs.append(Signal("CONFLICTING_DECISIONS", "R-CONFLICT", code, inst(acts + decl),
                                {"rule": "R-CONFLICT", "act": acts, "decline": decl}, tuple(acts + decl)))
-    for d in real:
+    for d in positions:
         if d.outcome == "no_legal_basis_found":
             sigs.append(Signal("MISSING_BASIS", "R-NOBASIS", d.action_code, inst([d.seat_code]),
                                {"rule": "R-NOBASIS", "decision_id": d.decision_id, "seat": d.seat_code}, (d.seat_code,)))

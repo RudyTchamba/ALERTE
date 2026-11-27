@@ -207,6 +207,36 @@ describe('Simulation Room', () => {
   })
 })
 
+describe('Simulation Room — pace and budget', () => {
+  beforeEach(() => { FakeEventSource.reset(); vi.stubGlobal('EventSource', FakeEventSource) })
+  const mk = (o: Record<string, unknown>) => ({ id: ID('E2'), code: 'EX2', title: 'Auto run', state: 'running', substate: null, pace: 'auto', ai_mode: 'ai', scenario_id: ID('S1'), parent_exercise_id: null, settings: { max_llm_calls: 6 }, started_at: iso, ended_at: null, snapshot_sha256: 'a', commitment_sha256: 'b', llm_calls_used: 6, seats: [], ...o })
+
+  it('disables the Step button while running in automatic pace (it only works in manual pace)', async () => {
+    const e = mk({})
+    mockFetch({ ...base, 'GET /exercises/:id': e, 'POST /exercises/:id/stream-token': { body: { stream_token: 't', expires_in: 60 } } })
+    renderPage(<RoomPage />, { route: `/room/${e.id}`, path: '/room/:exerciseId' })
+    await screen.findByText('Auto run')
+    expect(screen.getByRole('button', { name: /^step$/i })).toBeDisabled()
+  })
+
+  it('offers a budget extension when the exercise is paused by the call ceiling and sends it with resume', async () => {
+    const user = userEvent.setup()
+    const e = mk({ state: 'paused' })
+    const { calls } = mockFetch({ ...base, 'GET /exercises/:id': e, 'POST /exercises/:id/stream-token': { body: { stream_token: 't', expires_in: 60 } },
+      'POST /exercises/:id/commands': { status: 202, body: { id: 'c', kind: 'resume', status: 'queued', exercise_state: 'paused' } } })
+    renderPage(<RoomPage />, { route: `/room/${e.id}`, path: '/room/:exerciseId' })
+    await screen.findByText('Auto run')
+    await waitFor(() => expect(FakeEventSource.instances).toHaveLength(1))
+    const es = FakeEventSource.instances[0]
+    es.open()
+    es.emit(1, 'ERROR', { component: 'budget', message: 'plafond d\'appels atteint (6/6)', next_action: 'pause' }, { actor: 'system' })
+    const box = await screen.findByLabelText(/extend budget by/i)
+    await user.type(box, '50')
+    await user.click(screen.getByRole('button', { name: /^resume$/i }))
+    await waitFor(() => expect(calls.find((c) => c.path.endsWith('/commands'))?.body).toEqual({ kind: 'resume', args: { extend_budget: 50 } }))
+  })
+})
+
 describe('Player seat', () => {
   it('reads the token from the URL fragment, strips it from the address bar and never sends it in a URL', async () => {
     window.history.replaceState(null, '', '/play#t=seat-token-xyz')

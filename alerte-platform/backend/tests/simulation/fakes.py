@@ -98,6 +98,13 @@ class FakeAgents:
         self.grants: dict[str, list[str]] = {}
         self.citation_checker = FakeChecker()
         self.legal_questions: list[str] = []
+        self.probe_result: dict = {"ok": True, "error": None, "ms": 7, "model": "m"}
+        self.probed: list[dict] = []
+
+    def probe_profile(self, profile):  # noqa: ANN001, ANN201
+        """Sonde du modèle (readiness, mode ai) : le résultat est piloté par le test."""
+        self.probed.append(dict(profile))
+        return dict(self.probe_result)
 
     def export_agent_snapshot(self, session, workspace_id, agent_id):  # noqa: ANN001
         if workspace_id != self.ws or agent_id not in self.agents:

@@ -92,7 +92,9 @@ def test_runner_emits_coordinator_signals_with_scripted_marker(world):
         if c.inject["inject_ref"] != "inj-001":
             return None
         if c.seat_code == "MET":
-            return Behavior(decision=decision("issue_alert", "act"), messages=[PostedMessage("OPS", "REQUEST", "take lead?")])
+            # la demande n'est postée qu'au tour 1 : avec 3 tours, MET est réactivé au tour 3 (réponse d'OPS) et n'a plus rien à demander
+            return Behavior(decision=decision("issue_alert", "act"),
+                            messages=[PostedMessage("OPS", "REQUEST", "take lead?")] if c.round == 1 else [])
         if c.seat_code == "OPS" and c.round == 1:
             return Behavior(decision=decision("issue_alert", "act"))
         if c.seat_code == "OPS":
@@ -103,7 +105,9 @@ def test_runner_emits_coordinator_signals_with_scripted_marker(world):
     world.run(ex_id)
     sigs = gap_events(world, ex_id, "inj-001")
     kinds = [e["payload"]["signal"] for e in sigs]
-    assert "NO_OWNER" in kinds and "CONFLICTING_DECISIONS" in kinds and "CLAIM_OVERLAP" in kinds
+    # OPS décide « act » au tour 1 puis « decline » au tour 2 : seule sa DERNIÈRE décision fait foi (MET : act, OPS : decline) ->
+    # conflit entre sièges, mais pas de chevauchement (OPS ne revendique plus l'action).
+    assert "NO_OWNER" in kinds and "CONFLICTING_DECISIONS" in kinds and "CLAIM_OVERLAP" not in kinds
     for e in sigs:
         pl = e["payload"]
         assert e["visibility"] == "audit" and e["actor"] == "coord"
@@ -128,3 +132,41 @@ def test_silent_seat_signal(world):
     silent = [e for e in gap_events(world, ex_id) if e["payload"]["signal"] == "NO_RESPONSE"]
     assert len(silent) == 1 and silent[0]["payload"]["inject_ref"] == "inj-002"
     assert silent[0]["payload"]["institutions"] == [world.inst["DPC"]]
+
+
+def test_a_provisional_decision_revised_later_never_conflicts_with_itself():
+    """F1 : décision provisoire (decline) puis révisée (act) par le MÊME siège : aucune contradiction ni chevauchement avec soi-même."""
+    decs = [Dec("d1", "A", action_code="act1", outcome="decline"), Dec("d2", "A", action_code="act1", outcome="act")]
+    assert [x.signal for x in ev([], decs, recipients=("A",))] == []
+    # une décision provisoire sans base légale, remplacée par une décision fondée, ne laisse pas de MISSING_BASIS
+    decs = [Dec("d1", "A", action_code="act1", outcome="no_legal_basis_found"), Dec("d2", "A", action_code="act1", outcome="act")]
+    assert "MISSING_BASIS" not in [x.signal for x in ev([], decs, recipients=("A",))]
+    # en revanche deux SIÈGES différents restent en conflit
+    decs = [Dec("d1", "A", action_code="act1", outcome="act"), Dec("d2", "B", action_code="act1", outcome="decline")]
+    assert "CONFLICTING_DECISIONS" in [x.signal for x in ev([], decs, recipients=("A", "B"))]
+    # et une décision finale non enregistrée (outcome None) n'efface pas la position provisoire précédente
+    decs = [Dec("d1", "A", action_code="act1", outcome="no_legal_basis_found"), Dec("d2", "A", status="not_recorded")]
+    assert "MISSING_BASIS" in [x.signal for x in ev([], decs, recipients=("A",))]
+
+
+def test_a_request_too_late_to_be_answered_and_any_last_round_post_are_dropped_with_an_error(world):
+    """F2 : une REQUEST postée au tour MAX-1 serait livrée au dernier tour où l'on ne peut plus répondre : refusée (erreur de routage)."""
+    def script(c):
+        if c.inject["inject_ref"] != "inj-001":
+            return None
+        if c.seat_code == "MET" and c.round == 1:
+            return Behavior(messages=[PostedMessage("OPS", "REQUEST", "please act")])
+        if c.seat_code == "OPS" and c.round == 2:
+            req = next(i for i in c.inbox if i.get("msg_type") == "REQUEST")
+            return Behavior(messages=[PostedMessage("MET", "REQUEST", "and you?"),                       # trop tard : refusée
+                                      PostedMessage("MET", "INFO", "done", in_reply_to=req["msg_id"], reply_status="accepted")])  # réponse : permise
+        if c.seat_code == "MET" and c.round == 3:
+            return Behavior(messages=[PostedMessage("OPS", "INFO", "thanks")])                               # dernier tour : refusé
+    world.runtime.script = script
+    ex_id = world.new_exercise()
+    world.run(ex_id)
+    led = world.ledger(ex_id)
+    board = [(e["payload"]["from"], e["payload"]["to"], e["payload"]["msg_type"], e["payload"]["round"]) for e in led if e["type"] == "BOARD"]
+    assert board == [("MET", "OPS", "REQUEST", 1), ("OPS", "MET", "INFO", 2)]
+    errs = [e["payload"]["message"] for e in led if e["type"] == "ERROR" and e["payload"]["component"] == "coord.routing"]
+    assert any("demande trop tardive" in m for m in errs) and any("dernier tour" in m for m in errs)

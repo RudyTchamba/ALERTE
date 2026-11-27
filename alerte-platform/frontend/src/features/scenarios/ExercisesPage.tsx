@@ -47,7 +47,7 @@ function CreateExercise({ from, onClose }: { from?: Exercise; onClose: () => voi
   const toast = useToast()
   const navigate = useNavigate()
   const scenarios = useApiQuery<Scenario[]>(keys.scenarios, '/scenarios')
-  const [v, setV] = useState({ scenario_id: from?.scenario_id ?? '', title: from ? `${from.title} (re-run)` : '', ai_mode: from?.ai_mode ?? 'ai', pace: from?.pace ?? 'manual', max_llm_calls: '' })
+  const [v, setV] = useState({ scenario_id: from?.scenario_id ?? '', title: from ? `${from.title} (re-run)` : '', ai_mode: from?.ai_mode ?? 'ai', pace: from?.pace ?? 'auto', max_llm_calls: '' })
   const [errs, setErrs] = useState<Record<string, string>>({})
   const create = useApiMutation(() => api.post<Exercise>(from ? `/exercises?from=${encodeURIComponent(from.id)}` : '/exercises', {
     scenario_id: v.scenario_id || null, title: v.title || null, ai_mode: v.ai_mode, pace: v.pace,

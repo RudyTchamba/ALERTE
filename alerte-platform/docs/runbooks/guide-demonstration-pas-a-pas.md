@@ -96,7 +96,7 @@ Pour chaque ligne du tableau : bouton **Nouvelle institution**, saisis **Code** 
 
 *Pourquoi* : une base est une collection de textes **d'un pays**. Un agent ne peut citer que les bases **publiées** qu'on lui autorise. Les bases sont construites **à partir des PDF originaux** par le pipeline d'ALERTE (ce n'est plus l'archive du prototype).
 
-1. Dans un terminal (voir [rebuilding-the-knowledge-base.md](../knowledge-base/rebuilding-the-knowledge-base.md)), lance la construction : `python -u scripts/kb_build.py --api http://localhost:8000 --token <ton jeton> --stage setup,ingest,publish`. Elle crée les bases `CM`, `AE`, `GL`, `ITU`, importe les 44 PDF avec leurs métadonnées et publie la version 1 (≈ 25 min).
+1. Dans un terminal (voir [rebuilding-the-knowledge-base.md](../knowledge-base/rebuilding-the-knowledge-base.md)), lance la construction avec la **CLI** (le script `kb_build.py` est retiré) : commandes #10 à #17 du [catalogue](catalogue-commandes-et-fichiers.md) (`workspace create`, `knowledge kb-create`, `sources-migrate`, `adopt`, `curate`, `build --country CM`, `publish`). Aujourd'hui seule la base **CM** est construite (17 documents, 1 351 passages) ; GL, AE et ITU ne le sont pas.
 2. Dans l'interface, ouvre **Bases de connaissances** : tu vois 4 bases, « Version publiée : v1 », et pour la base **Cameroun** le pays rattaché. Ouvre-la : **17 documents**, certains en « à relire » (pages difficiles à lire, ou « suite des articles interrompue »).
 3. Ouvre le document **CM-01** : c'est un scan, vérifie les pages signalées avant de t'y fier.
 4. *Droits* : la plupart des documents ont des droits « inconnus » ; ils restent **en local** et ne sont pas publiés.

@@ -58,3 +58,34 @@ def test_parenthesised_article_numbers_of_uae_decrees_are_recognised():
                  "Article (2)\nChamp d'application. Ce décret-loi s'applique à toute entité établie dans l'État et à son personnel.")]
     arts = [d.article for d in chunk_pages(pages) if d.article]
     assert arts == ["Article (1)", "Article (2)"]
+
+
+class _Ocr:
+    def __init__(self, usable: bool, error: str | None = None) -> None:
+        self.usable, self.error = usable, error
+
+
+STAMP = "PRESIDENCE DE LA REPUBLIQUE COPIE CERTIFIEE CONFORME " * 3
+
+
+def test_image_heavy_page_without_ocr_is_flagged_for_review_never_accepted_silently():
+    from app.knowledge.extract import classify_text_layer
+    scan = _page([{"x0": 0, "x1": 600, "top": 0, "bottom": 800}])
+    assert classify_text_layer(scan, STAMP, _Ocr(False, "langues OCR absentes")) == "review"
+    assert classify_text_layer(scan, STAMP, None) == "review"          # OCR désactivé
+    assert classify_text_layer(scan, STAMP, _Ocr(True)) == "ocr"       # OCR utilisable : relecture par OCR
+    born_digital = _page([])
+    assert classify_text_layer(born_digital, STAMP, _Ocr(False)) == "accept"
+    assert classify_text_layer(scan, "trop court", _Ocr(True)) == "ocr"  # page pauvre : OCR (ou « page pauvre » si indisponible)
+
+
+def test_relative_tessdata_path_does_not_depend_on_the_launch_directory(tmp_path, monkeypatch):
+    from app.core.config import Settings
+    td = tmp_path / "td"
+    td.mkdir()
+    monkeypatch.chdir(tmp_path)
+    assert Settings(_env_file=None, tessdata_dir="td").resolved_tessdata_dir == td.resolve()      # relatif, trouvé depuis le dossier courant
+    assert Settings(_env_file=None, tessdata_dir=str(td)).resolved_tessdata_dir == td              # absolu : tel quel
+    missing = Settings(_env_file=None, tessdata_dir="nulle-part").resolved_tessdata_dir
+    assert str(missing) == "nulle-part"                                                            # introuvable : rendu tel quel (l'OCR le signalera)
+    assert Settings(_env_file=None).resolved_tessdata_dir is None

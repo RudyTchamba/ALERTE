@@ -3,6 +3,10 @@
 > **Exercice fictif, pas une alerte réelle.** Toutes les données de ce guide sont fictives (HydroSense et les chiffres des événements sont inventés ; les institutions et les textes de loi sont réels).
 > Ce guide a été écrit **après** avoir exécuté le parcours sur le code actuel. Chaque étape indique **ce qui a réellement été vérifié** (légende ci-dessous). Ce qui n'existe pas est dit.
 
+> **Ordre d'exécution et séparation des parcours.** Ce document est le **détail écran par écran** (historique, cas avancés). Pour *tester* : suivre la trame [Parcours A (SANS IA) et Parcours B (modèle réel)](guide-parcours-A-et-B.md), les valeurs exactes de chaque champ dans le [guide champ par champ](guide-champs-formulaires.md), et **toutes les commandes dans l'ordre** dans le [catalogue des commandes et fichiers](catalogue-commandes-et-fichiers.md). En cas de divergence, ces trois documents priment (ils ont été relus contre le code du 27/11/2026) ; les statuts PASS/FAIL/BLOCKED/NOT TESTED y sont définis.
+
+> **Valeurs observées le 27/11/2026 (elles priment sur tout chiffre plus bas)** : base **CM** seule construite — 17 documents, **1 351 passages**, 1 351 vecteurs, publiée (v1) ; GL, AE et ITU **non construites**. Mandats : 14 dans le registre CM ; **2 validés** (CM-L10, CM-L11) dans l'espace de développement. Scénario CM-01 : **15 injects**, **9 sièges** activables (HYDRO est le système d'IA, non activé). Les chiffres « 3 684 chunks / 4 bases » plus bas décrivent une **construction de référence antérieure**, pas l'état actuel.
+
 > **Tu découvres ALERTE ?** Commence par le [guide de démonstration pas à pas](guide-demonstration-pas-a-pas.md). Ce document-ci est le guide de **test complet** (cas avancés, tests extrêmes, couverture exhaustive).
 
 ## 0. Comment lire ce guide
@@ -21,7 +25,7 @@
 
 **Noms de pages** (menu latéral, tels qu'affichés en français) :
 `Préparer` → *Pays et institutions* · *Bases de connaissances* · *Agents* · *Accès aux connaissances* · *Scénarios* ;
-`Jouer` → *Exercices*, *Salle de simulation* ; `Analyser` → *Carte des responsabilités*, *Analyse des lacunes*, *Et si… ? (réforme)*, *Rapports*, *Audit et rejeu*, *Évaluation* ; `Système` → *Architecture*, *Jetons d'accès*, *Glossaire* ; (*Carte des responsabilités*, *Et si… ? (réforme)*, `/present` et `/citizen` ont été ajoutées par l'équipe : **non auditées par ce guide**.)
+`Jouer` → *Exercices*, *Salle de simulation* ; `Analyser` → *Carte des responsabilités*, *Analyse des lacunes*, *Et si… ? (réforme)*, *Rapports*, *Audit et rejeu*, *Évaluation* ; `Système` → *Architecture*, *Jetons d'accès*, *Glossaire* ; (*Carte des responsabilités*, *Et si… ? (réforme)*, `/present` et `/alerte` (alerte publique) ont été ajoutées par l'équipe : **non auditées par ce guide**.)
 En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'étape et l'**étape suivante**. Le bouton « ? » à côté d'un titre explique la notion (voir aussi *Glossaire*).
 
 **Notions clés** (détail dans *Glossaire*) : **Workspace** = espace isolé qui contient tout un projet ; **KB** = bibliothèque de documents découpés en **chunks** (passages) ; **Mandat** = « cette institution peut/doit faire telle action, selon tel texte » ; **Agent** = institution virtuelle ; **Inject** = un événement du scénario ; **Siège** = place d'une institution dans un exercice ; **Readiness** = contrôles avant lancement ; **Gap** = lacune ; **Ledger** = journal chaîné ; **Replay** = rejeu sans appeler de modèle.
@@ -33,7 +37,8 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 ### Ce que cette version ne fait PAS (à savoir avant de commencer)
 * Un espace n'a **pas de champ « description »** : seulement un nom et un identifiant court facultatif.
 * Les **embeddings** (recherche vectorielle) ne sont calculés que si un serveur d'embeddings est configuré (`lancement-local.md` §2) ; une base construite sans cette étape (étape 5.2 bis) **n'en contient pas** : la recherche est alors **lexicale** (« dégradée », signalée). Le raccourci `seed_rising_waters.py` **n'importe plus l'ancienne archive du prototype** : son étape 3 vérifie que la base du pays a été **reconstruite à partir des PDF** (`python -m app.cli knowledge build --country CM`, état `ready`, vecteurs complets), puis la publie ; sinon il s'arrête avec la commande à lancer.
-* Le **mode « Modèle réel »** n'a été validé qu'avec un très petit modèle (`qwen2.5:1.5b-instruct`), qui ne sait pas citer correctement : la démonstration se fait en **« Scénarisé (SANS IA) »**, qui prouve la plateforme, **jamais** que les agents raisonnent bien.
+* Le **mode « Modèle réel »** n'a été essayé qu'avec un très petit modèle (`qwen2.5:1.5b-instruct`), qui ne sait pas citer correctement. Le parcours A (« Scénarisé (SANS IA) ») prouve la plateforme, **jamais** que les agents raisonnent bien ; seul le [parcours B](guide-parcours-A-et-B.md) avec un modèle adapté le montre. En mode « Scénarisé », les agents **n'échangent aucun message** (le fournisseur scripté ne poste pas) et le **profil de modèle des agents est ignoré**.
+* Le **rythme** d'un exercice est « Automatique » par défaut (l'ancienne valeur « Manuel » exigeait un clic sur **Pas** à chaque inject : salle « vide » sinon). Un modèle inaccessible **bloque** la préparation d'un exercice « Modèle réel ».
 * Détail complet : `etat-conformite-interface.md`. Cas de test : `matrice-tests-fonctionnels-et-extremes.md`.
 
 ---
@@ -45,7 +50,7 @@ En haut de chaque page, la **barre de parcours** indique la phase (A/B/C), l'ét
 | **Objectif** | Avoir le backend (API) et le frontend (interface) démarrés et reliés |
 | **Pré-requis** | Python/Node déjà installés (ne rien réinstaller) ; `backend/.venv` existant |
 | **Navigation** | Deux terminaux (voir `lancement-local.md`) |
-| **Action** | Terminal 1 : `cd alerte-platform/backend && source .venv/bin/activate && python -m uvicorn app.main:app_factory --factory --reload --port 8000`. Terminal 2 : `cd alerte-platform/frontend && . ~/.nvm/nvm.sh && nvm use && npm run dev`. Avant la première démonstration : `cd backend && .venv/bin/python scripts/rising_waters_pack.py` (génère `demo/rising-waters/`) |
+| **Action** | Terminal 1 : `cd alerte-platform/backend && source .venv/bin/activate && python -m uvicorn app.main:app_factory --factory --reload --port 8000` (ou, en une commande : `python3 scripts/dev.py`). Terminal 2 : `cd alerte-platform/frontend && . ~/.nvm/nvm.sh && nvm use && npm run dev`. Avant la première démonstration : `cd backend && .venv/bin/python scripts/rising_waters_pack.py` (génère `demo/rising-waters/`) |
 | **Saisie** | Pour une démonstration propre sans toucher à vos données : préfixer le backend par `ALERTE_DATA_DIR=./data-demo` |
 | **Résultat attendu** | Terminal 1 : `Application startup complete`. Terminal 2 : `Local: http://localhost:5173/` |
 | **Vérification** | `curl http://localhost:8000/api/v1/health` → `{"status":"ok"}` ; `curl http://localhost:5173/api/v1/health` → idem (liaison frontend↔backend) ; ouvrir **http://localhost:5173/access** |
@@ -338,7 +343,7 @@ Même onglet, section **Catalogue d'actions** (voir 7.0 pour l'import) : **Libel
 | **Pré-requis** | Étape 2 ; un serveur compatible OpenAI (Ollama, vLLM…) ; **facultatif pour la démonstration SANS IA** |
 | **Navigation** | **Agents** → section **Profils de modèle** (en bas de la page) → **Nouveau profil de modèle** |
 | **Action** | Remplir puis **Enregistrer** ; puis **Tester la connexion** sur la ligne |
-| **Saisie** | **Nom** `ollama-local` · **Fournisseur** `openai_compat` · **Modèle** `qwen2.5:1.5b-instruct` · **Référence du point d'accès** `ALERTE_LLM_BASE_URL` (un **nom de variable**, jamais une URL ni une clé) · **Température** `0` · **Jetons max** (vide) · **Délai (s)** `120` |
+| **Saisie** | **Nom** `ollama-local` · **Fournisseur** `openai_compat` · **Modèle** `qwen2.5:1.5b-instruct` · **Référence du point d'accès** `ALERTE_LLM_BASE_URL` (un **nom de variable**, jamais une URL ni une clé) · **Température** `0` · **Jetons max** (vide = 1024 par défaut) · **Délai (s)** `120` |
 | **Résultat attendu** | « joignable » (reachable) si `ALERTE_LLM_BASE_URL` est défini dans `backend/.env` et que le serveur répond |
 | **Vérification** | Le badge « joignable » ; l'aperçu du prompt ne contient **aucun secret** |
 | **Erreur possible** | « injoignable » ; `endpoint non configuré : définir la variable ALERTE_LLM_BASE_URL` ; `modèle non configuré` ; saisie d'une URL à la place d'un nom |

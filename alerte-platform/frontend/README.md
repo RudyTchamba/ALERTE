@@ -89,7 +89,7 @@ curl -N "http://localhost:5173/api/v1/exercises/<id>/stream?stream_token=$ST&aft
 | `npm run preview` | sert `dist/` localement (sans backend intégré) |
 | `npm run typecheck` | TypeScript strict, sans émission |
 | `npm run lint` | oxlint (correctness + accessibilité JSX) |
-| `npm test` | Vitest (88 tests : client API, SSE, états de la salle, pages, primitives UI + axe, parité i18n, parcours) ; `fetch` et `EventSource` sont simulés **dans les tests uniquement** |
+| `npm test` | Vitest (95 tests, 21 fichiers, mesurés le 27/11/2026 : client API, SSE, états de la salle, pages, primitives UI + axe, parité i18n, parcours) ; `fetch` et `EventSource` sont simulés **dans les tests uniquement** |
 | `npm run test:watch` | Vitest en mode surveillance |
 | `npm run gen:api` | régénère `src/api/schema.d.ts` depuis `http://localhost:8000/api/v1/openapi.json` |
 
@@ -110,6 +110,11 @@ src/
 
 Principes : couleur toujours accompagnée d'un mot et d'une icône ; focus visible ; lien d'évitement ; régions `aria-live` pour les événements entrants ;
 les exercices non réalisés par un vrai modèle affichent en permanence un bandeau « NO AI » ; une lacune n'est jamais présentée comme définitive avant revue humaine.
+
+## 8 bis. Salle de simulation : rythme, pas à pas, budget
+* Un exercice se crée en rythme **Automatique** par défaut. En rythme **Manuel**, rien n'avance sans un clic sur **Pas** (c'est la cause d'une salle « vide » après le lancement) ; le bouton **Pas** est **désactivé** hors rythme manuel (l'API répondrait 409).
+* Quand l'exercice est **en pause à cause du plafond d'appels**, un champ « Étendre le budget de » apparaît à côté de **Reprendre** : sans extension, la reprise remettrait aussitôt l'exercice en pause.
+* Les modes **Scénarisé (SANS IA)** et **Rejeu de cassette** sont signalés par un bandeau permanent ; le mode « Modèle réel » n'a pas de bandeau.
 
 ## 9. Dépannage
 

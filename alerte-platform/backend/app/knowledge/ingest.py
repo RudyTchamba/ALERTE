@@ -97,7 +97,7 @@ def ingest_version(rt: KnowledgeRuntime, job: JobContext | None, version_id: str
     prog(0.05, "extraction du texte")
     state("extracting", "extraction du texte")
     try:
-        ocr = OcrEngine(rt.settings.ocr_langs, rt.settings.tessdata_dir) if Path(meta["name"]).suffix.lower() == ".pdf" else None
+        ocr = OcrEngine(rt.settings.ocr_langs, rt.settings.resolved_tessdata_dir) if Path(meta["name"]).suffix.lower() == ".pdf" else None
         ex = extract(meta["path"], Path(meta["name"]).suffix, ocr, on_ocr=lambda n: state("ocr_processing", f"OCR de la page {n}"))
     except Exception as exc:  # noqa: BLE001 - échec explicite, jamais silencieux
         msg = str(exc)[:400]

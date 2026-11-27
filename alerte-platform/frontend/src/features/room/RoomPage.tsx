@@ -44,6 +44,7 @@ function RoomView({ ex }: { ex: Exercise }) {
   const [surprise, setSurprise] = useState(false)
   const [qrSeat, setQrSeat] = useState<string | null>(null)
   const [warn, setWarn] = useState(false)
+  const [extend, setExtend] = useState('')
   const exState = state.exerciseState ?? ex.state
   const canControl = role === 'owner' || role === 'member'
 
@@ -66,6 +67,8 @@ function RoomView({ ex }: { ex: Exercise }) {
   const verified = latest.filter((d) => d.status === 'recorded' && d.author !== 'fallback').length
   const refused = latest.length - verified
   const budgetPct = cap ? Math.min(100, Math.round((used / cap) * 100)) : 0
+  // pause due au plafond d'appels : la reprise sans extension remettrait aussitôt l'exercice en pause
+  const budgetReached = exState === 'paused' && state.errors[state.errors.length - 1]?.component === 'budget'
 
   return (
     <>
@@ -102,8 +105,13 @@ function RoomView({ ex }: { ex: Exercise }) {
         </div>
         <div className="flex flex-wrap items-center gap-2 border-t border-line bg-surface2/50 px-4 py-2.5" role="group" aria-label={t('room.commands')}>
           <Button size="sm" disabled={!ok('pause')} onClick={() => cmd.mutate({ kind: 'pause' })} icon={<Pause className="h-4 w-4" aria-hidden />}>{t('room.cmd.pause')}</Button>
-          <Button size="sm" variant={ok('resume') ? 'primary' : 'secondary'} disabled={!ok('resume')} onClick={() => cmd.mutate({ kind: 'resume' })} icon={<Play className="h-4 w-4" aria-hidden />}>{t('room.cmd.resume')}</Button>
-          <Button size="sm" disabled={!ok('step')} onClick={() => cmd.mutate({ kind: 'step' })} icon={<SkipForward className="h-4 w-4" aria-hidden />}>{t('room.cmd.step')}</Button>
+          {budgetReached && ok('resume') && (
+            <label className="flex items-center gap-1 text-xs text-muted" title={t('room.extendBudgetHint')}>{t('room.extendBudget')}
+              <Input type="number" min={0} max={100000} className="!w-20 !min-h-8 !py-1" value={extend} onChange={(e) => setExtend(e.target.value)} />
+            </label>
+          )}
+          <Button size="sm" variant={ok('resume') ? 'primary' : 'secondary'} disabled={!ok('resume')} onClick={() => cmd.mutate(budgetReached && Number(extend) > 0 ? { kind: 'resume', args: { extend_budget: Number(extend) } } : { kind: 'resume' })} icon={<Play className="h-4 w-4" aria-hidden />}>{t('room.cmd.resume')}</Button>
+          <Button size="sm" disabled={!ok('step') || (exState === 'running' && ex.pace !== 'manual')} title={exState === 'running' && ex.pace !== 'manual' ? t('room.stepManualOnly') : undefined} onClick={() => cmd.mutate({ kind: 'step' })} icon={<SkipForward className="h-4 w-4" aria-hidden />}>{t('room.cmd.step')}</Button>
           <label className="sr-only" htmlFor="pace">{t('exercises.pace')}</label>
           <Select id="pace" className="!w-auto !min-h-8 !py-1" disabled={!ok('speed')} value={ex.pace} onChange={(e) => cmd.mutate({ kind: 'speed', args: { pace: e.target.value } })}>
             <option value="manual">{t('exercises.paces.manual')}</option><option value="auto">{t('exercises.paces.auto')}</option><option value="auto_delay">{t('exercises.paces.auto_delay')}</option>

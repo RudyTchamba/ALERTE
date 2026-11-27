@@ -168,6 +168,12 @@ def ask_legal(ctx: Any, mgr: SimulationManager, p: Principal, question: str) -> 
         agents = svc(ctx, "agents")
         if not hasattr(agents, "ask_legal"):
             raise AppError("conseiller juridique indisponible", code="legal.unavailable", status_code=503)
+        # le BUDGET DE L'EXERCICE (plafond + extension - appels déjà consommés) borne aussi la question d'un siège humain
+        remaining = int(ex.settings.get("max_llm_calls") or ctx.settings.max_llm_calls) + ex.budget_extra - ex.llm_calls_used
+        if remaining <= 0:
+            raise AppError("budget d'appels de l'exercice atteint : le conseiller juridique n'est plus disponible", code="budget.exhausted",
+                           status_code=429)
+        sctx.agent["budget_remaining"] = remaining
         res = dict(agents.ask_legal(sctx, question))
         events = res.pop("events", [])
         calls = int(res.pop("llm_calls", 0) or 0)
@@ -195,8 +201,10 @@ def stage_post(mgr: SimulationManager, p: Principal, body: schemas.PostIn) -> di
         errs = []
         if body.to not in targets:
             errs.append({"field": "to", "reason": "destinataire invalide (inexistant, soi-même ou non activable)"})
-        if t.round > MAX_ROUNDS:
-            errs.append({"field": "round", "reason": "tour maximal dépassé"})
+        if body.msg_type == "REQUEST" and MAX_ROUNDS - 1 <= t.round < MAX_ROUNDS:
+            errs.append({"field": "msg_type", "reason": "demande trop tardive : sa réponse tomberait au dernier tour (aucune réponse possible)"})
+        if t.round >= MAX_ROUNDS:
+            errs.append({"field": "round", "reason": "dernier tour : on ne peut plus que décider (un message ne serait livré à personne)"})
         if body.reply_status and body.reply_status not in REPLY_STATUSES:
             errs.append({"field": "reply_status", "reason": "valeur invalide"})
         if body.in_reply_to:

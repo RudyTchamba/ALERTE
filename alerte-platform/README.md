@@ -108,7 +108,18 @@ Licences : dépendances open source ; **PyMuPDF (AGPL) est exclu**.
 | Serveur de génération | API OpenAI-compatible | pour les agents « réels » ; sinon exercices `scripted` (SANS IA) |
 | Docker / Podman | — | **optionnel** (jamais requis) |
 
-Aucune contrainte de puissance : les modèles tournent sur le serveur de votre choix. Ne jamais utiliser `sudo pip` ni `sudo npm`.
+L'**application** est légère (2 cœurs, 4 Go de RAM suffisent) ; les **modèles** tournent sur le serveur de votre choix, de préférence avec un **GPU** : sans GPU, un modèle de 1,5 B met 15 à 33 s par appel (mesuré) et ne sert qu'à vérifier le câblage. Mesurez avant de choisir une machine : [sonde matérielle](docs/runbooks/sonde-materielle.md) et [dimensionnement](docs/deploiement/dimensionnement.md). Ne jamais utiliser `sudo pip` ni `sudo npm`.
+
+## 6 bis. Documentation opérationnelle (où trouver quoi)
+
+| Besoin | Document |
+|---|---|
+| Toutes les commandes, dans l'ordre, et tous les fichiers (importés / générés) | [catalogue-commandes-et-fichiers.md](docs/runbooks/catalogue-commandes-et-fichiers.md) |
+| Variables du `.env` (fonction, obligatoire, test) | [configuration-env.md](docs/runbooks/configuration-env.md) |
+| Connaître les machines (GPU, VRAM, RAM) | [sonde-materielle.md](docs/runbooks/sonde-materielle.md) |
+| Déployer (Linux, Windows, AWS) et dimensionner | [docs/deploiement/](docs/deploiement/README.md) |
+| Tester l'interface pas à pas | [guide-test-complet-interface.md](docs/runbooks/guide-test-complet-interface.md), [guide-demonstration-pas-a-pas.md](docs/runbooks/guide-demonstration-pas-a-pas.md) |
+| Construire la base de connaissances | [docs/knowledge-base/](docs/knowledge-base/cli-et-pipeline.md) |
 
 ## 7. Arborescence
 
@@ -121,7 +132,8 @@ alerte-platform/
     app/  migrations/  tests/  scripts/  requirements*.txt  .venv/ (local)
   frontend/                 interface React → frontend/README.md
     src/  package.json  package-lock.json  .nvmrc
-  scripts/                  setup.py, doctor.py, dev.py (multiplateforme)
+  scripts/                  setup.py, doctor.py, dev.py, hardware_probe.py, llm_bench.py, llm_target.py (multiplateforme) ; aws/setup_vllm.sh
+  deploy/                   Dockerfile + Docker Compose (application ; modèles Ollama/vLLM)
   docs/
     architecture/           dossier d'architecture (15 documents + annexes)
     runbooks/               procédures (installation, frontend)
@@ -149,15 +161,17 @@ Windows PowerShell : voir [backend/README.md](backend/README.md#2-environnement-
 
 ## 9. Configuration
 
-Un seul fichier : `backend/.env` (ignoré par Git), variables `ALERTE_*` — table complète dans [backend/README.md](backend/README.md#3-configuration-backendenv).
-Les deux variables essentielles pour l'IA réelle :
+Un seul fichier : `backend/.env` (ignoré par Git), variables `ALERTE_*`. Modèle complet : [`.env.example`](.env.example) ; fonction, caractère obligatoire, valeur attendue et test de chaque variable : [docs/runbooks/configuration-env.md](docs/runbooks/configuration-env.md).
+Les variables essentielles pour l'IA réelle :
 
 ```ini
 ALERTE_EMBED_BASE_URL=http://localhost:11434/v1     # serveur d'embeddings (ex. Ollama + bge-m3)
 ALERTE_EMBED_MODEL=bge-m3
-ALERTE_LLM_BASE_URL=http://machine-equipe:8000/v1   # serveur de génération
-ALERTE_LLM_MODEL=<nom du modèle>
+ALERTE_LLM_BASE_URL=http://machine-equipe:11434/v1  # serveur de génération
+ALERTE_LLM_MODEL=<nom EXACT du modèle servi>        # Ollama : `ollama list` (forme « nom:tag »)
+ALERTE_TESSDATA_DIR=/chemin/absolu/vers/tessdata    # OCR (ara, fra, eng) ; jamais un chemin relatif
 ```
+**Avant de démarrer** : `python3 scripts/doctor.py` (il vérifie aussi que le modèle configuré est réellement servi). Après toute modification du `.env`, **redémarrer** le backend.
 
 Côté frontend : aucune configuration en développement (proxy `/api` → `localhost:8000`) ; `ALERTE_API_URL` pour changer la cible.
 
@@ -199,7 +213,7 @@ Mode « un seul processus » : `cd frontend && npm run build`, puis le backend s
 | `http://localhost:8000/api/v1/health` · `/ready` | vivacité · disponibilité (base, FTS5, embedder) |
 
 Premier usage : sur `/access`, « créer un espace » → copiez le **jeton propriétaire** (affiché une seule fois ; seul son hash est conservé). Pour explorer une interface déjà remplie, backend démarré :
-`cd backend && python scripts/rising_waters_pack.py && python scripts/seed_rising_waters.py --until 8` crée l'espace « ALERTE — Demonstration » avec le scénario **Rising Waters — Cameroun** (données fictives, exercice joué en mode `scripted` SANS IA) et affiche son jeton ; `--until N` s'arrête à l'étape N du guide. `scripts/seed_demo.py` crée un espace de démonstration plus petit.
+`cd backend && python scripts/rising_waters_pack.py && python scripts/seed_rising_waters.py --until 8 --allow-missing-kbs` crée l'espace « ALERTE — Demonstration » avec le scénario **Rising Waters — Cameroun** (données fictives) et affiche son jeton. **Ce raccourci joue l'exercice en mode `scripted` : SANS IA** — il ne prouve ni la génération par un modèle ni la coordination entre agents. La base CM doit être **reconstruite avant** (`python -m app.cli knowledge build --country CM`) ; `--until N` s'arrête à l'étape N ; `--ai-mode ai` prépare (sans le lancer) un exercice « Modèle réel ». Toutes les commandes, dans l'ordre : [catalogue des commandes et fichiers](docs/runbooks/catalogue-commandes-et-fichiers.md).
 
 ## 12. Parcours utilisateur
 
@@ -219,19 +233,21 @@ Premier usage : sur `/access`, « créer un espace » → copiez le **jeton prop
 
 * **Embeddings** (BGE-M3, recommandé) : `ollama pull bge-m3`, puis `ALERTE_EMBED_BASE_URL=http://localhost:11434/v1`, `ALERTE_EMBED_MODEL=bge-m3`. Vérifier : `/api/v1/ready`.
 * **Génération** : tout serveur compatible OpenAI (`/v1/chat/completions`) ; configurez `ALERTE_LLM_BASE_URL`/`ALERTE_LLM_MODEL` (défaut) ou créez des **profils de modèle** par agent (écran Agents ; le profil référence un *nom de variable*, jamais une URL ni une clé).
-* **Mode de l'exercice** : `ai` (vrai modèle), `scripted` ou `cassette` (**SANS IA**, étiquetés partout : bandeau, rapport, ledger).
+* **Mode de l'exercice** (choisi à la création de l'exercice, **pas** par le profil d'un agent) : `ai` (vrai modèle), `scripted` ou `cassette` (**SANS IA**, étiquetés partout : bandeau, rapport, ledger). En mode `scripted`, le profil de modèle des agents est ignoré et les agents n'échangent aucun message.
+* **Un modèle inaccessible bloque la préparation** d'un exercice en mode `ai` (message explicite) : il n'y a plus de « décision de repli » silencieuse. Le **budget d'appels** de l'exercice (formulaire) fait foi.
+* **Coordination** : jusqu'à **3 tours** par inject ; un message posté au tour *n* est livré au tour *n+1* ; au dernier tour on ne peut que décider. Les agents reçoivent un **annuaire** des sièges (code, institution, rôle, mandats).
 * Les serveurs peuvent être sur **une autre machine** : seule l'URL change. Les clés d'API restent dans `.env`.
 
 ## 14. Gestion des bases de connaissances
 
 Import → ingestion (extraction, découpage en chunks avec article/section/page, OCR si besoin) → indexation (FTS5 + vecteurs BGE-M3) → publication d'une **version immuable**.
 Une KB s'exporte en archive portable (ZIP + manifeste + SHA-256) ; l'import est en deux temps (validation, confirmation) et refuse les contenus dont la redistribution n'est pas autorisée.
-`backend/scripts/legacy_to_archive.py` convertit l'ancienne base du prototype `alerte/` (45 documents, 4 235 chunks) en archives importables.
+Les PDF sont ingérés par la CLI (`python -m app.cli knowledge …`, voir le [catalogue](docs/runbooks/catalogue-commandes-et-fichiers.md)). Base réellement construite à ce jour : **CM** (17 documents, 1 351 passages, vecteurs complets) ; **GL, AE et ITU ne le sont pas**. `backend/scripts/legacy_to_archive.py` (archives de l'ancien prototype) est **hérité** : la démonstration part de la nouvelle base.
 
 ## 15. Tests
 
 ```bash
-cd backend && python -m pytest -m "not model and not gpu"            # 539 réussis, 2 ignorés, sans serveur de modèle
+cd backend && python -m pytest -m "not model and not gpu"            # sans serveur de modèle (résultat : voir docs/audits/ ; ≈ 25 min sur une machine chargée)
 cd backend && ALERTE_EMBED_BASE_URL=http://localhost:11434/v1 ALERTE_EMBED_MODEL=bge-m3 python -m pytest -m model tests/knowledge   # embeddings RÉELS
 cd frontend && npm run typecheck && npm run lint && npm test && npm run build
 ```
@@ -241,7 +257,7 @@ Les tests `scripted`/`fixture` prouvent l'**intégration** ; seuls les tests `-m
 ## 16. Déploiement
 
 * **Local / machine d'équipe** : `npm run build` puis `python -m uvicorn app.main:app_factory --factory --host 0.0.0.0 --port 8000` (un processus sert API + interface). Placer derrière un proxy TLS pour toute exposition réseau.
-* **Sandbox / serveur** : même code ; configurer `ALERTE_*`, `ALERTE_DATA_DIR` sur un volume persistant, serveurs de modèles accessibles. Docker/Podman sont facultatifs et **non requis** ; aucun Dockerfile n'est encore fourni.
+* **Sandbox / serveur** : même code ; configurer `ALERTE_*`, `ALERTE_DATA_DIR` sur un volume persistant, serveurs de modèles accessibles. Procédures **Linux, Windows et AWS Sandbox**, séparation *application* / *inférence*, Docker Compose (application ; modèles Ollama/vLLM, variante GPU) : [docs/deploiement/](docs/deploiement/README.md). Docker reste **facultatif**.
 * **Données** : sauvegarde = copie du dossier `ALERTE_DATA_DIR` (application arrêtée) ; ne jamais exposer `data/`.
 * **Sécurité** : jetons porteurs hachés (SHA-256), rôles owner/facilitator/player/observer/auditor, CORS restreint, secrets masqués dans les journaux.
 

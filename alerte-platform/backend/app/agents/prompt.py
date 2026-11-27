@@ -11,9 +11,9 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from ..contracts import LLMMessage, SeatContext
+from ..contracts import MAX_ROUNDS, LLMMessage, SeatContext
 
-PROMPT_VERSION = "agent-prompt-v2"
+PROMPT_VERSION = "agent-prompt-v3"
 TOKEN_BUDGET = 4000
 _DIR = Path(__file__).parent / "prompts"
 _TAGS = re.compile(r"<(/?)(retrieved_document|board_message|legal_adviser_answer|inbox_item)", re.I)
@@ -37,12 +37,30 @@ def sanitize(text: Any, limit: int | None = None) -> str:
     return s
 
 
-_LEVELS = [  # (mandats, inbox, board, décisions, hits, car/hit, notes, car/note)
-    (12, 6, 8, 3, 5, 900, 8, 1200),
-    (8, 4, 5, 2, 4, 550, 6, 700),
-    (5, 3, 3, 1, 3, 320, 4, 400),
-    (3, 2, 2, 1, 2, 200, 3, 250),
+_LEVELS = [  # (mandats, inbox, board, décisions, hits, car/hit, notes, car/note, car/mission de l'annuaire)
+    (12, 6, 8, 3, 5, 900, 8, 1200, 160),
+    (8, 4, 5, 2, 4, 550, 6, 700, 110),
+    (5, 3, 3, 1, 3, 320, 4, 400, 70),
+    (3, 2, 2, 1, 2, 200, 3, 250, 0),
 ]
+
+
+def _directory(ctx: SeatContext, mission_chars: int) -> str:
+    """Annuaire des sièges auxquels on peut écrire : code, institution, rôle, mandat. Repli : liste de codes seule."""
+    if not ctx.seat_directory:
+        others = ", ".join(c for c in ctx.seat_codes if c != ctx.seat_code) or "(none)"
+        return f"Other seat codes: {others}"
+    lines = ["Seat directory (you can post ONLY to these seats; public role information):"]
+    for d in ctx.seat_directory:
+        if d.get("code") == ctx.seat_code:
+            continue
+        line = f"- {sanitize(d.get('code'), 32)} — {sanitize(d.get('name'), 80)} ({sanitize(d.get('kind'), 24)})"
+        if mission_chars and d.get("mission"):
+            line += f". Role: {sanitize(d['mission'], mission_chars)}"
+        if mission_chars and d.get("mandates"):
+            line += ". Mandate focus: " + "; ".join(sanitize(m, 60) for m in list(d["mandates"])[:3])
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def _mandate_line(m: Mapping[str, Any]) -> str:
@@ -89,7 +107,7 @@ def build_system_prompt(ctx: SeatContext, *, retrieved: Sequence[Mapping[str, An
 
 def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Sequence[str], allowed: list[str],
             tools: list[str], limits: Mapping[str, Any], lvl: tuple[int, ...]) -> str:
-    n_m, n_in, n_b, n_d, n_h, c_h, n_n, c_n = lvl
+    n_m, n_in, n_b, n_d, n_h, c_h, n_n, c_n, c_dir = lvl
     inst = ctx.institution
     a = ctx.agent
     s1 = (f"## 1. Role\nYou are {sanitize(a.get('name') or a.get('code'), 200)}, representing "
@@ -98,11 +116,13 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
           f"Mission: {sanitize(a.get('mission'), 600)}\nInstructions: {sanitize(a.get('instructions'), 1500)}")
     mand = [_mandate_line(m) for m in ctx.mandates[:n_m]]
     s2 = "## 2. Documented mandate (validated, with sources)\n" + ("\n".join(mand) if mand else "- (no validated mandate recorded)")
-    tools_txt = _tpl("tools_v2.txt").replace("{max_steps}", str(limits.get("max_steps", 4)))
-    others = ", ".join(c for c in ctx.seat_codes if c != ctx.seat_code) or "(none)"
-    s4 = f"{tools_txt}\nTools available to you: {', '.join(tools) or '(none)'}\nOther seat codes: {others}"
+    tools_txt = _tpl("tools_v3.txt").replace("{max_steps}", str(limits.get("max_steps", 4)))
+    s4 = f"{tools_txt}\nTools available to you: {', '.join(tools) or '(none)'}\n{_directory(ctx, c_dir)}"
     inj = ctx.inject
-    ctx_lines = [f"## 5. Activation context (round {ctx.round})",
+    ctx_lines = [f"## 5. Activation context (round {ctx.round} of {MAX_ROUNDS}"
+                 + (" — FINAL round: post is not available, decide now)" if ctx.round >= MAX_ROUNDS else
+                    " — new REQUESTs are no longer possible (their answer would come too late); you can still answer and inform)"
+                    if ctx.round == MAX_ROUNDS - 1 else ")"),
                  f"Inject title: {sanitize(inj.get('title'), 200)}",
                  f"Time: {sanitize(inj.get('sim_time'), 40)}   From: {sanitize(inj.get('from_actor'), 100)}",
                  f"Inject text: {sanitize(inj.get('body') or inj.get('text'), 900)}"]
@@ -129,7 +149,7 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
         ctx_lines.append("Tool results so far:")
         ctx_lines += [sanitize(n, c_n) for n in list(notes)[-n_n:]]
     ctx_lines.append(f"Allowed actions now: {', '.join(allowed)}")
-    return "\n\n".join([s1, s2, _tpl("rules_v2.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
+    return "\n\n".join([s1, s2, _tpl("rules_v3.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
 
 
 def build_messages(ctx: SeatContext, **kw: Any) -> list[LLMMessage]:

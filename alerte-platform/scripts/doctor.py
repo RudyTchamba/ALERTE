@@ -101,6 +101,13 @@ def check_tesseract() -> None:
                  "Installeur UB Mannheim, puis ajouter au PATH et définir TESSDATA_PREFIX"))
         return
     tess = os.environ.get("ALERTE_TESSDATA_DIR")
+    if tess and not Path(tess).is_absolute():
+        cands = [Path.cwd() / tess, BACKEND / tess, ROOT / tess, ROOT.parent / tess]
+        found = next((c for c in cands if c.is_dir()), None)
+        add("AVERTISSEMENT", f"ALERTE_TESSDATA_DIR est un chemin RELATIF ({tess}) : il dépend du dossier de lancement",
+            (f"Il n'existe que depuis {'le dossier courant' if found == cands[0] else 'un autre dossier'} ({found}). " if found else "Introuvable depuis ce dossier. ")
+            + "Utilisez un chemin ABSOLU (le backend est lancé depuis backend/).")
+        tess = str(found) if found else tess
     cmd = [exe, "--list-langs"] + (["--tessdata-dir", tess] if tess else [])
     code, out = run(cmd)
     langs = {ln.strip() for ln in out.splitlines() if re.fullmatch(r"[A-Za-z_]{2,12}", ln.strip())} if code == 0 else set()
@@ -125,26 +132,48 @@ def check_pdf() -> None:
                  "Installer GTK/Pango via MSYS2 (voir docs/runbooks/install.md) — ou utiliser le rendu de repli"))
 
 
-def _reachable(url: str) -> bool:
+def _served_models(url: str, key: str = "") -> tuple[bool, list[str], str]:
+    """GET <url>/models : (joignable, identifiants des modèles servis, détail d'erreur). Ollama et vLLM répondent tous deux ainsi."""
+    import json
+    req = urllib.request.Request(url.rstrip("/") + "/models", headers={"Authorization": f"Bearer {key}"} if key else {})
     try:
-        req = urllib.request.Request(url.rstrip("/") + "/models", method="GET")
-        with urllib.request.urlopen(req, timeout=4) as r:  # noqa: S310 - URL d'administration locale
-            return 200 <= r.status < 500
+        with urllib.request.urlopen(req, timeout=6) as r:  # noqa: S310 - URL d'administration configurée par l'utilisateur
+            data = json.load(r)
+        return True, [str(m.get("id")) for m in data.get("data", [])], ""
     except urllib.error.HTTPError as exc:
-        return exc.code < 500
-    except Exception:  # noqa: BLE001
-        return False
+        return exc.code < 500 and exc.code not in (401, 403), [], f"HTTP {exc.code}" + (" : clé d'API manquante ou invalide ?" if exc.code in (401, 403) else "")
+    except Exception as exc:  # noqa: BLE001
+        return False, [], exc.__class__.__name__
+
+
+def _check_one_model_server(label: str, url_var: str, model_var: str, key_var: str, needed_for: str) -> None:
+    url, model = os.environ.get(url_var), os.environ.get(model_var)
+    if not url:
+        add("AVERTISSEMENT", f"Serveur de {label} non configuré ({url_var})",
+            f"Requis pour {needed_for}. Exemple : {url_var}=http://localhost:11434/v1 (Ollama) — voir .env.example.")
+        return
+    if not model:
+        add("AVERTISSEMENT", f"Modèle de {label} non configuré ({model_var})", f"Requis pour {needed_for}. Nom EXACT du modèle servi (voir `ollama list`).")
+    up, served, err = _served_models(url, os.environ.get(key_var, ""))
+    if not up:
+        add("AVERTISSEMENT", f"Serveur de {label} injoignable : {url}", f"{err}. Vérifiez l'adresse, le port, le pare-feu / tunnel SSH. Test : curl {url.rstrip('/')}/models")
+    elif model and served and model not in served and f"{model}:latest" not in served:  # Ollama : « bge-m3 » = « bge-m3:latest »
+        add("BLOQUANT" if label == "génération" else "AVERTISSEMENT", f"Serveur de {label} joignable, mais le modèle « {model} » n'y est pas servi",
+            f"Modèles servis : {', '.join(served) or '(aucun)'}. Corrigez {model_var} (nom exact, Ollama : « nom:tag ») ou installez le modèle.")
+    else:
+        add("OK", f"Serveur de {label} : {url}", f"modèle « {model} » servi" if model and served else (err or "joignable"))
 
 
 def check_model_servers() -> None:
-    for label, var in (("génération", "ALERTE_LLM_BASE_URL"), ("embeddings", "ALERTE_EMBED_BASE_URL")):
-        url = os.environ.get(var)
-        if not url:
-            add("AVERTISSEMENT", f"Serveur de {label} non configuré ({var})",
-                "Pointez vers une machine de l'équipe (Ollama/vLLM/TEI) pour les tests IA réels ; les tests unitaires n'en ont pas besoin.")
-        else:
-            add("OK" if _reachable(url) else "AVERTISSEMENT", f"Serveur de {label} : {url}",
-                "" if _reachable(url) else "injoignable depuis cette machine")
+    mode = os.environ.get("ALERTE_LLM_MODE", "openai_compat")
+    if mode == "openai_compat":
+        _check_one_model_server("génération", "ALERTE_LLM_BASE_URL", "ALERTE_LLM_MODEL", "ALERTE_LLM_API_KEY", "un exercice « Modèle réel »")
+    else:
+        add("INFO", f"ALERTE_LLM_MODE={mode} : exercices SANS IA ; aucun serveur de génération n'est vérifié")
+    _check_one_model_server("embeddings", "ALERTE_EMBED_BASE_URL", "ALERTE_EMBED_MODEL", "ALERTE_EMBED_API_KEY",
+                            "construire une base avec vecteurs et la recherche hybride")
+    cap = os.environ.get("ALERTE_MAX_LLM_CALLS", "199")
+    add("INFO", f"Plafond d'appels par défaut : {cap} (le budget de l'exercice, fixé dans le formulaire, prime)")
 
 
 def check_data_dir() -> None:

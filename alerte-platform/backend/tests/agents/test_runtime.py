@@ -85,7 +85,7 @@ def test_always_tool_model_is_cut_at_max_steps_with_fallback(make_runtime):  # n
     assert any(e.type == "ERROR" and e.payload["component"] == "agent_loop" for e in res.events)
     assert res.llm_calls <= 5
     # la dernière demande n'offre que post|decide
-    assert prov.schemas[-1]["properties"]["action"]["enum"] == ["post", "decide"]
+    assert prov.schemas[-1]["properties"]["action"]["enum"] == ["decide"]  # pas final : décider seulement (un post final = aucune décision)
 
 
 def test_provider_unavailable_gives_fallback(make_runtime):  # noqa: ANN001
@@ -167,7 +167,7 @@ def test_search_budget_and_duplicate_detection(make_runtime, services):  # noqa:
     dup = [e.payload for e in res.events if e.type == "TOOL_CALL"][1]
     assert dup["error"] == "duplicate_query"
     # après un doublon, le pas suivant est forcé à post|decide
-    assert prov.schemas[2]["properties"]["action"]["enum"] == ["post", "decide"]
+    assert prov.schemas[2]["properties"]["action"]["enum"] == ["decide"]
     prov2 = QueueProvider([SEARCH, other, decide(outcome="no_legal_basis_found", basis=[])])
     res2 = make_runtime(prov2).activate(ctx)
     assert [e.payload["error"] for e in res2.events if e.type == "TOOL_CALL"][1] == "search_budget_exhausted"
@@ -244,6 +244,26 @@ def test_budget_exhausted_per_exercise(make_runtime):  # noqa: ANN001
     assert rt.calls_used("EX1") == 2
     # un autre exercice a son propre compteur
     assert rt.activate(make_ctx(exercise_id="EX2")).status == "ok"
+
+
+def test_exercise_budget_overrides_the_server_default_cap(make_runtime):  # noqa: ANN001
+    """Le budget de l'exercice (transmis par le moteur) fait foi, même au-dessus du plafond serveur (199 par défaut, ici 2)."""
+    prov = QueueProvider([SEARCH, decide(outcome="no_legal_basis_found", basis=[])], repeat_last=True)
+    rt = make_runtime(prov, max_llm_calls=2)
+    ctx = make_ctx(exercise_id="EXB")
+    ctx.agent["budget_remaining"] = 6
+    for _ in range(3):  # 4 appels au total (recherche + 3 décisions) > plafond serveur 2, mais dans le budget de l'exercice
+        assert rt.activate(ctx).status == "ok"
+    assert rt.calls_used("EXB") == 4 > 2
+
+
+def test_activation_cannot_exceed_the_remaining_exercise_budget(make_runtime):  # noqa: ANN001
+    prov = QueueProvider([SEARCH, decide(outcome="no_legal_basis_found", basis=[])], repeat_last=True)
+    rt = make_runtime(prov, max_llm_calls=199)
+    ctx = make_ctx(exercise_id="EXC")
+    ctx.agent["budget_remaining"] = 1  # un seul appel disponible : la recherche passe, la décision est refusée
+    res = rt.activate(ctx)
+    assert res.status == "budget_exhausted" and res.llm_calls == 1
 
 
 def test_ai_system_seat_is_never_an_llm(make_runtime):  # noqa: ANN001

@@ -17,14 +17,17 @@ def state(world, ex_id):
 # --------------------------------------------------------------------------- budget (T-SEC-11)
 def test_budget_exhaustion_pauses_with_explicit_error_never_loops(world):
     one_step_agents(world)
-    ex_id = world.new_exercise(settings={"max_llm_calls": 4})  # 2 appels par activation
+    # 3 appels par activation. La préparation estime au pire 3 sièges x 3 tours x 1 pas = 9 appels : un plafond de 6 (= 9 / 1,5) est le plus
+    # bas qui ne bloque pas le lancement ; l'exercice atteint ce plafond au runtime après 2 activations.
+    world.runtime.script = lambda c: Behavior(llm_calls=3)
+    ex_id = world.new_exercise(settings={"max_llm_calls": 6})
     assert world.run(ex_id) == "paused"
     led = world.ledger(ex_id)
     err = [e for e in led if e["type"] == "ERROR"]
     assert len(err) == 1 and err[0]["payload"]["component"] == "budget" and err[0]["payload"]["next_action"] == "pause"
     st = [e["payload"] for e in led if e["type"] == "STATE"][-1]
     assert st["to"] == "paused" and st["reason"] == "budget_exhausted"
-    assert len(world.runtime.calls) == 2 and state(world, ex_id)["llm_calls_used"] == 4
+    assert len(world.runtime.calls) == 2 and state(world, ex_id)["llm_calls_used"] == 6
     assert not world.mgr.is_active(ex_id)
     # reprise sans rallonge : nouvelle pause explicite (jamais de boucle silencieuse)
     world.cmd(ex_id, "resume")
@@ -35,7 +38,7 @@ def test_budget_exhaustion_pauses_with_explicit_error_never_loops(world):
     assert world.cmd(ex_id, "resume", {"extend_budget": 10}).status_code == 202
     assert world.wait(ex_id, {"completed"}) == "completed"
     assert world.verify(ex_id)["ok"]
-    assert state(world, ex_id)["llm_calls_used"] == 6
+    assert state(world, ex_id)["llm_calls_used"] == 9
 
 
 def test_runtime_signalled_budget_exhaustion_pauses_and_step_is_retried(world):

@@ -151,16 +151,39 @@ def mandate_rows(country: str, data: dict) -> list[dict]:
     return rows
 
 
+def load_agent_briefs(country: str) -> dict[str, dict]:
+    """Fiches de comportement des agents de la NOUVELLE base (`knowledge_bases/curation/agent-briefs.<CC>.json`) ; {} si le pays n'en a pas."""
+    f = CURATION / f"agent-briefs.{country}.json"
+    return json.loads(f.read_text(encoding="utf-8"))["briefs"] if f.is_file() else {}
+
+
+def compose_instructions(role: dict, brief: dict | None) -> str:
+    """Instructions d'un agent. Sans fiche : perspective/priorités/ton du prototype (comportement historique). Avec fiche : perspective,
+    priorités et ton (fiche, sinon prototype) PUIS objectif, contacts, limites, conduite à tenir, résultat attendu. Le prompt tronque à 1 500 car."""
+    persp = (brief or {}).get("perspective") or role.get("perspective")
+    prios = (brief or {}).get("priorities") or role.get("priorities") or []
+    voice = (brief or {}).get("voice") or role.get("voice")
+    if not brief:
+        return "\n".join(filter(None, [persp, "Priorités : " + " ; ".join(prios) if prios else "", "Ton : " + voice if voice else ""]))
+    lines = [persp, "Priorities: " + "; ".join(prios) if prios else "", "Tone: " + voice if voice else "",
+             "Objective: " + brief["objective"] if brief.get("objective") else "",
+             "Contacts (seats you can ask or inform): " + "; ".join(brief["contacts"]) if brief.get("contacts") else "",
+             "Limits: " + brief["limits"] if brief.get("limits") else "",
+             "On each event: " + brief["when_event"] if brief.get("when_event") else "",
+             "Output: " + brief["output"] if brief.get("output") else ""]
+    return "\n".join(x for x in lines if x)
+
+
 def build_setup(country: str, mandates: dict | None = None) -> dict:
     roles = yaml.safe_load((LEGACY / "scenarios" / "roles" / f"{country.lower()}.yaml").read_text(encoding="utf-8"))["roles"]
     actions = yaml.safe_load((LEGACY / "mandates" / "actions.yaml").read_text(encoding="utf-8"))["actions"]
     insts, agents = [], []
+    briefs = load_agent_briefs(country)
     for r in roles:
         if r["code"] in ("COORD", "LEGAL"):
             continue  # le chef d'exercice (COORD) est du code déterministe et le conseiller juridique est l'outil `ask_legal` : ce ne sont pas des sièges
         insts.append({"code": pf(country, r["code"]), "name": r["name"], "kind": KIND_MAP.get(r["code"], "other")})
-        instr = "\n".join(filter(None, [r.get("perspective"), "Priorités : " + " ; ".join(r.get("priorities") or []) if r.get("priorities") else "",
-                                        "Ton : " + r["voice"] if r.get("voice") else ""]))
+        instr = compose_instructions(r, briefs.get(r["code"]))
         agents.append({"institution": pf(country, r["code"]), "code": f"AG-{pf(country, r['code'])}", "name": f"Agent {pf(country, r['code'])}",
                        "role_kind": "ai_system" if r.get("kind") == "ai_system" else "institution",
                        "mission": r.get("mission", ""), "instructions": instr,

@@ -41,6 +41,11 @@ def list_profiles(session: Session, workspace_id: str) -> list[ModelProfile]:
 def _check_profile(provider: str, endpoint_ref: str | None, extra: dict | None) -> None:
     if provider == "cassette" and not (extra or {}).get("cassette"):
         raise Unprocessable("un profil cassette exige extra.cassette (nom de cassette)", code="model_profile.cassette_required")
+    from .providers import validate_request_body
+    try:
+        validate_request_body((extra or {}).get("request_body"))
+    except ValueError as exc:
+        raise Unprocessable(str(exc), code="model_profile.request_body_invalid") from exc
     if endpoint_ref and "://" in endpoint_ref:  # défense en profondeur (le schéma l'interdit déjà)
         raise Unprocessable("endpoint_ref est un NOM de variable, pas une URL", code="model_profile.endpoint_not_a_name")
 

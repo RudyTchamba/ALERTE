@@ -13,6 +13,7 @@ import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 log = logging.getLogger("alerte.knowledge.extract")
 
@@ -40,6 +41,16 @@ def image_heavy(page, txt: str) -> bool:  # noqa: ANN001
         return w * h > 0 and cov / (w * h) >= SCAN_IMAGE_COVERAGE
     except Exception:  # noqa: BLE001 - jamais d'échec silencieux ailleurs : ici on retombe sur le comportement historique
         return False
+
+
+def classify_text_layer(page, txt: str, ocr: Any) -> str:  # noqa: ANN001, ANN401
+    """Que faire d'une page dont la couche texte atteint le seuil ?
+    * `accept` : texte natif fiable ;
+    * `ocr`    : page image-dominante (scan + cachet/numéro) et OCR utilisable -> relire par OCR ;
+    * `review` : page image-dominante MAIS OCR indisponible -> on garde le texte, marqué « à relire » (jamais accepté en silence)."""
+    if len(txt.strip()) < MIN_PAGE_CHARS or not image_heavy(page, txt):
+        return "accept" if len(txt.strip()) >= MIN_PAGE_CHARS else "ocr"
+    return "ocr" if (ocr is not None and ocr.usable) else "review"
 
 
 class ExtractionError(Exception):
@@ -224,8 +235,14 @@ def extract_pdf(path: Path, ocr: OcrEngine | None, on_ocr: Callable[[int], None]
             except Exception as exc:  # noqa: BLE001
                 txt = ""
                 warnings.append(f"page {i} : extraction du texte en échec ({str(exc)[:80]})")
-            if len(txt.strip()) >= MIN_PAGE_CHARS and not (ocr is not None and ocr.usable and image_heavy(page, txt)):
+            verdict = classify_text_layer(page, txt, ocr)
+            if verdict == "accept":
                 pages.append(Page(i, fix_arabic_visual_order(txt)))
+                continue
+            if verdict == "review":
+                reason = (ocr.error if ocr else "OCR désactivé") or "OCR indisponible"
+                pages.append(Page(i, fix_arabic_visual_order(txt), "text", None,
+                                  f"page image-dominante (scan avec texte parasite) ; {reason} : texte à relire"))
                 continue
             # page pauvre → OCR, ou marquage « à relire » explicite
             if ocr is None or not ocr.usable:

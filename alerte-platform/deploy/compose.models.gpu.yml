@@ -1,0 +1,11 @@
+# Surcharge GPU NVIDIA pour Ollama (Linux : nvidia-container-toolkit ; Windows : Docker Desktop + WSL2 + pilote NVIDIA).
+#   docker compose -f deploy/compose.models.yml -f deploy/compose.models.gpu.yml up -d ollama
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

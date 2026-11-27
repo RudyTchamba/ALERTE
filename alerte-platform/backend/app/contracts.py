@@ -15,6 +15,10 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol, runtime_checkable
 
+# Nombre maximal de tours par inject (source UNIQUE : simulation, agents, estimation de budget). Un message posté au tour r est
+# livré au tour r+1 ; au dernier tour on ne peut donc plus poster (rien ne le traiterait) : le tour N sert à DÉCIDER.
+MAX_ROUNDS = 3
+
 # --------------------------------------------------------------------------- recherche
 
 
@@ -199,6 +203,9 @@ class SeatContext:
     mandates: list[dict[str, Any]]       # mandats validés de l'institution actifs dans l'exercice (avec sources)
     seat_codes: list[str]                # destinataires valides pour `post`
     step_key: str                        # clé d'idempotence de l'étape (inject:round:seat)
+    # annuaire des AUTRES sièges activables : {code, name, kind, mission, mandates:["kind:action_code"]} (informations publiques de rôle,
+    # jamais d'instructions privées ni de contenu de boîte) ; vide => le prompt retombe sur la seule liste de codes
+    seat_directory: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass

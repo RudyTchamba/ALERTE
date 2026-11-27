@@ -59,6 +59,20 @@ class Settings(BaseSettings):
     def _expand(cls, v):  # noqa: ANN001
         return Path(v).expanduser()
 
+    @property
+    def resolved_tessdata_dir(self) -> Path | None:
+        """`tessdata` indépendant du dossier de lancement : un chemin absolu est pris tel quel ; un chemin relatif est cherché depuis le
+        dossier courant, le dossier backend/, la racine de la plateforme, puis celle du dépôt (le premier qui existe gagne). Un chemin
+        introuvable est rendu tel quel : l'OCR le signale alors comme indisponible (jamais d'échec silencieux)."""
+        t = self.tessdata_dir
+        if t is None or t.is_absolute():
+            return t
+        here = Path(__file__).resolve()  # backend/app/core/config.py
+        for base in (Path.cwd(), here.parents[2], here.parents[3], here.parents[4]):
+            if (base / t).is_dir():
+                return (base / t).resolve()
+        return t
+
     # chemins dérivés -----------------------------------------------------------
     @property
     def resolved_data_dir(self) -> Path:

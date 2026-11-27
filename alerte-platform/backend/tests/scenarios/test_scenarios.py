@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from app.contracts import MAX_ROUNDS
 from app.core.db import session_scope
 from app.scenarios.faults import FAULT_CODES, FAULT_MODES
 from tests.conftest import auth
@@ -139,7 +140,7 @@ def test_lint_all_cases(client, env, app):  # noqa: ANN001
     assert ("inject.unknown_recipient", everyone["seq"]) in codes
     assert ("scenario.few_fault_modes", None) in codes and rep["ok"] is False
     assert rep["stats"]["distinct_fault_modes"] == 2 and rep["stats"]["injects"] == 3
-    assert rep["stats"]["estimated_llm_calls"]["max"] == (0 + 3 + 1) * 2 * 4
+    assert rep["stats"]["estimated_llm_calls"]["max"] == (0 + 3 + 1) * MAX_ROUNDS * 4  # destinataires x tours x pas
     # tous les destinataires (institutions actives de l'espace) -> avertissement d'inégalité d'information
     client.put(f"{API}/injects/{everyone['id']}/recipients", json={"institution_ids": [env["inst"]["MET"], env["inst"]["DPC"]]}, headers=h)
     codes = {(i["code"], i["seq"]) for i in lint()["issues"]}
@@ -157,7 +158,7 @@ def test_lint_budget_estimate_and_six_fault_modes(client, env):  # noqa: ANN001
     rep = client.get(f"{API}/scenarios/{sid}/lint", headers=h).json()
     codes = {i["code"] for i in rep["issues"]}
     assert "scenario.few_fault_modes" not in codes and rep["stats"]["distinct_fault_modes"] == 6
-    assert rep["stats"]["estimated_llm_calls"]["max"] == 7 * 2 * 2 * 4 == 112 and "scenario.budget_estimate" not in codes
+    assert rep["stats"]["estimated_llm_calls"]["max"] == 7 * 2 * MAX_ROUNDS * 4 == 168 and "scenario.budget_estimate" not in codes
     for i in range(7):
         mk_inject(client, env, sid, f"j{i}", recipients=("MET", "DPC", "OPS"), fault_mode="exclusion")
     rep = client.get(f"{API}/scenarios/{sid}/lint", headers=h).json()

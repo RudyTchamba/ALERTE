@@ -26,9 +26,9 @@ const schema = z.object({
   instructions: z.string().optional(),
   model_profile_id: z.string().optional(),
   tools: z.array(z.string()),
-  max_steps: z.coerce.number().int().min(1).max(10),
-  max_search_calls: z.coerce.number().int().min(0).max(20),
-  max_legal_calls_per_inject: z.coerce.number().int().min(0).max(10),
+  max_steps: z.coerce.number().int().min(1).max(8),
+  max_search_calls: z.coerce.number().int().min(0).max(10),
+  max_legal_calls_per_inject: z.coerce.number().int().min(0).max(5),
 })
 type FormIn = z.input<typeof schema>
 type FormOut = z.output<typeof schema>
