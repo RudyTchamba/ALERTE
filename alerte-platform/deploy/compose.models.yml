@@ -1,0 +1,45 @@
+# Machine d'INFÉRENCE : serveur(s) de modèles compatible(s) OpenAI. Indépendant de compose.app.yml (même machine ou non).
+#
+# 1) Ollama (CPU, ou GPU avec compose.models.gpu.yml) — simple, fonctionne sous Linux, Windows et macOS :
+#      docker compose -f deploy/compose.models.yml up -d ollama
+#      docker compose -f deploy/compose.models.yml exec ollama ollama pull bge-m3
+#      docker compose -f deploy/compose.models.yml exec ollama ollama pull <modèle de génération choisi>   # ex. qwen2.5:14b-instruct (tag à vérifier : `ollama list`)
+#      curl http://localhost:11434/v1/models
+# 2) vLLM (GPU NVIDIA, Linux ou WSL2) — profil « vllm » : VLLM_MODEL=<nom exact du modèle HF> docker compose -f deploy/compose.models.yml --profile vllm up -d vllm
+#    (modèle par défaut Qwen/Qwen2.5-14B-Instruct-AWQ = celui du script AWS existant ; à remplacer par le modèle réellement retenu)
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    environment:
+      # Contexte par défaut d'Ollama : 4 096 jetons sans GPU puissant ; les prompts d'ALERTE vont jusqu'à ~4 000 + 1 024 en sortie -> 8 192 minimum.
+      OLLAMA_CONTEXT_LENGTH: "${OLLAMA_CONTEXT_LENGTH:-8192}"
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+
+  vllm:
+    profiles: ["vllm"]
+    image: ${VLLM_IMAGE:-vllm/vllm-openai:v0.8.5}      # version figée comme scripts/aws/setup_vllm.sh ; un modèle plus récent peut exiger une version plus récente (à vérifier)
+    command: >
+      --model ${VLLM_MODEL:-Qwen/Qwen2.5-14B-Instruct-AWQ}
+      --served-model-name ${VLLM_MODEL}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
+      --gpu-memory-utilization ${VLLM_GPU_UTILIZATION:-0.90}
+    ports:
+      - "127.0.0.1:${VLLM_PORT:-8001}:8000"             # local seulement : y accéder par tunnel SSH ou reverse proxy, jamais exposé tel quel à Internet
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+volumes:
+  ollama-models:
+  hf-cache:

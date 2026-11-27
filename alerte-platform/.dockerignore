@@ -1,0 +1,18 @@
+# Contexte de build Docker : jamais de secrets, de données ni de dépendances locales dans l'image.
+**/.env
+**/.env.*
+!**/.env.example
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+backend/data
+backend/data-kb-build
+data
+data-demo
+knowledge_bases/_local
+**/*.sqlite*
+frontend/dist
+.git
+demo/rising-waters/lacunes-attendues.PRIVE.json

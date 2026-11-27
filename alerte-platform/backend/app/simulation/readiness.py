@@ -5,6 +5,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from ..contracts import MAX_ROUNDS
 from ..core.errors import NotFound
 from .common import NON_ACTIVATABLE_ROLES, optional_svc
 from .models import Exercise, Seat
@@ -12,7 +13,7 @@ from .snapshot import effective_profile
 
 BLOCKING, WARNING, INFO = "blocking", "warning", "info"
 DEFAULT_MAX_STEPS = 4
-ROUNDS = 2
+ROUNDS = MAX_ROUNDS
 
 
 def _chk(out: list[dict], level: str, code: str, message: str, subject: str | None = None) -> None:
@@ -56,6 +57,7 @@ def compute_readiness(ctx: Any, session: Session, ex: Exercise, seats: list[Seat
     # 2 fournisseur --------------------------------------------------------------------------
     if ex.ai_mode == "scripted":
         _chk(out, INFO, "provider.scripted", "fournisseur scripted explicitement choisi : exercice SANS IA")
+    to_probe: dict[str, tuple[dict, list[str]]] = {}
     for s in seats:
         a = snaps.get(s.agent_id or "")
         if not a:
@@ -66,13 +68,24 @@ def compute_readiness(ctx: Any, session: Session, ex: Exercise, seats: list[Seat
                 _chk(out, BLOCKING, "agent.no_model_profile", "profil de modèle invalide", s.code)
             elif prof.get("provider") in ("scripted", "cassette"):
                 _chk(out, BLOCKING, "provider.not_ai", "fournisseur de test incompatible avec ai_mode=ai", s.code)
-            elif hasattr(agents, "test_model_profile"):
-                try:
-                    ok = agents.test_model_profile(session, ws, s.agent_id)
-                except Exception as exc:  # noqa: BLE001
-                    ok, _ = False, exc
-                if not ok:
-                    _chk(out, BLOCKING, "provider.test_failed", "l'appel de test du modèle a échoué", s.code)
+            else:
+                key = f"{prof.get('provider')}|{prof.get('model')}|{prof.get('endpoint_ref')}"
+                to_probe.setdefault(key, (prof, []))[1].append(s.code)
+    # Sonde RÉELLE du modèle (un appel « ping » par profil effectif distinct) : un modèle inaccessible BLOQUE le lancement en mode
+    # réel. Sans cela, chaque activation tomberait en décision de repli sans message, alors que la préparation serait « verte ».
+    for prof, codes in to_probe.values():
+        if not hasattr(agents, "probe_profile"):
+            _chk(out, BLOCKING, "provider.not_probed", "la sonde du modèle est indisponible : accessibilité non vérifiée",
+                 str(prof.get("model")))
+            continue
+        res = agents.probe_profile(prof)
+        if not res["ok"]:
+            _chk(out, BLOCKING, "provider.test_failed",
+                 f"modèle « {prof.get('model')} » inaccessible ({res.get('error') or 'erreur inconnue'}). Vérifiez le serveur de "
+                 f"modèle, le nom EXACT du modèle servi et la variable {prof.get('endpoint_ref') or 'ALERTE_LLM_BASE_URL'}. "
+                 f"Sièges concernés : {', '.join(codes)}", str(prof.get("model")))
+        else:
+            _chk(out, INFO, "provider.reachable", f"modèle « {prof.get('model')} » joignable ({res['ms']} ms)", str(prof.get("model")))
     # 3 KB -----------------------------------------------------------------------------------
     all_kbs: set[str] = set()
     for s in seats:

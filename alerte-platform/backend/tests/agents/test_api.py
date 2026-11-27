@@ -41,6 +41,18 @@ def test_model_profile_crud_and_endpoint_must_be_a_name(client, env):  # noqa: A
     assert len(client.get(f"{API}/model-profiles", headers=h).json()) == 1
 
 
+def test_model_profile_request_body_is_validated(client, env):  # noqa: ANN001
+    h = env["h"]
+    ok = client.post(f"{API}/model-profiles", headers=h, json={
+        "name": "vllm-no-think", "provider": "openai_compat", "model": "m", "endpoint_ref": "ALERTE_LLM_BASE_URL",
+        "extra": {"request_body": {"chat_template_kwargs": {"enable_thinking": False}}}})
+    assert ok.status_code == 201, ok.text
+    bad = client.post(f"{API}/model-profiles", headers=h, json={
+        "name": "bad", "provider": "openai_compat", "model": "m", "endpoint_ref": "ALERTE_LLM_BASE_URL",
+        "extra": {"request_body": {"model": "autre"}}})
+    assert bad.status_code == 422 and bad.json()["error"]["code"] == "model_profile.request_body_invalid"
+
+
 def test_model_profile_test_endpoint(client, env, monkeypatch):  # noqa: ANN001
     h = env["h"]
     s = client.post(f"{API}/model-profiles", json={"name": "s", "provider": "scripted"}, headers=h).json()

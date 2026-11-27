@@ -81,6 +81,12 @@ cp -n ../.env.example .env         # -n : ne remplace pas un .env existant. Wind
 | `ALERTE_TESSDATA_DIR`, `ALERTE_OCR_LANGS` | — / `ara+fra+eng` | OCR |
 | `ALERTE_LOG_LEVEL`, `ALERTE_LOG_JSON` | `INFO` / `true` | journaux (secrets masqués) |
 
+Cette table est un résumé : **toutes** les variables (y compris `ALERTE_EMBED_BATCH_SIZE`, `ALERTE_EMBED_TIMEOUT_S`, `ALERTE_EMBED_REVISION/RUNTIME/QUANTIZATION`, `ALERTE_AUTHORITY_SPREAD`, `ALERTE_SIGNING_KEY_PATH`), leur caractère obligatoire, leur valeur attendue et le test de chacune sont dans [docs/runbooks/configuration-env.md](../docs/runbooks/configuration-env.md) ; le modèle de fichier est [`.env.example`](../.env.example). Vérification avant démarrage : `python ../scripts/doctor.py --backend-only`.
+
+**OCR / Tesseract** : `ALERTE_TESSDATA_DIR` doit être un chemin **absolu** vers un dossier contenant `ara.traineddata`, `fra.traineddata`, `eng.traineddata` (un chemin relatif est résolu depuis le dossier courant, `backend/`, la plateforme puis le dépôt, mais ne vous y fiez pas). Une page image-dominante (scan avec cachet ou numéro) pour laquelle l'OCR est indisponible est **marquée « à relire »** ; elle n'est jamais acceptée en silence. Test : `tesseract --list-langs --tessdata-dir <chemin>`.
+
+**Budget d'appels** : `ALERTE_MAX_LLM_CALLS` (199) n'est que le défaut ; le **budget de l'exercice** saisi dans le formulaire (réglage `max_llm_calls`) fait foi, côté moteur *et* côté runtime des agents.
+
 Les secrets (clés d'API) ne vont que dans `.env` ou l'environnement : ils ne sont jamais écrits en base, dans les journaux ni dans le ledger.
 
 ## 4. Base de données et migrations (Alembic)
@@ -171,17 +177,18 @@ Si `../frontend/dist` existe (après `npm run build`), FastAPI sert aussi l'inte
 | `http://localhost:8000/api/v1/openapi.json` | schéma OpenAPI (source des types TypeScript du frontend) |
 
 **Premier espace de travail** : `POST /api/v1/workspaces {"name": "..."}` renvoie le **jeton propriétaire, affiché une seule fois** (seul son hash est stocké).
-L'interface le fait depuis `/access`. Pour un jeu de données de démonstration : `python scripts/seed_demo.py` (voir ci-dessous).
+L'interface le fait depuis `/access`. Pour un jeu de données de démonstration Rising Waters : [catalogue des commandes](../docs/runbooks/catalogue-commandes-et-fichiers.md) (`rising_waters_pack.py` puis `seed_rising_waters.py`).
 
 ## 10. Scripts
 
 | Script | Rôle |
 |---|---|
-| `scripts/seed_demo.py` | peuple un backend démarré avec un espace fictif « Démo ALERTE » (pays, institutions, KB indexée, mandat, agents, scénario, exercice `scripted` joué, lacunes, rapport) via l'API HTTP ; n'efface rien |
-| `scripts/rising_waters_pack.py` | génère dans `../demo/rising-waters/` le pack **Rising Waters** (scénarios CM/AE, mandats, institutions, actions, agents) au format de la plateforme, à partir de `alerte/data/` (lecture seule) |
-| `scripts/seed_rising_waters.py` | prépare l'espace « ALERTE — Demonstration » par étapes (`--until N`, `--country AE`) ; n'efface rien |
+| `scripts/rising_waters_pack.py` | génère dans `../demo/rising-waters/` le pack **Rising Waters** : scénarios, institutions, actions, agents (avec les fiches `knowledge_bases/curation/agent-briefs.CM.json`) et mandats de la **nouvelle** base (`mandates.CM.json`) ; lit `alerte/data/scenarios` (rôles et scénarios, lecture seule) ; **remplace** les fichiers du pack |
+| `scripts/seed_rising_waters.py` | prépare l'espace « ALERTE — Demonstration » par étapes : `--from/--until`, `--ai-mode scripted\|ai`, `--pace`, `--max-calls`, `--allow-missing-kbs`, `--fix-agents`. Échoue (message explicite) si un fichier est périmé, une base manque ou un agent diffère du pack. **`scripted` = SANS IA** ; n'efface rien |
+| `scripts/seed_demo.py` | ancien espace de démonstration (« Démo ALERTE ») ; **hérité**, non documenté dans les guides ; `--ai-mode ai` appelle un vrai modèle |
 | `scripts/ledger_tamper_demo.py` | prouve qu'une altération du ledger est détectée, **sur une copie isolée** |
-| `scripts/legacy_to_archive.py` | convertit l'ancienne base `alerte/` en archives de KB importables |
+| `scripts/legacy_to_archive.py` | **hérité** : convertit l'ancien prototype `alerte/` (45 documents, codes `CM-S01…`) en archives ; ne pas utiliser pour la démonstration |
+| `scripts/kb_eval.py` | évalue la recherche (Recall@k, MRR) ; **toujours passer `--api http://localhost:8000`** (le port par défaut du script, 8020, est ancien) |
 
 ## 11. Tests
 

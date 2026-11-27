@@ -283,7 +283,9 @@ def clone_scenario(session: Session, ws: str, scenario_id: str, data: ScenarioCl
 
 # --------------------------------------------------------------------------- lint / readiness
 
-ROUNDS, STEPS = 2, 4  # doc 08 §8.9 n°9 : injects × destinataires × tours × pas
+from ..contracts import MAX_ROUNDS as ROUNDS  # noqa: E402 - source unique du nombre de tours
+
+STEPS = 4  # doc 08 §8.9 n°9 : injects × destinataires × tours × pas
 
 
 def _action_exists(mandates: Any, session: Session, ws: str, code: str) -> bool | None:

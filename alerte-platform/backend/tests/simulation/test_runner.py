@@ -30,7 +30,7 @@ def test_full_run_completes_with_verified_chain_and_anchors(world):
     assert world.gap.closed == ["inj-001", "inj-002"] and world.gap.finished == 1
 
 
-def test_at_most_two_rounds_per_inject(world):
+def test_at_most_three_rounds_per_inject(world):
     # MET écrit à OPS à chaque activation : sans limite, la conversation ne s'arrêterait jamais
     def script(ctx):
         if ctx.seat_code == "MET":
@@ -41,13 +41,13 @@ def test_at_most_two_rounds_per_inject(world):
     ex_id = world.new_exercise()
     assert world.run(ex_id) == "completed"
     rounds = {int(k.split(":")[3]) for k in world.runtime.calls}
-    assert rounds == {1, 2}
+    assert rounds == {1, 2, 3}
     assert all(k.startswith("inject:") for k in world.runtime.calls)
     assert sorted(k for k in world.runtime.calls if k.startswith("inject:1:")) == sorted([
-        "inject:1:round:1:seat:MET", "inject:1:round:1:seat:OPS", "inject:1:round:2:seat:MET", "inject:1:round:2:seat:OPS"])
+        f"inject:1:round:{r}:seat:{c}" for r in (1, 2, 3) for c in ("MET", "OPS")])
     with session_scope(world.ctx.session_factory) as s:
         keys = list(s.scalars(select(Step.step_key).where(Step.exercise_id == ex_id)))
-        assert not any(":round:3" in k for k in keys)
+        assert not any(":round:4" in k for k in keys)
         assert len(keys) == len(set(keys))
 
 
@@ -125,3 +125,60 @@ def test_seat_visibility_of_events_and_scripted_marker(world):
     assert seat_events and all(e["seat_id"] for e in seat_events)
     assert {e["type"] for e in led} >= {"SNAPSHOT", "STATE", "INJECT", "LLM_CALL", "TOOL_CALL", "RETRIEVAL", "DECISION"}
     assert API and types(world, ex_id)[0] == "SNAPSHOT"
+
+
+def test_request_reply_decision_cycle_is_delivered_across_three_rounds(world):
+    """Cycle technique demande -> transmission -> réponse -> prise en compte -> décision, avec un runtime SIMULÉ (FakeRuntime).
+
+    Prouve la LIVRAISON des messages par le moteur (tour 1 -> tour 2 -> tour 3), pas une coordination intelligente : les
+    contenus sont écrits par le test, ils ne sont PAS générés par un modèle."""
+    seen: dict[str, object] = {}
+
+    def script(c):
+        if c.seat_code == "MET" and c.round == 1:
+            return Behavior(messages=[PostedMessage("OPS", "REQUEST", "can you deploy teams?")])
+        if c.seat_code == "OPS" and c.round == 2:
+            req = next(i for i in c.inbox if i.get("msg_type") == "REQUEST")
+            seen["request_id"] = req["msg_id"]
+            return Behavior(messages=[PostedMessage("MET", "INFO", "yes, deploying", in_reply_to=req["msg_id"],
+                                                    reply_status="accepted")])
+        if c.seat_code == "MET" and c.round == 3:
+            seen["met_r3_inbox"] = list(c.inbox)
+            return Behavior(decision=decision("issue_alert", "act", rationale="OPS accepted the request"))
+        return None
+
+    world.runtime.script = script
+    ex_id = world.new_exercise()
+    assert world.run(ex_id) == "completed"
+    board = [e["payload"] for e in world.ledger(ex_id) if e["type"] == "BOARD"]
+    assert [(b["from"], b["to"], b["msg_type"], b["round"]) for b in board] == [("MET", "OPS", "REQUEST", 1), ("OPS", "MET", "INFO", 2)]
+    assert board[1]["in_reply_to"] == seen["request_id"] == board[0]["msg_id"] and board[1]["reply_status"] == "accepted"
+    # transmission : la réponse du tour 2 est livrée au demandeur au tour 3, avec son statut
+    r3 = seen["met_r3_inbox"]
+    assert len(r3) == 1 and r3[0]["from"] == "OPS" and r3[0]["reply_status"] == "accepted" and r3[0]["in_reply_to"] == seen["request_id"]
+    assert "inject:1:round:3:seat:MET" in world.runtime.calls
+    decs = [e["payload"] for e in world.ledger(ex_id) if e["type"] == "DECISION" and e["payload"]["seat_code"] == "MET"]
+    assert any(d["rationale"] == "OPS accepted the request" for d in decs)
+
+
+def test_seat_directory_is_passed_to_every_activation(world):
+    ex_id = world.new_exercise()
+    world.run(ex_id)
+    ctx = next(c for c in world.runtime.contexts if c.seat_code == "MET")
+    codes = [d["code"] for d in ctx.seat_directory]
+    assert codes == ctx.seat_codes and "MET" not in codes and codes
+    assert all({"code", "name", "kind", "mission", "mandates"} <= set(d) for d in ctx.seat_directory)
+    assert all("instructions" not in d and "inbox" not in d for d in ctx.seat_directory)  # information publique de rôle seulement
+
+
+def test_a_seat_woken_only_by_a_message_does_not_see_the_event_text(world):
+    """Asymétrie d'information : DPC n'est pas destinataire de inj-001 ; réveillé par un message de MET, il ne voit ni le texte ni le titre."""
+    world.runtime.script = lambda c: Behavior(messages=[PostedMessage("DPC", "INFO", "FYI")]) \
+        if c.seat_code == "MET" and c.round == 1 and c.inject["inject_ref"] == "inj-001" else None
+    ex_id = world.new_exercise()
+    world.run(ex_id)
+    dpc = next(c for c in world.runtime.contexts if c.step_key == "inject:1:round:2:seat:DPC")
+    assert dpc.inject.get("not_recipient") is True and dpc.inject["body"] == "" and "Inject 1" not in dpc.inject["title"]
+    assert dpc.inbox and dpc.inbox[0]["body"] == "FYI"          # il agit sur son courrier
+    met = next(c for c in world.runtime.contexts if c.step_key == "inject:1:round:1:seat:MET")
+    assert met.inject["title"] == "Inject 1"                    # un destinataire voit l'événement complet

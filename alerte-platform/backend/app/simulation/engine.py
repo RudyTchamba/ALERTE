@@ -187,7 +187,11 @@ def route_messages(w: Writer, s: Session, ex_id: str, seats: list[SeatInfo], sen
         body = (getattr(m, "body", "") or "").strip()
         reply_to, reply_status = getattr(m, "in_reply_to", None), getattr(m, "reply_status", None)
         err = None
-        if to not in by_code or to == sender.code:
+        if rnd >= MAX_ROUNDS:
+            err = "dernier tour : un message ne serait livré à personne"
+        elif mtype == "REQUEST" and rnd >= MAX_ROUNDS - 1:
+            err = "demande trop tardive : sa réponse tomberait au dernier tour (aucune réponse possible)"
+        elif to not in by_code or to == sender.code:
             err = "destinataire invalide"
         elif mtype not in MSG_TYPES:
             err = "type de message invalide"
@@ -219,7 +223,7 @@ def route_messages(w: Writer, s: Session, ex_id: str, seats: list[SeatInfo], sen
         s.add(InboxItem(exercise_id=ex_id, seat_id=by_code[to].id, source="board", ref_id=mid, inject_ref=unit.ref,
                         available_round=rnd + 1, delivered_seq=seq,
                         content={"kind": "board", "msg_id": mid, "from": sender.code, "msg_type": mtype, "body": body,
-                                 "in_reply_to": reply_to, "round": rnd}))
+                                 "in_reply_to": reply_to, "reply_status": reply_status, "round": rnd}))
         posted += 1
     return posted
 
@@ -961,6 +965,36 @@ def _with_language(inject: dict, snap: dict) -> dict:
     return out
 
 
+def seat_directory(snap: dict, seats: list[SeatInfo], me: SeatInfo) -> list[dict]:
+    """Annuaire des AUTRES sièges activables (code, institution, rôle, mandats) transmis au modèle pour qu'il sache à qui demander quoi.
+    Ne contient que de l'information publique de rôle : jamais les instructions privées d'un agent ni le contenu d'une boîte."""
+    insts = {i["id"]: i for i in snap.get("institutions", [])}
+    out = []
+    for x in seats:
+        if not x.activatable or x.code == me.code:
+            continue
+        inst = insts.get(x.institution_id, {})
+        mandates = [f"{m.get('kind')}:{m.get('action_code')}" for m in snap.get("mandates", [])
+                    if m.get("institution_id") == x.institution_id and m.get("action_code")]
+        out.append({"code": x.code, "name": inst.get("name") or x.code, "kind": inst.get("kind") or "institution",
+                    "mission": ((x.agent or {}).get("mission") or "").strip(), "mandates": mandates[:3]})
+    return out
+
+
+def _inject_for(s: Session, ex_id: str, u: Unit, si: SeatInfo, snap: dict) -> dict:
+    """L'inject tel que CE siège le voit. Un siège qui n'est PAS destinataire de l'événement (il n'est réveillé que par un message reçu)
+    n'en reçoit ni le titre, ni le texte, ni l'émetteur, ni la sortie du système d'IA : il n'agit que sur son courrier (asymétrie
+    d'information)."""
+    full = _with_language(u.inject, snap)
+    # destinataire = le siège a reçu l'inject dans sa boîte au moment de la diffusion (source de vérité : la base, pas le `Unit`, qui n'a pas
+    # toujours la liste des destinataires, ex. contexte d'un siège humain)
+    if s.scalar(select(InboxItem.id).where(InboxItem.exercise_id == ex_id, InboxItem.seat_id == si.id,
+                                           InboxItem.inject_ref == u.ref, InboxItem.source == "inject").limit(1)) is not None:
+        return full
+    keep = {k: full[k] for k in ("inject_ref", "seq", "sim_time", "language") if k in full}
+    return {**keep, "title": "(event not addressed to your seat: act only on the messages in your inbox)", "body": "", "not_recipient": True}
+
+
 def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo], si: SeatInfo, u: Unit, rnd: int,
                        key: str, budget_left: int | None = None, purpose: str = "agent") -> SeatContext:
     inst = next((i for i in snap["institutions"] if i["id"] == si.institution_id), {"id": si.institution_id})
@@ -973,8 +1007,9 @@ def build_seat_context(s: Session, ex_id: str, snap: dict, seats: list[SeatInfo]
     return SeatContext(
         exercise_id=ex_id, workspace_id=snap["workspace_id"], seat_id=si.id, seat_code=si.code,
         institution={k: inst.get(k) for k in ("id", "code", "name", "kind")}, agent=agent,
-        scope=scope_for_seat(snap, si.code, purpose), inject=_with_language(u.inject, snap), round=rnd,
+        scope=scope_for_seat(snap, si.code, purpose), inject=_inject_for(s, ex_id, u, si, snap), round=rnd,
         inbox=[inbox_dict(i) for i in items], board=board_dicts(s, ex_id),
         own_decisions=decision_dicts(s, ex_id, si.id),
         mandates=[m for m in snap["mandates"] if m.get("institution_id") == si.institution_id],
-        seat_codes=[x.code for x in seats if x.activatable and x.code != si.code], step_key=key)
+        seat_codes=[x.code for x in seats if x.activatable and x.code != si.code], step_key=key,
+        seat_directory=seat_directory(snap, seats, si))

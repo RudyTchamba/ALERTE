@@ -136,6 +136,34 @@ def test_readiness_checks_agents_kb_and_providers(world):
     assert "agent.no_model_profile" in blocking(world, ai)[1]
 
 
+def _real_profiles(world, model="served-model"):  # noqa: ANN001, ANN202
+    for a in world.agents.agents.values():
+        a["model_profile"] = {"provider": "openai_compat", "model": model, "endpoint_ref": "ALERTE_LLM_BASE_URL"}
+
+
+def test_unreachable_model_blocks_a_real_model_exercise(world):  # noqa: ANN001
+    """Un modèle inaccessible ne doit JAMAIS laisser passer un exercice en mode ai (sinon : repli `refer` sans message)."""
+    _real_profiles(world)
+    world.agents.probe_result = {"ok": False, "error": "HTTP 404 modèle introuvable", "ms": 12, "model": "served-model"}
+    ai = world.new_exercise(ai_mode="ai")
+    res, codes = blocking(world, ai)
+    assert "provider.test_failed" in codes
+    msg = next(c["message"] for c in res["blocking"] if c["code"] == "provider.test_failed")
+    assert "served-model" in msg and "404" in msg and "ALERTE_LLM_BASE_URL" in msg
+    assert len(world.agents.probed) == 1  # un seul essai par profil effectif distinct, pas un par siège
+
+
+def test_reachable_model_does_not_block_and_scripted_is_never_probed(world):  # noqa: ANN001
+    _real_profiles(world)
+    ai = world.new_exercise(ai_mode="ai")
+    res, codes = blocking(world, ai)
+    assert "provider.test_failed" not in codes and any(c["code"] == "provider.reachable" for c in res["info"])
+    world.agents.probed.clear()
+    world.new_exercise(ai_mode="scripted")
+    blocking(world, world.new_exercise(ai_mode="scripted"))
+    assert world.agents.probed == []  # SANS IA : aucun appel de modèle
+
+
 def test_readiness_scenario_and_human_checks_and_warnings(world):
     sc = world.scenarios.scenarios[world.scenario_id]
     sc["injects"][0]["recipients"] = []

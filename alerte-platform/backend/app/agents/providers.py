@@ -93,6 +93,25 @@ def extract_json_text(text: str) -> str | None:
 # --------------------------------------------------------------------------- openai_compat
 
 _STRATEGIES = ("json_schema", "ollama_format", "json_object", "plain")
+# Paramètres de requête supplémentaires autorisés dans `profil.extra.request_body` (liste blanche : jamais de champ arbitraire). Servent surtout à
+# désactiver la « réflexion » des modèles qui la pratiquent par défaut, ex. {"chat_template_kwargs": {"enable_thinking": false}} (vLLM).
+# Le support dépend du serveur ET du modèle : un paramètre inconnu est ignoré ou refusé (HTTP 400) selon le serveur ; voir docs/runbooks.
+ALLOWED_REQUEST_BODY = {"chat_template_kwargs": dict, "reasoning_effort": str}
+
+
+def validate_request_body(body: Any) -> dict[str, Any]:
+    """Valide `extra.request_body` ; lève ValueError (message explicite) si un champ n'est pas autorisé ou mal typé."""
+    if body in (None, {}):
+        return {}
+    if not isinstance(body, dict):
+        raise ValueError("request_body doit être un objet JSON")
+    bad = sorted(set(body) - set(ALLOWED_REQUEST_BODY))
+    if bad:
+        raise ValueError(f"champ(s) non autorisé(s) dans request_body : {', '.join(bad)} (autorisés : {', '.join(ALLOWED_REQUEST_BODY)})")
+    for k, v in body.items():
+        if not isinstance(v, ALLOWED_REQUEST_BODY[k]):
+            raise ValueError(f"request_body.{k} : type attendu {ALLOWED_REQUEST_BODY[k].__name__}")
+    return dict(body)
 _strategy_cache: dict[str, str] = {}
 
 
@@ -101,9 +120,14 @@ class OpenAICompatProvider:
     ai_involved = True
     uses_step_key = False
 
-    def __init__(self, base_url: str, model: str, *, api_key: str | None = None, timeout_s: float = 120.0) -> None:
+    def __init__(self, base_url: str, model: str, *, api_key: str | None = None, timeout_s: float = 120.0,
+                 extra_body: dict[str, Any] | None = None) -> None:
         if urlsplit(base_url).scheme not in ("http", "https"):
             raise ProviderUnavailable("endpoint invalide (schéma http/https attendu)")
+        try:
+            self.extra_body = validate_request_body(extra_body)
+        except ValueError as exc:
+            raise ProviderUnavailable(f"profil de modèle invalide : {exc}") from exc
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.api_key = api_key
@@ -123,6 +147,7 @@ class OpenAICompatProvider:
                                 "messages": [{"role": m.role, "content": m.content} for m in messages]}
         if max_tokens:
             body["max_tokens"] = max_tokens
+        body.update(self.extra_body)
         if schema is not None:
             if strategy == "json_schema":
                 body["response_format"] = {"type": "json_schema", "json_schema": {
@@ -400,9 +425,13 @@ def provider_for(profile: Any, settings: Settings, *, blobs: Any = None) -> Any:
         if not base:
             raise ProviderUnavailable(f"endpoint non configuré : définir la variable {ref}")
         key_ref = (spec.extra or {}).get("api_key_ref")
+        if key_ref and not str(key_ref).upper().startswith("ALERTE_"):
+            # la clé d'API part vers le serveur configuré : un profil ne peut donc désigner qu'une variable d'ALERTE (jamais AWS_*, etc.)
+            raise ProviderUnavailable("api_key_ref doit désigner une variable ALERTE_* (jamais une variable arbitraire)")
         api_key = resolve_config(key_ref, settings) if key_ref else settings.llm_api_key
         model = spec.model or settings.llm_model
         if not model:
             raise ProviderUnavailable("modèle non configuré (profil ou ALERTE_LLM_MODEL)")
-        return OpenAICompatProvider(base, model, api_key=api_key, timeout_s=spec.timeout_s or settings.llm_timeout_s)
+        return OpenAICompatProvider(base, model, api_key=api_key, timeout_s=spec.timeout_s or settings.llm_timeout_s,
+                                    extra_body=(spec.extra or {}).get("request_body"))
     raise ProviderUnavailable(f"fournisseur inconnu : {spec.provider}")

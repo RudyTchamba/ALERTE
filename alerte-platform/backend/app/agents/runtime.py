@@ -13,7 +13,16 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from ..contracts import ActivationResult, LLMMessage, PostedMessage, RawCompletion, SearchScope, SeatContext, ToolEvent
+from ..contracts import (
+    MAX_ROUNDS,
+    ActivationResult,
+    LLMMessage,
+    PostedMessage,
+    RawCompletion,
+    SearchScope,
+    SeatContext,
+    ToolEvent,
+)
 from ..core.config import Settings
 from ..core.db import session_scope
 from ..core.ids import new_id
@@ -23,8 +32,7 @@ from .prompt import build_legal_messages, build_messages
 from .providers import ProviderUnavailable, provider_for, request_bytes, sanitize_endpoint  # noqa: F401
 
 CLOSING = "For exercise purposes only; confirm with a qualified lawyer."
-FINAL_TOOLS = ("post", "decide")
-MAX_ROUNDS = 2
+FINAL_TOOLS = ("decide",)  # au pas final : décider (un `post` final terminerait l'activation SANS décision)
 SEARCH_K = 8  # résultats par recherche : assez pour atteindre la loi derrière les documents généraux
 DEFAULT_LIMITS = {"max_steps": 4, "max_search_calls": 3, "max_legal_calls": 2}
 
@@ -114,10 +122,19 @@ class AgentRuntime:
         with self._lock:
             self._calls[exercise_id] = n
 
-    def _reserve(self, exercise_id: str) -> bool:
+    def _reserve(self, run: _Run) -> bool:
+        """Réserve un appel au modèle. Le budget de l'EXERCICE fait foi : le moteur transmet `budget_remaining`
+        (plafond de l'exercice + extension - appels déjà consommés) et l'activation ne peut pas le dépasser.
+        Sans `budget_remaining` (appel hors moteur, ex. conseiller d'un siège humain), on retombe sur le plafond
+        serveur `ALERTE_MAX_LLM_CALLS` appliqué au compteur du processus. `_calls` reste un compteur d'observation."""
+        exercise_id = run.ctx.exercise_id
+        remaining = run.ctx.agent.get("budget_remaining")
         with self._lock:
             used = self._calls.get(exercise_id, 0)
-            if used >= self.settings.max_llm_calls:
+            if remaining is not None:
+                if run.calls >= int(remaining):
+                    return False
+            elif used >= self.settings.max_llm_calls:
                 return False
             self._calls[exercise_id] = used + 1
             return True
@@ -136,7 +153,7 @@ class AgentRuntime:
     # ----- LLM
     def _llm(self, run: _Run, messages: list[LLMMessage], schema: dict[str, Any] | None, key: str, *, retried: bool,
              legal: bool = False) -> tuple[RawCompletion, dict[str, Any]]:
-        if not self._reserve(run.ctx.exercise_id):
+        if not self._reserve(run):
             raise _Budget()
         run.calls += 1
         profile = run.ctx.agent.get("model_profile") or {"provider": self.settings.llm_mode}
@@ -400,8 +417,10 @@ class AgentRuntime:
         ctx = run.ctx
         args = act.model_dump(exclude={"rationale", "action"})
         err = None
-        if ctx.round > MAX_ROUNDS:
+        if ctx.round >= MAX_ROUNDS:
             err = "round_limit"
+        elif act.msg_type == "REQUEST" and ctx.round >= MAX_ROUNDS - 1:
+            err = "request_too_late"  # sa réponse tomberait au dernier tour, où l'on ne peut plus poster : demande orpheline assurée
         elif act.to not in ctx.seat_codes:
             err = "unknown_recipient"
         elif act.to == ctx.seat_code:
@@ -466,6 +485,8 @@ class AgentRuntime:
         for step in range(1, max_steps + 1):
             final = step == max_steps or run.force_final
             allowed = [t for t in tools if not final or t in FINAL_TOOLS]
+            if ctx.round >= MAX_ROUNDS:  # dernier tour : un message ne serait livré à personne -> on ne peut que décider
+                allowed = [t for t in allowed if t != "post"]
             if not allowed:
                 break
             base = build_messages(ctx, retrieved=list(run.retrieved.values()), notes=run.notes, allowed_now=allowed)

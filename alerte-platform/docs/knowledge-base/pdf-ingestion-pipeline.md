@@ -1,5 +1,8 @@
 # Pipeline d'ingestion des PDF
 
+> **⚠ Document partiellement OBSOLÈTE (27/11/2026).** Il décrit l'ancienne chaîne `scripts/kb_build.py` / port 8020, retirée : la construction se fait désormais par la CLI `python -m app.cli knowledge …` (voir [cli-et-pipeline.md](cli-et-pipeline.md) et le [catalogue des commandes](../runbooks/catalogue-commandes-et-fichiers.md)). Les chiffres de ce document sont ceux d'une construction passée, pas de l'état actuel.
+
+
 Un **seul** pipeline, dans `backend/app/knowledge/` : l'interface graphique (page *Bases de connaissances → Documents*) et le script `scripts/kb_build.py` appellent les mêmes endpoints (`POST /knowledge-bases/{id}/documents`, job `kb_ingest`). Il n'existe pas de pipeline parallèle pour les scripts.
 
 | Étape | Code | Comportement réel |

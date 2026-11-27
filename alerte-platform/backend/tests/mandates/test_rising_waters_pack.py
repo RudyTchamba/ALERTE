@@ -73,3 +73,44 @@ def test_import_keeps_the_new_source_code_the_quote_and_the_audit_note(pack, mcl
     m = mclient.get(f"{API}/mandates", headers=h).json()[0]
     assert rows[0]["source_doc"] in m["notes"] and "citation :" in m["notes"] and "note d'audit :" in m["notes"]
     assert m["validation"] == "proposed" and m["sources"] == []
+
+
+# --------------------------------------------------------------------------- fiches de comportement des agents
+# identifiants des modes de panne du scénario (jamais dans un prompt, intégrité I2) ; les mots courants d'un rôle (« false alarms », « spoofed alerts »)
+# restent dans la caractérisation historique du prototype (perspective), ils ne désignent aucun inject.
+FAULT_HINTS = ("false_alarm", "over_trust", "missed_event", "privacy_breach", "data_leaves_country", "language_error", "spoofing", "fault_mode")
+
+
+def test_every_cameroon_seat_has_its_own_specific_instructions_within_the_prompt_limit(pack):
+    setup = pack.build_setup("CM")
+    seats = {a["institution"] for a in setup["agents"]}
+    assert seats == {"HYDRO", "MET", "DPC", "OPS", "ART", "MINSANTE", "DPA", "CTD", "ANTIC"}
+    texts = {a["institution"]: a["instructions"] for a in setup["agents"]}
+    assert all(t.strip() for t in texts.values()), "aucune instruction vide (MINSANTE, DPA, CTD et HYDRO l'étaient)"
+    assert all(len(t) <= 1500 for t in texts.values()), "le prompt tronque `instructions` à 1 500 caractères"
+    assert len(set(texts.values())) == len(texts)                      # jamais deux agents avec les mêmes consignes
+    assert all(a["mission"].strip() for a in setup["agents"])
+
+
+def test_briefs_name_real_contacts_and_carry_no_hint_about_the_expected_gaps(pack):
+    setup = pack.build_setup("CM")
+    codes = {a["institution"] for a in setup["agents"]}
+    briefs = pack.load_agent_briefs("CM")
+    for seat, b in briefs.items():
+        for contact in b.get("contacts", []):
+            assert contact.split(" ")[0] in codes, f"{seat} : contact inconnu {contact!r}"   # annuaire cohérent avec les sièges
+    blob = " ".join(a["instructions"].lower() for a in setup["agents"])
+    assert not [h for h in FAULT_HINTS if h in blob]                  # intégrité I2 : aucun indice de lacune dans les consignes
+
+
+def test_hydro_is_the_ai_system_under_test_never_a_decision_maker(pack):
+    setup = pack.build_setup("CM")
+    hydro = next(a for a in setup["agents"] if a["institution"] == "HYDRO")
+    assert hydro["role_kind"] == "ai_system" and "never activated" in hydro["instructions"].lower()
+    assert next(i for i in setup["institutions"] if i["code"] == "HYDRO")["kind"] == "ai_system"
+    antic = next(a for a in setup["agents"] if a["institution"] == "ANTIC")
+    assert antic["role_kind"] == "institution"
+
+
+def test_country_without_briefs_keeps_the_legacy_instructions(pack):
+    assert pack.load_agent_briefs("AE") == {}

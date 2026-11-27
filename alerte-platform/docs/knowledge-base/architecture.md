@@ -1,5 +1,8 @@
 # Architecture de la base de connaissances
 
+> **⚠ Document partiellement OBSOLÈTE (27/11/2026).** Il décrit l'ancienne chaîne `scripts/kb_build.py` / port 8020, retirée : la construction se fait désormais par la CLI `python -m app.cli knowledge …` (voir [cli-et-pipeline.md](cli-et-pipeline.md) et le [catalogue des commandes](../runbooks/catalogue-commandes-et-fichiers.md)). Les chiffres de ce document sont ceux d'une construction passée, pas de l'état actuel.
+
+
 Cette page décrit ce qui est **réellement implémenté** (architecture V1, aucune décision V2 réintroduite). Elle complète `docs/architecture/07-knowledge-and-rag.md`.
 
 ```

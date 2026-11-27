@@ -1,5 +1,8 @@
 # Rapport de construction de la base de connaissances (2026-11-24)
 
+> **⚠ Document partiellement OBSOLÈTE (27/11/2026).** Il décrit l'ancienne chaîne `scripts/kb_build.py` / port 8020, retirée : la construction se fait désormais par la CLI `python -m app.cli knowledge …` (voir [cli-et-pipeline.md](cli-et-pipeline.md) et le [catalogue des commandes](../runbooks/catalogue-commandes-et-fichiers.md)). Les chiffres de ce document sont ceux d'une construction passée, pas de l'état actuel.
+
+
 Construction **à partir des 44 PDF originaux** de `alerte/` (lecture seule), avec le pipeline d'`alerte-platform`. Aucune donnée traitée de l'ancien projet (chunks, embeddings, index, archives, extractions, manifeste du prototype) n'a été utilisée. Les valeurs « 45 documents / 4 235 passages » de l'ancien prototype sont **remplacées** par les mesures ci-dessous.
 
 **Verdict** : base **structurée, traçable et publiable avec la politique de droits** ; recherche **lexicale** opérationnelle ; **index vectoriel INCOMPLET** (calcul BGE-M3 en cours sur cette machine) — la base **n'est donc pas déclarée vectorisée** et la recherche hybride n'est pas démontrée.

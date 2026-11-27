@@ -5,10 +5,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from ..contracts import MAX_ROUNDS  # noqa: F401 - ré-exporté (source unique : app/contracts.py)
 from ..core.errors import AppError, Unprocessable
 
 NON_ACTIVATABLE_ROLES = ("ai_system", "legal_adviser")
-MAX_ROUNDS = 2
 MSG_TYPES = ("INFO", "REQUEST", "DECISION", "OBJECTION", "GAP_FLAG")
 REPLY_STATUSES = ("accepted", "refused", "not_our_role")
 
