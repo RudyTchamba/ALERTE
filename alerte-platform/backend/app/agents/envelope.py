@@ -60,7 +60,8 @@ class Decision(BaseModel):
     @model_validator(mode="after")
     def _basis(self) -> Decision:
         if self.outcome != "no_legal_basis_found" and not self.legal_basis:
-            raise ValueError("legal_basis est obligatoire sauf si outcome=no_legal_basis_found")
+            raise ValueError("legal_basis is required unless outcome is no_legal_basis_found. If no retrieved passage supports your decision, "
+                             "set outcome to no_legal_basis_found and legal_basis to []: do not cite an unrelated passage")
         return self
 
 
@@ -124,6 +125,42 @@ def format_errors(exc: ValidationError) -> str:
     return "; ".join(parts)
 
 
+_NESTED = ("args", "arguments", "parameters", "params", "input")
+_QUERY_ALIASES = ("q", "search", "search_query", "search_text", "keywords", "text", "question")
+_QUESTION_ALIASES = ("query", "q", "text", "prompt")
+
+
+def _first_text(data: dict[str, Any], keys: tuple[str, ...]) -> str | None:
+    for k in keys:
+        v = data.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+        if isinstance(v, list) and v and isinstance(v[0], str) and v[0].strip():
+            return v[0].strip()
+    return None
+
+
+def normalize_envelope(data: dict[str, Any]) -> dict[str, Any]:
+    """Tolère les variantes de NOM de champ les plus courantes d'un petit modèle (la requête sous « question », « q », « queries »,
+    ou imbriquée dans « args ») : l'intention est claire, la rejeter coûte un appel au modèle. Ne devine jamais une VALEUR : si aucun
+    texte n'est trouvé, la validation habituelle refuse l'action."""
+    data = dict(data)
+    for k in _NESTED:
+        if isinstance(data.get(k), dict):
+            for kk, v in data[k].items():
+                data.setdefault(kk, v)
+    act = data.get("action")
+    if act == "search_kb" and not str(data.get("query") or "").strip():
+        q = _first_text(data, _QUERY_ALIASES + ("queries",))
+        if q:
+            data["query"] = q[:300]
+    elif act == "ask_legal" and not str(data.get("question") or "").strip():
+        q = _first_text(data, _QUESTION_ALIASES)
+        if q:
+            data["question"] = q[:500]
+    return data
+
+
 def parse_envelope(text: str) -> tuple[SearchAction | AskLegalAction | PostAction | DecideAction | None, str | None]:
     """(action validée, None) ou (None, message d'erreur à renvoyer au modèle)."""
     raw = extract_json_text(text or "")
@@ -138,7 +175,7 @@ def parse_envelope(text: str) -> tuple[SearchAction | AskLegalAction | PostActio
     if "action" not in data:
         return None, "action: field required (one of search_kb, ask_legal, post, decide)"
     try:
-        return _ADAPTER.validate_python(data), None
+        return _ADAPTER.validate_python(normalize_envelope(data)), None
     except ValidationError as exc:
         return None, format_errors(exc)
 

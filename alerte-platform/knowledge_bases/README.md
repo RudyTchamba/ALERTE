@@ -10,6 +10,7 @@ Ce dossier contient les **données d'auteur versionnées** qui accompagnent la c
 | `curation/documents.curation.json` | titre, type, fiabilité, droits de chacun des 44 documents sources | `knowledge curate` |
 | `curation/expected_documents.jsonl` | documents attendus (mesure de couverture) | contrôle de couverture |
 | `curation/mandates.CM.json` | 14 mandats du Cameroun, institutions et sources (documents `CM-xx`) | `rising_waters_pack.py` → `mandats-cm.csv` |
+| `curation/mandates.AE.json` | **16 mandats des Émirats PROPOSÉS** (dont 5 `documented`, 11 `inferred`), 36 citations vérifiées dans le texte des PDF AE ; **à valider par un humain** ; aucun mandat pour MINSANTE (aucun texte trouvé) | `rising_waters_pack.py` → `mandats-ae.csv` |
 | `curation/agent-briefs.CM.json` | consignes de comportement (objectif, contacts, limites, conduite) des 9 sièges du scénario Rising Waters | `rising_waters_pack.py` → `setup-cm.json` |
 | `evaluation/questions.jsonl` | **50** questions de référence (25 FR, 25 EN ; 30 évaluables sur CM) | `scripts/kb_eval.py` |
 | `retrieval/config.yaml` | description de la configuration de recherche — **n'est lu par aucun code** (informatif) ; les réglages effectifs sont dans `backend/app/knowledge/search.py` (`ALERTE_AUTHORITY_SPREAD`) | — |

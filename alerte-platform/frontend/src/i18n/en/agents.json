@@ -11,5 +11,10 @@
   "connection": "Connection", "testConnection": "Test connection", "reachable": "reachable", "unreachable": "unreachable",
   "accessTitle": "Knowledge access", "accessDescription": "Which agent may read which knowledge base. An agent can never retrieve text outside the bases ticked here.",
   "matrixEmpty": "Nothing to map yet", "matrixEmptyHint": "Create at least one agent and one knowledge base.", "warning": "Warning", "noKbAgents": "Agents without any knowledge base: {{names}}.", "allHaveKb": "Every agent has at least one knowledge base",
-  "cellLabel": "{{agent}} may read {{kb}}", "granted": "{{agent}} can now read {{kb}}", "revoked": "{{agent}} can no longer read {{kb}}", "impact": "Impact", "readsN": "reads {{n}} base(s)", "impactView": "Who can read each knowledge base", "nobody": "nobody"
+  "cellLabel": "{{agent}} may read {{kb}}", "granted": "{{agent}} can now read {{kb}}", "revoked": "{{agent}} can no longer read {{kb}}", "impact": "Impact", "readsN": "reads {{n}} base(s)", "impactView": "Who can read each knowledge base", "nobody": "nobody",
+  "editProfile": "Edit model profile",
+  "profileSaved": "Profile saved",
+  "profileDeleted": "Profile deleted",
+  "deleteProfile": "Delete model profile",
+  "deleteProfileMsg": "Delete the profile “{{name}}”? This cannot be undone. A profile used by an agent cannot be deleted: change that agent's profile first."
 }

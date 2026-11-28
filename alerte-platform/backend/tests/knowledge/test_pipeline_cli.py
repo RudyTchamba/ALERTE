@@ -300,3 +300,20 @@ def test_failed_vectorization_is_reported_and_blocks_publication(home, monkeypat
     assert status("CM")["active_version"] is None                      # rien n'a été publié
     assert run("knowledge", "publish", "--country", "CM") != 0         # la commande de publication directe est aussi refusée
     assert run("knowledge", "check", "--country", "CM") == 1           # et la vérification signale la base comme incomplète
+
+
+def test_lost_owner_token_can_be_replaced_without_touching_the_existing_ones(home, capsys):
+    """Jeton propriétaire perdu : la CLI émet un NOUVEAU jeton pour l'espace ; l'ancien reste valable, rien n'est écrit sur disque."""
+    from app.core.db import session_scope
+    from app.workspaces import service as ws_service
+    assert run("workspace", "create", "--name", "T") == 0
+    first = next(w for w in capsys.readouterr().out.split() if w.startswith("own_"))
+    assert run("workspace", "new-token", "--label", "secours") == 0
+    new = next(w for w in capsys.readouterr().out.split() if w.startswith("own_"))
+    assert new != first
+    ctx = cli.make_ctx()
+    with session_scope(ctx.session_factory) as s:
+        p_old, p_new = ws_service.resolve_principal(s, first), ws_service.resolve_principal(s, new)
+    assert p_old is not None and p_new is not None and p_old.workspace_id == p_new.workspace_id and p_new.role == "owner"
+    assert run("workspace", "new-token", "--role", "auditor", "--expires-in-hours", "2") == 0
+    assert "aud_" in capsys.readouterr().out

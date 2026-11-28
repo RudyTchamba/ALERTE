@@ -144,6 +144,8 @@ def make_ctx(**kw: Any) -> SeatContext:
         inject={"inject_ref": "inj-001", "seq": 1, "sim_time": "D1 06:00", "title": "Flood warning",
                 "body": "Heavy rain expected.", "from_actor": "MET", "fault_mode": "false_alarm",
                 "tags": ["life_risk"], "demands": [{"action_code": "evacuate"}]},
-        round=1, inbox=[], board=[], own_decisions=[], mandates=[], seat_codes=["DPC", "MET", "OPS"], step_key="inject:1:round:1:seat:DPC")
+        round=1, inbox=[], board=[], own_decisions=[],
+        mandates=[{"kind": "power", "action_code": "evacuate", "description": "Order evacuation of exposed populations", "sources": []}],
+        seat_codes=["DPC", "MET", "OPS"], step_key="inject:1:round:1:seat:DPC")
     base.update(kw)
     return SeatContext(**base)

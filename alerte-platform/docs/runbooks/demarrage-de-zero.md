@@ -46,8 +46,9 @@ Une seule commande, **reprenable** (Terminal 1, `backend/`, venv activé) :
 ```bash
 cd backend
 source .venv/bin/activate                    # Windows : .\.venv\Scripts\Activate.ps1
-python scripts/build_kb_from_pdfs.py --country CM --src <PDF>/CM
+python scripts/build_kb_from_pdfs.py --country CM --src <PDF>/CM 2>&1 | tee ../build-cm.log
 ```
+(`tee` conserve la sortie dans `backend/../build-cm.log` : si vous ratez le jeton à l'écran, `grep "jeton propriétaire" ../build-cm.log` le retrouve ; **ce fichier contient un secret** : protégez-le avec `chmod 600 ../build-cm.log` puis supprimez-le une fois le jeton noté. **N'interrompez pas** la construction avec Ctrl+C : si cela arrive, relancez la même commande, elle reprend.)
 Elle enchaîne : contrôles (PDF présents, embeddings joignables et modèle servi) → création de l'**espace de travail** (**copiez le jeton propriétaire affiché : il ne l'est qu'UNE fois**) → création de la base `CM` → copie des 17 PDF → enregistrement → métadonnées → **construction** (extraction/OCR, découpage, vecteurs, index, cohérence) → état final.
 **Durée** : de 20 minutes à plusieurs heures selon la machine (OCR et embeddings sur CPU : lent ; avec GPU : bien plus rapide). **Si elle s'arrête** (erreur, coupure, `ReadTimeout`), relancez **la même commande** : elle reprend. Contre un `ReadTimeout`, dans `backend/.env` : `ALERTE_EMBED_BATCH_SIZE=2` et `ALERTE_EMBED_TIMEOUT_S=300`.
 
@@ -61,7 +62,8 @@ Attendu : 17 documents **prêts**, aucun en échec ; **vecteurs = passages** (pa
 **Publier** (vous-même) :
 ```bash
 python -m app.cli knowledge publish --country CM --note "v1 : base reconstruite à partir des PDF"
-python -m app.cli knowledge kb-list          # CM … ready, version active
+python -m app.cli knowledge kb-list          # CM … ready = construction COMPLÈTE (cela ne dit PAS si la base est publiée)
+python -m app.cli knowledge status --country CM | grep -E "active_version|general_status"    # active_version: 1 = publiée ; None = pas encore publiée
 ```
 (ou `python scripts/build_kb_from_pdfs.py --country CM --src <PDF>/CM --publish`, qui publie à la fin si tout est complet.)
 **Test de la barrière** : tant que des vecteurs manquent, `publish` répond « vectorisation incomplète » : c'est voulu.
@@ -72,7 +74,7 @@ cd alerte-platform && python3 scripts/dev.py          # backend :8000 + interfac
 curl http://localhost:8000/api/v1/health              # {"status":"ok"}
 ```
 Ouvrez http://localhost:5173/access → **« Se connecter avec un jeton »** → collez le **jeton propriétaire** noté à l'étape 5. Vous retrouvez l'espace et la base CM publiée (page *Bases de connaissances*).
-Si vous avez perdu le jeton : il n'est **pas récupérable** ; créez un autre espace (`ALERTE_DATA_DIR` vide ou autre nom) et recommencez l'étape 5.
+Si vous avez perdu le jeton : le jeton d'origine n'est **pas récupérable**, mais quiconque a accès au dossier de données peut en **émettre un nouveau** (les anciens restent valables) : `python -m app.cli workspace new-token --label "secours"` (dossier `backend/`, venv activé ; le jeton s'affiche UNE fois, notez-le dans un endroit privé).
 
 ## 7. Préparer le reste de la démonstration et tester
 Avec le jeton (Terminal 1, `backend/`) :

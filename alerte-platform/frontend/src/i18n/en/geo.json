@@ -109,5 +109,7 @@
   "institutionCountryHint": "An institution belongs to a country: its mandates and its agent attach to it.",
   "searchLangHint": "Most bases hold French texts: search with words from the text itself (not the mandate description, often in English). Several words from the passage work better than one.",
   "searchPlaceholder": "e.g. fléaux calamiteux incendies inondations",
-  "searchNoHit": "No passage found: try other words from the text, in its own language, or change the base."
+  "searchNoHit": "No passage found: try other words from the text, in its own language, or change the base.",
+  "hitsHidden_one": "{{count}} passage already added, hidden",
+  "hitsHidden_other": "{{count}} passages already added, hidden"
 }

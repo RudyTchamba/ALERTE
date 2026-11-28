@@ -4,6 +4,8 @@
     cd alerte-platform/backend && source .venv/bin/activate          # Windows : .\\.venv\\Scripts\\Activate.ps1
     python scripts/build_kb_from_pdfs.py --country CM --src <dossier contenant les PDF du Cameroun>
     python scripts/build_kb_from_pdfs.py --country CM --src <dossier> --publish      # publie si, et seulement si, tout est complet
+    python scripts/build_kb_from_pdfs.py --country GL --src <PDF>/GL                  # précédents mondiaux (16 PDF) ; AE : --country AE --src <PDF>/AE
+    python scripts/build_kb_from_pdfs.py --country ITU --scope-kind organization --src <PDF>/ITU   # organisation (Y.3172, AI Readiness)
 
 Ce que fait le script, dans l'ordre (chaque étape appelle `python -m app.cli …`, que vous pouvez lancer à la main) :
   0. contrôles préalables : dossier de PDF, fichier de curation, serveur d'embeddings joignable ET modèle servi ;
@@ -83,6 +85,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0], formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--country", required=True, help="code de la base (ex. CM)")
     ap.add_argument("--src", required=True, help="dossier contenant DIRECTEMENT les PDF de cette base (ex. …/alerte/data/docs/CM)")
+    ap.add_argument("--scope-kind", default="country", choices=["country", "global", "organization"],
+                    help="type de base : country (CM, AE, GL : défaut) ; organization pour ITU (stockée sous blobs/knowledge_sources/organizations/ITU)")
     ap.add_argument("--curation", default=str(CURATION), help="fichier de métadonnées d'auteur (défaut : knowledge_bases/curation/documents.curation.json)")
     ap.add_argument("--workspace-name", default="ALERTE — Demonstration", help="nom de l'espace créé s'il n'en existe aucun")
     ap.add_argument("--allow-partial", action="store_true",
@@ -129,11 +133,12 @@ def main() -> int:
     if re.search(rf"^{re.escape(cc)}\s", out, re.M):
         print(f"   la base {cc} existe déjà : conservée.")
     else:
-        if cli("knowledge", "kb-create", "--code", cc, "--name", cc).returncode != 0:
+        if cli("knowledge", "kb-create", "--code", cc, "--name", cc, "--scope-kind", a.scope_kind).returncode != 0:
             die(f"création de la base {cc} impossible.")
 
     step(3, total, "Copie des PDF dans le stockage (la source reste intacte)")
-    if cli("knowledge", "sources-migrate", "--map", f"{cc}={src}", "--apply", "--manifest", str(manifest)).returncode != 0:
+    scope_dir = f"organizations/{cc}" if a.scope_kind == "organization" else cc
+    if cli("knowledge", "sources-migrate", "--map", f"{scope_dir}={src}", "--apply", "--manifest", str(manifest)).returncode != 0:
         die("copie des PDF impossible.")
 
     step(4, total, "Enregistrement des documents")

@@ -48,6 +48,20 @@ def test_create_mandate_needs_resolvable_source_and_known_action(mclient, h, kno
     assert bad.json()["error"]["code"] == "mandate.source_mismatch"
 
 
+def test_same_passage_cannot_be_linked_twice_to_a_mandate(mclient, h, knowledge):
+    inst = mk_inst(mclient, h, "AAA")
+    mk_action(mclient, h, "act_a")
+    knowledge.add("C1", "DV1")
+    knowledge.add("C2", "DV1")
+    m = _mandate(mclient, h, inst)
+    src = {"document_version_id": "DV1", "chunk_id": "C1", "quote": "x"}
+    assert mclient.post(f"{API}/mandates/{m['id']}/sources", json=src, headers=h).status_code == 201
+    dup = mclient.post(f"{API}/mandates/{m['id']}/sources", json=src, headers=h)
+    assert dup.status_code == 409 and dup.json()["error"]["code"] == "mandate.source_duplicate"
+    assert mclient.post(f"{API}/mandates/{m['id']}/sources", json={**src, "chunk_id": "C2"}, headers=h).status_code == 201
+    assert len(mclient.get(f"{API}/mandates/{m['id']}", headers=h).json()["sources"]) == 2
+
+
 def test_validation_workflow_and_inactive_when_source_disappears(mclient, h, knowledge, app):
     inst = mk_inst(mclient, h, "AAA")
     mk_action(mclient, h, "act_a")

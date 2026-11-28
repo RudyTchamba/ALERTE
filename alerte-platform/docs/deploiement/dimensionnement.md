@@ -54,9 +54,13 @@ Chaque ligne du tableau ci-dessous se remplit avec ces sorties, la sonde matéri
 | Machine | Modèle (nom exact, quantification) | VRAM utilisée | Médiane par appel | Appels/min (1 flux) | Appels/min (2 flux) | Prompt tronqué ? | Date |
 |---|---|---|---|---|---|---|---|
 | Dev (4 cœurs, sans GPU) | qwen2.5:1.5b-instruct | — | 14,9 s (3 mesures le 26/11, machine au repos) ; 32,7 s à froid | — | — | non vérifié | 2026-11-26 |
+| **AWS `g5.2xlarge` (A10G 24 Go, 8 vCPU, 31 Go)** | `Qwen/Qwen2.5-14B-Instruct-AWQ`, vLLM v0.8.5, 75 % du GPU, contexte 8 192 | 17 845 MiB (vLLM seul ; `bge-m3` chargé à la demande) | **1,1 s** (5 appels, prompt 3 927 jetons, **46 jetons générés seulement** : sous-estimé, voir ci-dessous) | 40,5 | non mesuré | **non** (3 927 jetons reçus) | 2026-11-28 |
+| AWS `g5.2xlarge` (suite) | idem, sortie plus longue (`--max-tokens 400`, **116 jetons générés**), prompt 3 968 jetons | — | **2,7 s** (1 flux) · **2,9 s** (2 flux simultanés) | 22,4 (1 flux) · **41,1** (2 flux) | non | **non** | 2026-11-28 |
 | Linux (coéquipier) | À MESURER | | | | | | |
 | Windows (coéquipier) | À MESURER | | | | | | |
 | AWS (instance à choisir) | À MESURER | | | | | | |
+
+**Lecture des mesures AWS (28/11)** : avec des décisions de 200 à 400 jetons, estimation **3 à 6 s par appel** (déduite de 2,7 s pour 116 jetons, non mesurée) ; le débit double presque avec 2 requêtes simultanées. **Réserve sur la première ligne AWS** : la première mesure n'a généré que 46 jetons (une vraie décision en produit 200 à 400) : la médiane de 1,1 s est un **minimum**. Une seconde mesure avec une sortie d'environ 200 mots (`--max-tokens 400`, banc mis à jour le 28/11) doit la remplacer avant toute estimation de durée d'exercice.
 
 ## 6. Règle de décision
 1. Recevoir les rapports de la [sonde matérielle](../runbooks/sonde-materielle.md) des machines.

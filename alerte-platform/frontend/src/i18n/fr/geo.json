@@ -109,5 +109,7 @@
   "institutionCountryHint": "Une institution appartient à un pays : c'est là que ses mandats et son agent seront rattachés.",
   "searchLangHint": "Les textes de la plupart des bases sont en français : cherchez avec des mots français du texte (pas la description du mandat, souvent en anglais). Plusieurs mots du passage donnent de meilleurs résultats qu'un seul.",
   "searchPlaceholder": "ex. fléaux calamiteux incendies inondations",
-  "searchNoHit": "Aucun passage trouvé : essayez d'autres mots du texte, dans sa langue, ou changez de base."
+  "searchNoHit": "Aucun passage trouvé : essayez d'autres mots du texte, dans sa langue, ou changez de base.",
+  "hitsHidden_one": "{{count}} passage déjà ajouté, masqué",
+  "hitsHidden_other": "{{count}} passages déjà ajoutés, masqués"
 }

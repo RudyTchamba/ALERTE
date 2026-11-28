@@ -37,7 +37,7 @@ def test_cameroon_mandates_cite_only_documents_of_the_new_base(pack):
 
 
 def test_a_country_without_a_curated_registry_gets_nothing_instead_of_legacy_data(pack):
-    assert pack.load_new_mandates("AE", set()) is None            # pas de repli sur l'ancien prototype
+    assert pack.load_new_mandates("ZZ", set()) is None            # aucun registre de la nouvelle base : pas de repli sur l'ancien prototype
 
 
 def test_unknown_source_or_action_stops_the_generation(pack, tmp_path, monkeypatch):
@@ -114,3 +114,27 @@ def test_hydro_is_the_ai_system_under_test_never_a_decision_maker(pack):
 
 def test_country_without_briefs_keeps_the_legacy_instructions(pack):
     assert pack.load_agent_briefs("AE") == {}
+
+
+# --------------------------------------------------------------------------- registre des Émirats (NOUVELLE base, mandats PROPOSÉS)
+def test_uae_mandates_cite_only_documents_of_the_new_base_and_keep_honest_evidence_levels(pack):
+    data = pack.load_new_mandates("AE", _actions(pack, "AE"))
+    rows = pack.mandate_rows("AE", data)
+    assert len(rows) == len(data["mandates"]) >= 8
+    cited = {c for r in rows for c in r["source_doc"].split("; ") if c}
+    assert cited and not [c for c in cited if "-S" in c]              # jamais les anciens codes du prototype (AE-S02…)
+    assert all(c.startswith("AE-") for c in cited)
+    for m in data["mandates"]:
+        if m["evidence_tag"] == "assumed":
+            assert not m.get("sources")                              # une hypothèse n'est jamais présentée comme une disposition citée
+        for s in m.get("sources") or []:
+            assert s.get("quote") and len(s["quote"]) >= 20          # toute source porte une citation exacte (vérifiée contre le PDF hors test)
+    assert {r["evidence"] for r in rows} <= {"documented", "inferred", "assumed"}
+    assert all(r["institution"].startswith("AE-") for r in rows)     # codes d'institution préfixés comme dans setup-ae.json
+
+
+def test_uae_registry_institutions_all_have_a_seat_in_the_generated_setup(pack):
+    setup = pack.build_setup("AE", pack.load_new_mandates("AE", _actions(pack, "AE")))
+    seats = {i["code"] for i in setup["institutions"] if i.get("seat", True)}
+    data = pack.load_new_mandates("AE", _actions(pack, "AE"))
+    assert {pack.pf("AE", m["institution"]) for m in data["mandates"]} <= seats

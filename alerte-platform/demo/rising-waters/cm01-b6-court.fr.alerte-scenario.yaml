@@ -1,0 +1,31 @@
+format: alerte-scenario
+format_version: 1
+scenario:
+  code: CM-01-B6
+  title: 'Rising Waters — Cameroun (test court : agent isolé MET)'
+  language: fr
+  version: 1
+  country:
+    name: Cameroun
+    iso2: CM
+    languages:
+    - fr
+    - en
+  description: 'TEST COURT (parcours B6) : un seul événement, un seul destinataire (MET), pour vérifier un agent isolé avec
+    le modèle réel. Extrait de CM-01. Exercice fictif, pas une alerte réelle.'
+injects:
+- seq: 1
+  sim_time: D1 06:00
+  title: D1 06:00 — Les pluviomètres de Douala enregistrent 80 mm en 3 heures
+  body: Les pluviomètres de Douala enregistrent 80 mm en 3 heures. La prévision nationale annonce de fortes pluies jusqu'à
+    midi.
+  from_actor: SENSORS
+  fault_mode: none
+  recipients:
+  - MET
+  tags: []
+  demands:
+  - action_code: issue_weather_warning
+    derivation: scenario_author
+    justification: Exigence écrite par l'auteur du scénario pour l'événement 1 (pas une obligation officielle).
+  source_note: 'Inspiré de (références du prototype) : CM-S07'

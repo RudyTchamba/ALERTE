@@ -118,6 +118,21 @@ def cmd_workspace_create(ctx: AppContext, a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_workspace_new_token(ctx: AppContext, a: argparse.Namespace) -> int:
+    """Émet un NOUVEAU jeton pour un espace existant (jeton propriétaire perdu). Réservé à qui a accès au dossier de données : cet accès
+    donne déjà tout pouvoir sur la base ; le jeton est affiché UNE fois, jamais écrit sur disque. Les jetons existants restent valables."""
+    from .core.auth import Principal
+    from .workspaces import service as ws_service
+    from .workspaces.schemas import TokenCreate
+    ws = workspace_id(ctx, a.workspace)
+    with session(ctx) as s:
+        plain, row = ws_service.create_token(s, Principal(workspace_id=ws, role="owner", token_id="-"),
+                                             TokenCreate(role=a.role, label=a.label, expires_in_hours=a.expires_in_hours))
+        s.commit()
+        print(f"nouveau jeton « {a.role} » pour l'espace {ws} (étiquette : {row.label}) — affiché une seule fois :\n{plain}")
+    return 0
+
+
 def cmd_kb_create(ctx: AppContext, a: argparse.Namespace) -> int:
     ws = workspace_id(ctx, a.workspace)
     rt = ctx.services["knowledge"]
@@ -380,6 +395,12 @@ def build_parser() -> argparse.ArgumentParser:
     wc = w.add_parser("create", help="crée un espace de travail (affiche le jeton propriétaire une seule fois)")
     wc.add_argument("--name", required=True)
     wc.set_defaults(fn=cmd_workspace_create)
+    wt = w.add_parser("new-token", help="émettre un nouveau jeton pour un espace existant (jeton propriétaire perdu)")
+    wt.add_argument("--role", default="owner", choices=["owner", "facilitator", "player", "observer", "auditor"])
+    wt.add_argument("--label", default="Jeton de secours (CLI)")
+    wt.add_argument("--expires-in-hours", type=int, default=None)
+    wt.add_argument("--workspace", help="identifiant de l'espace (si plusieurs)")
+    wt.set_defaults(fn=cmd_workspace_new_token)
 
     k = top.add_parser("knowledge", help="documents et bases de connaissances").add_subparsers(dest="cmd", required=True)
     c = k.add_parser("kb-create", help="crée une base ; son dossier de sources est blobs/knowledge_sources/<code>")

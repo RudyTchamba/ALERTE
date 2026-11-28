@@ -51,9 +51,9 @@ Le guide [demarrage-de-zero.md](demarrage-de-zero.md) enchaîne tout (installati
 | `scripts/kb_build.py` | retiré (sort en erreur) ; équivalent : `knowledge build` |
 | `scripts/legacy_to_archive.py`, `seed_demo.py`, `seed_cameroon.py`, `fix_cameroon_*.py` | produisent ou corrigent l'**ancien prototype** (codes `CM-S01…`) : la démonstration part de la **nouvelle** base |
 | `--api http://localhost:8020` | ancien port ; le backend écoute sur **8000** |
-| `seed_rising_waters.py --country AE` | la base et les mandats AE de la nouvelle base ne sont pas construits ; le script s'arrête avec un message explicite |
+| `seed_rising_waters.py --country AE` (avant la construction de la base AE) | le script s'arrête avec un message explicite tant que la base AE n'est pas **construite et publiée** (`build_kb_from_pdfs.py --country AE`) ; le registre de mandats AE existe désormais |
 
-## C. Périmètre documentaire réellement disponible
+## C. Périmètre documentaire (à la date de rédaction)
 Base **CM** : 17 documents, 1 351 passages, 1 351 vecteurs (BGE-M3), publiée (état observé le 27/11/2026). **GL, AE, ITU : non construites** dans cet espace de données (les PDF existent dans `alerte/data/docs`, mais ne sont pas ingérés). Ne pas présenter ces bases comme complètes ; les agents n'ont accès qu'à CM tant que GL n'est pas construite et publiée (hors période d'un exercice : mémoire limitée).
 
 ## D. Fichiers : importés ou générés
@@ -72,7 +72,7 @@ Base **CM** : 17 documents, 1 351 passages, 1 351 vecteurs (BGE-M3), publiée (�
 | `demo/rising-waters/actions.csv` | catalogue de 25 actions | généré | généré, importé | #9 | #18 | 25 lignes |
 | `demo/rising-waters/cm01-rising-waters.{fr,en}.alerte-scenario.yaml` | scénario CM-01, **15 injects** ; sorties HydroSense dans `system_output` des injects 2, 8 et 14 | généré | généré, **importé** | #9 | #20 | 15 injects |
 | `demo/rising-waters/ae01-…twin.en…yaml`, `setup-ae.json` | jumeau Émirats | généré | généré, **non utilisé** (AE non construit) | #9 | — | — |
-| `demo/rising-waters/mandats-ae.csv` | mandats AE du **prototype** (`AE-S02`…) | ancienne génération | **périmé : ne pas importer** | — | — | le seed le refuse |
+| `demo/rising-waters/mandats-ae.csv` | **16 mandats AE PROPOSÉS** (`AE-L01`…`AE-L16`), tirés de `knowledge_bases/curation/mandates.AE.json` (documents AE-01, 04, 05, 09, 10, 11, 12 ; 36 citations vérifiées dans le texte des PDF ; 5 `documented`, 11 `inferred`) | généré | généré, **importé** | #9 | seed `--country AE` | à **valider par un humain** ; l'ancien fichier du prototype (`AE-S02`…) a été **remplacé** |
 | `demo/rising-waters/lacunes-attendues.PRIVE.json` | lacunes visées par l'auteur | généré | **jamais importé**, ignoré par git | #9 | évaluation T3 | — |
 | `backend/data/db/alerte.sqlite` | base (espace, bases, exercices, journal) | généré | généré | #10… | tous | sauvegarde : `sqlite3 … ".backup copie.sqlite"` |
 | `backend/data/blobs/knowledge_sources/CM/` | PDF copiés | copie | généré | #12 | #15 | `sources-verify --country CM` |
