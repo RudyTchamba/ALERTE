@@ -175,18 +175,22 @@ function MandateSourcesDialog({ mandate, onClose }: { mandate: Mandate; onClose:
           <Button size="sm" variant="danger" loading={remove.isPending && remove.variables === src.id} aria-label={`${t('common.delete')} ${src.article ? `Art. ${src.article}` : src.id}`} onClick={() => remove.mutate(src.id)}>{t('common.delete')}</Button>
         </div>
       )) : <p className="mb-1 text-sm"><Badge tone="warn">{t('geo.noSource')}</Badge></p>}
-      <SourcePicker sources={pending} onChange={setPending} />
+      <SourcePicker sources={pending} onChange={setPending} existingChunkIds={(mandate.sources ?? []).map((x) => x.chunk_id)} />
     </Dialog>
   )
 }
 
 /** Chooses mandate sources by searching a knowledge base: the quote is copied from the real chunk text. */
-function SourcePicker({ sources, onChange }: { sources: SourceIn[]; onChange: (s: SourceIn[]) => void }) {
+export function SourcePicker({ sources, onChange, existingChunkIds = [] }: { sources: SourceIn[]; onChange: (s: SourceIn[]) => void; existingChunkIds?: string[] }) {
   const { t } = useTranslation()
   const kbs = useApiQuery<Kb[]>(keys.kbs(false), '/knowledge-bases')
   const [kb, setKb] = useState('')
   const [query, setQuery] = useState('')
   const search = useApiMutation((v: { kb: string; q: string }) => api.post<SearchResult>(`/knowledge-bases/${v.kb}/search`, { query: v.q, k: 8 }))
+  // Un passage déjà choisi (en attente d'enregistrement) ou déjà enregistré disparaît des résultats : on ne peut pas l'ajouter deux fois par mégarde.
+  const taken = new Set([...existingChunkIds, ...sources.map((s) => s.chunk_id)])
+  const hits = (search.data?.hits ?? []).filter((h) => !taken.has(h.chunk_id))
+  const hidden = (search.data?.hits.length ?? 0) - hits.length
   return (
     <fieldset className="mt-4 rounded-md border border-line p-3">
       <legend className="px-1 text-sm font-semibold">{t('geo.sources')}</legend>
@@ -203,13 +207,16 @@ function SourcePicker({ sources, onChange }: { sources: SourceIn[]; onChange: (s
       </div>
       {search.data && search.data.hits.length === 0 && <p role="status" className="mt-2 text-sm text-warn">{t('geo.searchNoHit')}</p>}
       {search.error && <p role="alert" className="mt-2 text-sm text-danger">{errorMessage(search.error, t)}</p>}
-      {search.data?.hits.map((h) => (
-        <div key={h.chunk_id} className="mt-2 rounded border border-line p-2 text-sm">
-          <p className="font-medium">{h.doc_code} {h.article ? `· Art. ${h.article}` : ''} {h.page ? `· p.${h.page}` : ''}</p>
-          <p className="text-muted">{h.snippet}</p>
-          <Button size="sm" className="mt-1" onClick={() => onChange([...sources, { document_version_id: h.document_version_id, chunk_id: h.chunk_id, article: h.article, page: h.page, quote: h.text.slice(0, 240) }])}>{t('geo.useSource')}</Button>
-        </div>
-      ))}
+      {hidden > 0 && <p role="status" className="mt-2 text-xs text-muted">{t('geo.hitsHidden', { count: hidden })}</p>}
+      <div className="mt-2 grid gap-2 md:grid-cols-2">
+        {hits.map((h) => (
+          <div key={h.chunk_id} className="flex flex-col rounded border border-line p-2 text-sm">
+            <p className="font-medium">{h.doc_code} {h.article ? `· Art. ${h.article}` : ''} {h.page ? `· p.${h.page}` : ''}</p>
+            <p className="line-clamp-4 text-muted" title={h.snippet}>{h.snippet}</p>
+            <Button size="sm" className="mt-auto self-start" onClick={() => onChange([...sources, { document_version_id: h.document_version_id, chunk_id: h.chunk_id, article: h.article, page: h.page, quote: h.text.slice(0, 240) }])}>{t('geo.useSource')}</Button>
+          </div>
+        ))}
+      </div>
     </fieldset>
   )
 }

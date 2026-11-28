@@ -10,7 +10,7 @@ import { keys } from '@/api/keys'
 import { useApiMutation, useApiQuery } from '@/api/hooks'
 import type { Agent, Institution, ModelProfile } from '@/api/types'
 import type { PromptPreview, ProfileTest } from '@/api/loose'
-import { Badge, Button, Checkbox, Dialog, EmptyState, Field, Input, Mono, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast } from '@/components/ui'
+import { Badge, Button, Checkbox, ConfirmDialog, Dialog, EmptyState, Field, Input, Mono, PageHeader, QueryState, Section, Select, StatusBadge, Table, TBody, Td, Textarea, Th, THead, Tr, useToast } from '@/components/ui'
 import { errorMessage } from '@/lib/errors'
 import { PromptView } from './PromptView'
 
@@ -167,26 +167,38 @@ const profileSchema = z.object({
 type PIn = z.input<typeof profileSchema>
 type POut = z.output<typeof profileSchema>
 
-function ModelProfiles() {
+export function ModelProfiles() {
   const { t } = useTranslation()
   const toast = useToast()
   const q = useApiQuery<ModelProfile[]>(keys.modelProfiles, '/model-profiles')
-  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<ModelProfile | 'new' | null>(null)
+  const [deleting, setDeleting] = useState<ModelProfile | null>(null)
   const [results, setResults] = useState<Record<string, ProfileTest>>({})
   const test = useApiMutation((p: ModelProfile) => api.post<ProfileTest>(`/model-profiles/${p.id}/test`).then((r) => ({ id: p.id, r })), {
     onSuccess: ({ id, r }) => setResults((x) => ({ ...x, [id]: r })), onError: (e) => toast.push(errorMessage(e, t), 'danger'),
   })
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<PIn, unknown, POut>({ resolver: zodResolver(profileSchema), defaultValues: { provider: 'openai_compat', temperature: 0, max_tokens: 1024, timeout_s: 120 } })
-  const create = useApiMutation((v: POut) => api.post('/model-profiles', { ...v, endpoint_ref: v.endpoint_ref || null, model: v.model || null }), {
-    invalidate: [keys.modelProfiles], onSuccess: () => { setOpen(false); reset(); toast.push(t('common.created')) }, onError: (e) => toast.push(errorMessage(e, t), 'danger'),
+  const blank: PIn = { name: '', provider: 'openai_compat', model: '', endpoint_ref: '', temperature: 0, max_tokens: 1024, timeout_s: 120 }
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<PIn, unknown, POut>({ resolver: zodResolver(profileSchema), defaultValues: blank })
+  const open = (p: ModelProfile | 'new') => {
+    reset(p === 'new' ? blank : { name: p.name, provider: p.provider as PIn['provider'], model: p.model ?? '', endpoint_ref: p.endpoint_ref ?? '', temperature: p.temperature, max_tokens: p.max_tokens, timeout_s: p.timeout_s })
+    setEditing(p)
+  }
+  const close = () => { setEditing(null); reset(blank) }
+  const body = (v: POut) => ({ ...v, endpoint_ref: v.endpoint_ref || null, model: v.model || null })
+  const save = useApiMutation((v: POut) => editing && editing !== 'new' ? api.patch(`/model-profiles/${editing.id}`, body(v)) : api.post('/model-profiles', body(v)), {
+    invalidate: [keys.modelProfiles, ['agents']], onSuccess: () => { toast.push(editing === 'new' ? t('common.created') : t('agents.profileSaved')); close() }, onError: (e) => toast.push(errorMessage(e, t), 'danger'),
+  })
+  const remove = useApiMutation((p: ModelProfile) => api.delete(`/model-profiles/${p.id}`), {
+    invalidate: [keys.modelProfiles], onSuccess: () => { toast.push(t('agents.profileDeleted')); setDeleting(null) },
+    onError: (e) => { setDeleting(null); toast.push(errorMessage(e, t), 'danger') },
   })
   return (
-    <Section title={t('agents.profiles')} className="mt-8" actions={<Button onClick={() => setOpen(true)}>{t('agents.newProfile')}</Button>}>
+    <Section title={t('agents.profiles')} className="mt-8" actions={<Button onClick={() => open('new')}>{t('agents.newProfile')}</Button>}>
       <p className="mb-2 text-sm text-muted">{t('agents.profilesHint')}</p>
       <QueryState q={q} what="(/model-profiles)">
         {(rows) => rows.length === 0 ? <EmptyState title={t('agents.noProfiles')} /> : (
           <Table caption={t('agents.profiles')}>
-            <THead><Tr><Th>{t('common.name')}</Th><Th>{t('agents.provider')}</Th><Th>{t('agents.modelName')}</Th><Th>{t('agents.endpointRef')}</Th><Th>{t('agents.connection')}</Th></Tr></THead>
+            <THead><Tr><Th>{t('common.name')}</Th><Th>{t('agents.provider')}</Th><Th>{t('agents.modelName')}</Th><Th>{t('agents.endpointRef')}</Th><Th>{t('agents.connection')}</Th><Th><span className="sr-only">{t('common.actions')}</span></Th></Tr></THead>
             <TBody>{rows.map((p) => {
               const r = results[p.id]
               return (
@@ -196,15 +208,21 @@ function ModelProfiles() {
                     <Button size="sm" loading={test.isPending && test.variables?.id === p.id} onClick={() => test.mutate(p)}>{t('agents.testConnection')}</Button>
                     {r && <p role="status" className="mt-1 text-xs">{r.ok ? <Badge tone="ok">{t('agents.reachable')} · {r.ms} ms</Badge> : <Badge tone="danger">{t('agents.unreachable')}</Badge>} {r.label} {r.error && <span className="text-danger">{r.error}</span>}</p>}
                   </Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1">
+                      <Button size="sm" aria-label={`${t('common.edit')} ${p.name}`} onClick={() => open(p)}>{t('common.edit')}</Button>
+                      <Button size="sm" variant="danger" aria-label={`${t('common.delete')} ${p.name}`} onClick={() => setDeleting(p)}>{t('common.delete')}</Button>
+                    </div>
+                  </Td>
                 </Tr>
               )
             })}</TBody>
           </Table>
         )}
       </QueryState>
-      <Dialog open={open} onClose={() => setOpen(false)} title={t('agents.newProfile')}
-        footer={<><Button onClick={() => setOpen(false)}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="profile-form" loading={create.isPending}>{t('common.create')}</Button></>}>
-        <form id="profile-form" noValidate className="flex flex-col gap-3" onSubmit={handleSubmit((v) => create.mutate(v))}>
+      <Dialog open={editing !== null} onClose={close} title={editing === 'new' ? t('agents.newProfile') : t('agents.editProfile')}
+        footer={<><Button onClick={close}>{t('common.cancel')}</Button><Button variant="primary" type="submit" form="profile-form" loading={save.isPending}>{editing === 'new' ? t('common.create') : t('common.save')}</Button></>}>
+        <form id="profile-form" noValidate className="flex flex-col gap-3" onSubmit={handleSubmit((v) => save.mutate(v))}>
           <Field label={t('common.name')} required error={errors.name && t('common.required')}><Input data-autofocus {...register('name')} /></Field>
           <Field label={t('agents.provider')}><Select {...register('provider')}><option value="openai_compat">openai_compat</option><option value="scripted">scripted</option><option value="cassette">cassette</option></Select></Field>
           <Field label={t('agents.modelName')}><Input {...register('model')} /></Field>
@@ -216,6 +234,10 @@ function ModelProfiles() {
           </div>
         </form>
       </Dialog>
+      <ConfirmDialog open={deleting !== null} danger onClose={() => setDeleting(null)} loading={remove.isPending}
+        title={t('agents.deleteProfile')} confirmLabel={t('common.delete')}
+        message={t('agents.deleteProfileMsg', { name: deleting?.name ?? '' })}
+        onConfirm={() => deleting && remove.mutate(deleting)} />
     </Section>
   )
 }

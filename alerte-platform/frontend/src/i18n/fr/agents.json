@@ -11,5 +11,10 @@
   "connection": "Connexion", "testConnection": "Tester la connexion", "reachable": "joignable", "unreachable": "injoignable",
   "accessTitle": "Accès aux connaissances", "accessDescription": "Quel agent peut lire quelle base de connaissances. Un agent ne peut jamais récupérer de texte hors des bases cochées ici.",
   "matrixEmpty": "Rien à associer pour l'instant", "matrixEmptyHint": "Créez au moins un agent et une base de connaissances.", "warning": "Attention", "noKbAgents": "Agents sans aucune base de connaissances : {{names}}.", "allHaveKb": "Chaque agent a au moins une base de connaissances",
-  "cellLabel": "{{agent}} peut lire {{kb}}", "granted": "{{agent}} peut désormais lire {{kb}}", "revoked": "{{agent}} ne peut plus lire {{kb}}", "impact": "Impact", "readsN": "lit {{n}} base(s)", "impactView": "Qui peut lire chaque base de connaissances", "nobody": "personne"
+  "cellLabel": "{{agent}} peut lire {{kb}}", "granted": "{{agent}} peut désormais lire {{kb}}", "revoked": "{{agent}} ne peut plus lire {{kb}}", "impact": "Impact", "readsN": "lit {{n}} base(s)", "impactView": "Qui peut lire chaque base de connaissances", "nobody": "personne",
+  "editProfile": "Modifier le profil de modèle",
+  "profileSaved": "Profil enregistré",
+  "profileDeleted": "Profil supprimé",
+  "deleteProfile": "Supprimer le profil de modèle",
+  "deleteProfileMsg": "Supprimer le profil « {{name}} » ? Cette action est définitive. Un profil utilisé par un agent ne peut pas être supprimé : changez d'abord le profil de cet agent."
 }

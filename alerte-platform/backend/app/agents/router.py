@@ -50,6 +50,12 @@ def update_profile(profile_id: str, body: ModelProfileUpdate, p: Principal = Dep
     return ModelProfileOut.model_validate(service.update_profile(session, p.workspace_id, profile_id, body))
 
 
+@router.delete("/model-profiles/{profile_id}", status_code=204, tags=["agents"])
+def delete_profile(profile_id: str, p: Principal = Depends(Write), session: Session = Depends(get_session)) -> Response:
+    service.delete_profile(session, p.workspace_id, profile_id)
+    return Response(status_code=204)
+
+
 @router.post("/model-profiles/{profile_id}/test", tags=["agents"])
 def test_profile(profile_id: str, p: Principal = Depends(Write), session: Session = Depends(get_session),
                  ctx: AppContext = Depends(get_ctx)):

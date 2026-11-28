@@ -170,6 +170,10 @@ def create_mandate(session: Session, workspace_id: str, data: MandateCreate, pri
 
 def add_source(session: Session, workspace_id: str, mandate_id: str, data: SourceIn, principal: Any = None) -> MandateSource:
     m = _get(session, workspace_id, mandate_id)
+    if any(x.chunk_id == data.chunk_id for x in _sources(session, m.id)):
+        # un double clic ou un nouvel essai après une réponse perdue ne doit pas lier deux fois le même passage au même mandat
+        raise Conflict("ce passage est déjà une source de ce mandat", code="mandate.source_duplicate",
+                       details={"chunk_id": data.chunk_id})
     src = _make_source(session, m.id, data)
     session.add(src)
     _log(session, workspace_id, m.id, _actor(principal), "update", m.validation, m.validation,

@@ -41,6 +41,29 @@ def test_model_profile_crud_and_endpoint_must_be_a_name(client, env):  # noqa: A
     assert len(client.get(f"{API}/model-profiles", headers=h).json()) == 1
 
 
+def test_model_profile_can_be_renamed_cleared_and_deleted_unless_an_agent_uses_it(client, env):  # noqa: ANN001
+    h = env["h"]
+    pid = client.post(f"{API}/model-profiles", json={"name": "test-faux", "provider": "openai_compat", "model": "modele-inexistant"},
+                      headers=h).json()["id"]
+    r = client.patch(f"{API}/model-profiles/{pid}", json={"name": "profil-corrige", "model": None}, headers=h)
+    assert r.status_code == 200 and r.json()["name"] == "profil-corrige" and r.json()["model"] is None
+    agent = mk_agent(client, env, model_profile_id=pid)
+    busy = client.delete(f"{API}/model-profiles/{pid}", headers=h)
+    assert busy.status_code == 409 and busy.json()["error"]["code"] == "model_profile.in_use"
+    assert "DPC" in busy.json()["error"]["message"]  # dit QUEL agent l'utilise
+    assert client.patch(f"{API}/agents/{agent['id']}", json={"model_profile_id": None}, headers=h).status_code == 200
+    assert client.delete(f"{API}/model-profiles/{pid}", headers=h).status_code == 204
+    assert client.get(f"{API}/model-profiles/{pid}", headers=h).status_code == 404
+    assert client.delete(f"{API}/model-profiles/{pid}", headers=h).status_code == 404
+    assert client.get(f"{API}/model-profiles", headers=h).json() == []
+
+
+def test_model_profile_delete_needs_write_access(client, env):  # noqa: ANN001
+    h = env["h"]
+    pid = client.post(f"{API}/model-profiles", json={"name": "x", "provider": "scripted"}, headers=h).json()["id"]
+    assert client.delete(f"{API}/model-profiles/{pid}").status_code in (401, 403)
+
+
 def test_model_profile_request_body_is_validated(client, env):  # noqa: ANN001
     h = env["h"]
     ok = client.post(f"{API}/model-profiles", headers=h, json={

@@ -56,7 +56,7 @@
 
 | Méthode · chemin | But |
 |---|---|
-| `GET/POST /model-profiles` · `PATCH /model-profiles/{id}` · `POST /model-profiles/{id}/test` | Profils de modèle ; test d'appel (readiness) |
+| `GET/POST /model-profiles` · `PATCH /model-profiles/{id}` · `DELETE /model-profiles/{id}` · `POST /model-profiles/{id}/test` | Profils de modèle ; test d'appel (readiness). `DELETE` : 409 `model_profile.in_use` (avec les codes des agents) tant qu'un agent, archivé ou non, utilise le profil ; les exercices lancés portent une copie figée de leur profil et ne sont pas touchés |
 | `GET/POST /agents` · `GET/PATCH /agents/{id}` · `POST …/archive` | CRUD agent |
 | `GET /agents/{id}/prompt-preview` | Aperçu du prompt assemblé (sans secrets) |
 | `PUT /agents/{id}/kb-grants` | Remplace la liste des KB accordées (matrice) |

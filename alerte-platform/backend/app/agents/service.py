@@ -74,6 +74,19 @@ def update_profile(session: Session, workspace_id: str, profile_id: str, data: M
     return row
 
 
+def delete_profile(session: Session, workspace_id: str, profile_id: str) -> None:
+    """Supprime un profil de modèle qu'AUCUN agent n'utilise (archivés compris). Les exercices lancés portent une COPIE figée de leur profil
+    dans leur snapshot : les supprimer ne les modifie pas. Un profil utilisé se détache d'abord des agents (page Agents)."""
+    row = get_profile(session, workspace_id, profile_id)
+    users = list(session.scalars(select(Agent.code).where(Agent.workspace_id == workspace_id,
+                                                          Agent.model_profile_id == profile_id).order_by(Agent.code)))
+    if users:
+        raise Conflict("profil utilisé par des agents : " + ", ".join(users) + ". Changez leur profil de modèle avant de le supprimer.",
+                       code="model_profile.in_use", details={"agents": users})
+    session.delete(row)
+    session.flush()
+
+
 def test_profile(row: ModelProfile, settings: Any, blobs: Any = None) -> dict[str, Any]:
     """Appel de test (readiness). N'expose jamais d'URL saisie ni de secret."""
     import time
