@@ -1,0 +1,461 @@
+{
+ "institutions": [
+  {
+   "code": "HYDRO",
+   "name": "HydroSense (fictional AI flood forecasting and alert system)",
+   "kind": "ai_system"
+  },
+  {
+   "code": "MET",
+   "name": "National Centre of Meteorology (NCM)",
+   "kind": "agency"
+  },
+  {
+   "code": "DPC",
+   "name": "National Emergency Crisis and Disasters Management Authority (NCEMA), with its Civil Defence Authority (CDA)",
+   "kind": "agency"
+  },
+  {
+   "code": "OPS",
+   "name": "Mobile network operator (generic)",
+   "kind": "operator"
+  },
+  {
+   "code": "ART",
+   "name": "Telecommunications and Digital Government Regulatory Authority (TDRA)",
+   "kind": "regulator"
+  },
+  {
+   "code": "MINSANTE",
+   "name": "Ministry of Health and Prevention, with emirate health authorities",
+   "kind": "ministry"
+  },
+  {
+   "code": "DPA",
+   "name": "UAE Data Office",
+   "kind": "regulator"
+  },
+  {
+   "code": "CTD",
+   "name": "Dubai Municipality",
+   "kind": "local_authority"
+  },
+  {
+   "code": "ANTIC",
+   "name": "UAE Cybersecurity Council",
+   "kind": "agency"
+  }
+ ],
+ "mandates": [
+  {
+   "ref": "AE-L01",
+   "institution": "DPC",
+   "kind": "duty",
+   "action": "activate_contingency_plan",
+   "description": "L'Autorité de défense civile (CDA), créée au sein du NCEMA, étudie les risques et prépare les plans pour les gérer ; son directeur général recommande au président du NCEMA l'annonce d'une catastrophe",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 3(2)",
+     "quote": "Studying potential events, risks and disasters and preparing the necessary plans to manage them.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 4(4)",
+     "quote": "Submitting a recommendation to the NCEMA Chairman regarding the announcement of a disaster.",
+     "role": "context"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 2(1)",
+     "quote": "shall be established in NCEMA",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le texte établit la préparation des plans et la recommandation d'annoncer une catastrophe ; il ne dit pas qui ACTIVE un plan d'urgence ni selon quelle procédure. Déduction : la CDA étant au sein du NCEMA (art. 2(1)), l'activation relève plausiblement du NCEMA. À valider."
+  },
+  {
+   "ref": "AE-L02",
+   "institution": "DPC",
+   "kind": "duty",
+   "action": "decide_public_alert",
+   "description": "La CDA (au sein du NCEMA) doit établir un système d'alerte publique pour avertir les résidents des risques potentiels, et informer les résidents de leurs devoirs pendant les risques",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 3(8)",
+     "quote": "Establish a public alert system to warn residents of potential risks.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 3(16)",
+     "quote": "Developing awareness programmes and informing the residents of the necessary duties during risks.",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le texte impose d'ÉTABLIR le système d'alerte ; il ne désigne pas qui DÉCIDE chaque alerte, ni sur quels critères. Déduction : la décision d'alerter relève du responsable du système. Aucun texte parmi les neuf documents n'a été trouvé sur le déclenchement d'une alerte précise."
+  },
+  {
+   "ref": "AE-L03",
+   "institution": "DPC",
+   "kind": "duty",
+   "action": "evacuate_zone",
+   "description": "La CDA doit élaborer des plans d'évacuation des résidents ; son directeur général détermine les villes et régions où les mesures de défense civile s'appliquent et l'ordre de priorité pendant les urgences, sous approbation du président du NCEMA",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 3(9)",
+     "quote": "Develop plans for evacuating residents in circumstances that require the same.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 4(6)",
+     "quote": "Determining the cities and regions in which all or some of the civil defence measures are applied, deciding on the priority of implementation during emergencies",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le texte vise des PLANS d'évacuation, pas l'ordre d'évacuer une zone. Déduction : qui planifie l'évacuation est un candidat naturel pour la décider, mais l'ordre d'évacuer n'est pas écrit. Art. 4(6) : la décision du DG est soumise à approbation (« submit it to the NCEMA Chairman for approval »). Les autorités locales (« Competent Authority ») restent compétentes pour leurs mesures (art. 14)."
+  },
+  {
+   "ref": "AE-L04",
+   "institution": "DPC",
+   "kind": "coordination",
+   "action": "coordinate_response",
+   "description": "La CDA prépare et coordonne les services médicaux, sociaux, techniques, administratifs et autres nécessaires face aux risques, et assure la coordination et la coopération entre les émirats en matière de défense civile",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 3(12)",
+     "quote": "Preparing and coordinating medical, social, engineering, administrative, educational and other services necessary to address potential risks",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 3(18)",
+     "quote": "Coordination and mutual cooperation between the Emirates of the State regarding civil defence affairs.",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "Compétence écrite pour la CDA ; le rattachement au NCEMA vient de l'art. 2(1). Le texte ne dit pas que la CDA « dirige » la réponse : coordination « en coordination avec l'autorité compétente et les entités concernées », et les pouvoirs de l'autorité locale sont préservés (art. 14). Pas de rôle de chef de file affirmé."
+  },
+  {
+   "ref": "AE-L05",
+   "institution": "DPC",
+   "kind": "liability",
+   "action": "liability_alert_harm",
+   "description": "La CDA indemnise équitablement toute personne ayant subi un préjudice du fait d'actions ou d'expériences de défense civile, sur demande déposée dans les 60 jours",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 8(1)",
+     "quote": "The CDA shall provide fair compensation to anyone who has suffered harm as a result of Civil Defence experiments or actions",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 8(1)",
+     "quote": "within sixty (60) days as of the date of its occurrence",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Responsabilité écrite pour les « actions de défense civile ». Qu'une alerte erronée soit une telle « action » est une interprétation, pas un texte : la définition de « Civil Defence Measures » (art. 1) vise des procédures et moyens de protection, sans citer l'alerte. Recours devant le président du NCEMA (art. 8(3))."
+  },
+  {
+   "ref": "AE-L06",
+   "institution": "CTD",
+   "kind": "information_sharing",
+   "action": "coordinate_response",
+   "description": "Les autorités locales compétentes en défense civile et les entités concernées doivent fournir à la CDA les informations demandées et coopérer avec elle",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-05",
+     "article": "Article 6(1)",
+     "quote": "The Competent Authority and the Concerned Entities shall provide CDA with all information or data it requests related to civil defence work and measures.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-05",
+     "article": "Article 6(2)",
+     "quote": "The Competent Authority shall coordinate and cooperate with CDA in providing services related to civil defence work and measures whenever necessary.",
+     "role": "context"
+    }
+   ],
+   "audit_note": "AE-05 ne nomme aucune municipalité. « Competent Authority » = autorité locale compétente en défense civile dans l'émirat ; « Concerned Entities » = autorités fédérales et locales concernées. Que la Municipalité de Dubaï soit l'une ou l'autre est une DÉDUCTION non établie par le texte (à Dubaï, l'autorité de défense civile peut être une autre entité) : à valider avec un texte local."
+  },
+  {
+   "ref": "AE-L07",
+   "institution": "MET",
+   "kind": "power",
+   "action": "issue_weather_warning",
+   "description": "Le Centre national de météorologie (NCM) détient les compétences de fourniture des services météorologiques et l'émission des avertissements météorologiques sur le territoire ; les fournir hors du Centre ou sans son accord préalable est une infraction",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-11",
+     "article": "Article 4",
+     "quote": "The Center shall have all competences related to the provision of Meteorological Services and Seismic Engineering Services",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-11",
+     "article": "Article 13(2)",
+     "quote": "climate changes and meteorological and seismic warnings, regardless of their nature, whether written, audio, or visual, and by any means whatsoever, including publication on social media platforms, where such acts are carried out other than through the Center or without obtaining its prior approval.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-11",
+     "article": "Article 1",
+     "quote": "information and services, including marine, agricultural, hydrological, air quality, weather, and aviation meteorological",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Les « Meteorological Services » définis à l'art. 1 incluent l'hydrologie, ce qui rend l'avis de crue plausiblement couvert ; le texte ne parle pas expressément de « crue » ni de « flood warning ». Le fichier porte la mention « Latest Amendment 2026 » mais le texte lu est celui de 2007 : version/amendements à vérifier."
+  },
+  {
+   "ref": "AE-L08",
+   "institution": "HYDRO",
+   "kind": "prohibition",
+   "action": "issue_weather_warning",
+   "description": "Publier des avertissements météorologiques à l'échelle de l'État autrement que par le NCM ou sans son accord préalable est puni (prison d'au moins 2 ans et amende d'au moins 50 000 AED, ou l'une des deux) ; un système d'IA qui publie des avis de crue serait concerné s'ils sont assimilés à des avertissements météorologiques",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-11",
+     "article": "Article 13(2)",
+     "quote": "climate changes and meteorological and seismic warnings, regardless of their nature, whether written, audio, or visual, and by any means whatsoever, including publication on social media platforms, where such acts are carried out other than through the Center or without obtaining its prior approval.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-11",
+     "article": "Article 1",
+     "quote": "information and services, including marine, agricultural, hydrological, air quality, weather, and aviation meteorological",
+     "role": "context"
+    }
+   ],
+   "audit_note": "HydroSense est un système fictif du scénario : aucun texte ne le vise. Déduction : l'interdiction de l'art. 13(2) s'applique à toute publication d'avertissements hors NCM, y compris par un système automatisé, si les avis de crue sont des « meteorological warnings ». L'interprétation (avis de crue = avertissement météo ; publication vs usage interne) relève d'un juriste. Peines : art. 13 (alinéa introductif)."
+  },
+  {
+   "ref": "AE-L09",
+   "institution": "MET",
+   "kind": "human_oversight",
+   "action": "validate_ai_forecast",
+   "description": "Les avertissements météorologiques ne passant que par le NCM ou avec son accord préalable, le NCM est le point de validation naturel d'une prévision produite par l'IA ; la Charte de l'IA des EAU affirme la valeur irremplaçable du jugement et de la supervision humains sur l'IA",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-11",
+     "article": "Article 13(2)",
+     "quote": "climate changes and meteorological and seismic warnings, regardless of their nature, whether written, audio, or visual, and by any means whatsoever, including publication on social media platforms, where such acts are carried out other than through the Center or without obtaining its prior approval.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-04",
+     "article": "Principe 6 (Human Oversight)",
+     "quote": "emphasizes the irreplaceable value of human judgment and human oversight over AI",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Aucun texte n'impose au NCM de valider une prévision d'IA. Déduction en deux temps : (1) l'art. 13(2) AE-11 réserve l'émission des avertissements au NCM ou à son accord ; (2) la Charte (AE-04) est un cadre de principes, PAS une disposition juridique contraignante (« guiding framework »). Le devoir de supervision humaine n'est attribué à aucune institution nommée."
+  },
+  {
+   "ref": "AE-L10",
+   "institution": "ART",
+   "kind": "power",
+   "action": "set_alert_standard",
+   "description": "L'Autorité de régulation des télécommunications fixe les spécifications des équipements et a préparé et approuvé la spécification technique TS FS 001 qui impose la diffusion cellulaire (UAE-Alert) sur tous les appareils mobiles",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-12",
+     "article": "Section 1",
+     "quote": "Technical specification has been prepared and approved by Telecommunications Regulatory Authority (TRA) based on Telecommunication apparatus Type Approval Regime.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-12",
+     "article": "Section 2",
+     "quote": "The main scope of this specification is to enable Cell Broadcast service in all mobile devices operating in the UAE mobile networks.",
+     "role": "context"
+    },
+    {
+     "document": "AE-09",
+     "article": "Article 14(4)",
+     "quote": "Specifications of the equipment used by Licensees including technical standards and classes of equipment.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-09",
+     "article": "Article 14",
+     "quote": "the Authority shall be solely responsible for issuing regulations, directives, decisions and guidelines in relation to the following:",
+     "role": "context"
+    }
+   ],
+   "audit_note": "AE-12 nomme « TRA » (ancien nom) et AE-09 (tel que modifié) nomme « The General Authority for Regulating the Telecommunications Sector and the Digital Government » ; l'équivalence avec la TDRA du siège est une continuité de nom, non écrite dans les documents. AE-12 : version 2.0 du 25 novembre 2019, entrée en vigueur le 31 décembre 2019 ; le nom du fichier (TS040, 2016) ne correspond pas au contenu. La norme porte sur les APPAREILS ; elle ne définit pas le format ni le contenu des messages d'alerte émis."
+  },
+  {
+   "ref": "AE-L11",
+   "institution": "ART",
+   "kind": "inclusion",
+   "action": "multilingual_alerting",
+   "description": "La spécification TRA exige que les appareils mobiles puissent recevoir et afficher les alertes d'urgence en arabe et en anglais, et seulement dans les langues utilisées par l'émetteur de l'alerte",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-12",
+     "article": "Section 4.2 (6)",
+     "quote": "Mobile devices shall support receiving and displaying emergency alerts in Arabic and English.",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-12",
+     "article": "Section 4.2 (7)",
+     "quote": "Handsets shall only be required to receive and present emergency alerts in languages as issued by the Alert Originator.",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le texte impose une CAPACITÉ des appareils (arabe/anglais), pas à l'émetteur d'alerter dans ces langues ni dans d'autres. Aucune disposition trouvée sur les autres langues parlées (résidents) ni sur les personnes sans téléphone. À ne pas lire comme un devoir d'alerte multilingue de l'ART."
+  },
+  {
+   "ref": "AE-L12",
+   "institution": "OPS",
+   "kind": "power",
+   "action": "send_mass_alert",
+   "description": "Le service national d'alerte publique UAE-Alert utilise la diffusion cellulaire (cell broadcast) sur les réseaux mobiles pour diffuser aux populations les alertes émises par les autorités",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-12",
+     "article": "Section 2",
+     "quote": "which will use the cell broadcast technology to disseminate warning alerts issued by authorities to the public in times of crisis",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-12",
+     "article": "Section 2",
+     "quote": "One of the channels is the mobile networks in the UAE through Cell Broadcast technology.",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le texte décrit les réseaux mobiles comme CANAL du service ; il n'y a pas, dans les neuf documents, de disposition qui oblige un opérateur à relayer une alerte, ni qui désigne l'opérateur comme émetteur. Une obligation de relais (compel_operator_alert) n'est pas trouvée. Déduction : les opérateurs exploitent techniquement ce canal."
+  },
+  {
+   "ref": "AE-L13",
+   "institution": "ANTIC",
+   "kind": "power",
+   "action": "block_spoofed_alert",
+   "description": "Les autorités compétentes en cybersécurité peuvent, d'office ou à la demande du Procureur général, émettre des injonctions de correction, de retrait, de désactivation et de blocage d'accès contre les contenus illégaux ou les données fausses ; créer un faux compte ou site attribué à une entité gouvernementale est une infraction",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-10",
+     "article": "Article 62",
+     "quote": "the competent authorities may, either sua sponte or at the request of the Prosecutor-General, issue any of the writs",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-10",
+     "article": "Article 11(3)",
+     "quote": "If the fake website, account or email is attributed to one of the government entities, the penalty shall be imprisonment for not more than (5) five years",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-10",
+     "article": "Article 52(2)",
+     "quote": "or is committed during epidemics, crises, emergencies or disasters, the penalty shall be",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le Conseil de cybersécurité n'est PAS nommé dans AE-10 : les « Competent Authorities » y sont définies par leur fonction (autorités fédérales ou locales chargées de la cybersécurité). Qu'il soit l'autorité qui bloque un faux canal d'alerte est une déduction. Les faux messages SMS/cell broadcast (hors sites/comptes) ne sont pas expressément visés. L'art. 62 limite les injonctions aux crimes de l'art. 71 (« crimes against the security of the UAE »), liste qui inclut l'art. 11 alinéa 3, l'art. 52 et l'art. 53 : le faux compte attribué à une entité gouvernementale et la diffusion de fausses informations en situation d'urgence entrent donc dans le champ des injonctions."
+  },
+  {
+   "ref": "AE-L14",
+   "institution": "DPA",
+   "kind": "duty",
+   "action": "protect_personal_data",
+   "description": "Le Bureau (Data Office) reçoit les plaintes des personnes concernées, les examine, vérifie les violations de données et impose les sanctions administratives aux responsables de traitement et sous-traitants en infraction",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-01",
+     "article": "Article 24(3)",
+     "quote": "The Bureau shall impose the administrative penalties referred to in Article (26) of this Decree by Law if it is proven that the Controller or the Processor violates its provisions",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-01",
+     "article": "Article 24(2)",
+     "quote": "The Bureau shall receive complaints from the Data Subject in accordance with Paragraph (1) of this Article and shall examine such complaints in coordination with the Controller and the Processor.",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Le préambule parle du « UAE Data Office », l'art. 1 du « UAE Data Bureau » (« Office/Bureau ») : même organisme supposé. Limite de portée : l'art. 2(2) exclut de la loi les données gouvernementales, les entités gouvernementales, les données détenues par les autorités de sécurité et de justice, les données de santé régies par leur propre législation, ainsi que les zones franches dotées de leur régime : la loi ne couvre donc pas tous les acteurs du scénario."
+  },
+  {
+   "ref": "AE-L15",
+   "institution": "DPA",
+   "kind": "power",
+   "action": "authorise_transfer_abroad",
+   "description": "Le transfert de données personnelles hors des EAU vers un pays de protection adéquate se fait dans les cas approuvés par le Bureau",
+   "evidence_tag": "documented",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-01",
+     "article": "Article 22",
+     "quote": "Personal Data may be transferred to outside of the State in the following cases approved by the Bureau:",
+     "role": "grounds"
+    }
+   ],
+   "audit_note": "L'art. 23 prévoit d'autres cas de transfert (contrat, consentement explicite, intérêt public, etc.) qui ne mentionnent pas d'approbation du Bureau ; ce mandat ne couvre donc pas tous les transferts. Les règles d'application (Executive Regulations) ne sont pas dans la base. Aucune disposition trouvée sur un accord avec un acteur étranger traitant des données nationales (cross_border_agreement)."
+  },
+  {
+   "ref": "AE-L16",
+   "institution": "OPS",
+   "kind": "duty",
+   "action": "protect_personal_data",
+   "description": "Le responsable de traitement et le sous-traitant prennent les mesures techniques et organisationnelles pour assurer la sécurité des données personnelles ; les employés d'un opérateur licencié qui copient ou divulguent illégalement le contenu d'appels ou de messages sont punis",
+   "evidence_tag": "inferred",
+   "validation": "proposed",
+   "sources": [
+    {
+     "document": "AE-01",
+     "article": "Article 20(1)",
+     "quote": "The Controller and the Processor shall develop and take appropriate technical and regulatory measures to ensure the highest standard of information security",
+     "role": "grounds"
+    },
+    {
+     "document": "AE-09",
+     "article": "Article 72(2)",
+     "quote": "Illegally copies, discloses, or distributes the content of a telephone call or text message or any of the telecommunications services",
+     "role": "context"
+    }
+   ],
+   "audit_note": "Portée générale : l'opérateur mobile n'est pas nommé dans AE-01 ; qu'il soit « Controller » ou « Processor » pour les données de l'exercice est une déduction. L'art. 2(2) AE-01 exclut les entités gouvernementales et les données gouvernementales. AE-09 art. 72(2) vise la personne qui copie ou divulgue, notamment l'employé d'un licencié ; l'art. 77 étend les peines aux personnes morales pour les crimes de cette partie."
+  }
+ ],
+ "registry_review": "unreviewed (aucun registre n'est déclaré complet)",
+ "note": "Mandats PROPOSÉS, à valider par des humains. Chaque citation est une copie exacte d'un passage du texte extrait des PDF AE-01, AE-04, AE-05, AE-09, AE-10, AE-11, AE-12 de la nouvelle base. L'absence d'une disposition dans ces documents ne prouve pas son absence en droit émirati. AE-04 est une charte de principes, AE-12 une spécification technique : ni l'une ni l'autre n'est une loi. AE-02 et AE-06 n'ont fourni aucun mandat. Aucune hypothèse ('assumed') n'est retenue dans ce registre."
+}

@@ -38,7 +38,8 @@ def build_prompt(target_tokens: int) -> str:
 def one_call(url: str, model: str, key: str, prompt: str, max_tokens: int, timeout: float) -> dict:
     body = {"model": model, "temperature": 0.0, "stream": False, "max_tokens": max_tokens,
             "messages": [{"role": "system", "content": "You are an institutional agent. Reply with one JSON object."},
-                         {"role": "user", "content": prompt + "\n\nGive your next action as one flat JSON object."}]}
+                         {"role": "user", "content": prompt + "\n\nGive your next action as one flat JSON object with the fields \"action\" and \"rationale\". "
+                                                          "The rationale must be a detailed justification of about 200 words (a real decision is 200 to 400 tokens long)."}]}
     req = urllib.request.Request(url.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(), method="POST",
                                  headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {key}"} if key else {})})
     t0 = time.monotonic()

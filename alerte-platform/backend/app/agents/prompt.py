@@ -13,7 +13,7 @@ from typing import Any
 
 from ..contracts import MAX_ROUNDS, LLMMessage, SeatContext
 
-PROMPT_VERSION = "agent-prompt-v3"
+PROMPT_VERSION = "agent-prompt-v4"
 TOKEN_BUDGET = 4000
 _DIR = Path(__file__).parent / "prompts"
 _TAGS = re.compile(r"<(/?)(retrieved_document|board_message|legal_adviser_answer|inbox_item)", re.I)
@@ -149,7 +149,7 @@ def _render(ctx: SeatContext, retrieved: Sequence[Mapping[str, Any]], notes: Seq
         ctx_lines.append("Tool results so far:")
         ctx_lines += [sanitize(n, c_n) for n in list(notes)[-n_n:]]
     ctx_lines.append(f"Allowed actions now: {', '.join(allowed)}")
-    return "\n\n".join([s1, s2, _tpl("rules_v3.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
+    return "\n\n".join([s1, s2, _tpl("rules_v4.txt"), s4, "\n".join(ctx_lines), _tpl("security_v1.txt")])
 
 
 def build_messages(ctx: SeatContext, **kw: Any) -> list[LLMMessage]:

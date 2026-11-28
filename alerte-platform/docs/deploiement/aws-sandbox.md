@@ -1,5 +1,7 @@
 # Déploiement sur le Sandbox AWS — procédure exacte (une seule machine virtuelle)
 
+> **Région imposée : Europe (Francfort), `eu-central-1`.** Dans la console, sélectionnez-la en haut à droite avant de chercher une instance (liste vide = souvent mauvaise région). La disponibilité de `g5.2xlarge` dans cette région n'est **pas vérifiée** : voir la partie 1.
+
 **Ce document donne une recommandation précise. Ce qui y est établi et ce qui ne l'est pas est dit à chaque fois.**
 Je n'ai accès à aucun compte AWS depuis la machine de rédaction : **les types d'instance, quotas, régions autorisées, prix et la sortie Internet du sandbox ne sont PAS vérifiés**. La partie 1 (lecture seule, sans coût) les vérifie avant toute création. Rien ici n'a été exécuté sur AWS : **statut global NOT TESTED**.
 
@@ -7,7 +9,7 @@ Je n'ai accès à aucun compte AWS depuis la machine de rédaction : **les types
 | Paramètre | Valeur à saisir | Pourquoi |
 |---|---|---|
 | **Type d'instance** | **`g5.2xlarge`** (1 GPU NVIDIA A10G 24 Go, 8 vCPU, 32 Go de RAM — **à confirmer dans le sélecteur de la console**) | un GPU de 24 Go héberge Qwen2.5-14B quantifié (≈ 9-10 Go de poids) **et** BGE-M3 ; 8 vCPU et 32 Go de RAM permettent d'y faire tourner aussi l'application et la construction de la base sans saturer |
-| Si indisponible ou quota refusé | `g5.xlarge` (4 vCPU, 16 Go) fonctionne mais **sans marge** (construction de la base et modèle en même temps déconseillés) ; sinon `g6.2xlarge` (GPU L4 24 Go) — **non évalué** | — |
+| Si indisponible ou quota refusé | `g5.xlarge` (4 vCPU, 16 Go ; **c'est le type actuel d'`AlerteVM`**) fonctionne mais **sans marge** (construction de la base et modèle en même temps déconseillés) ; sinon `g6.2xlarge` (GPU L4 24 Go) — **non évalué** | — |
 | **Système (AMI)** | **Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 24.04)** (pilotes NVIDIA, Docker et NVIDIA Container Toolkit inclus). Si seule la 22.04 existe : voir §3 (Python 3.12 à ajouter) | l'application exige Python ≥ 3.11 (3.12 recommandé) ; Ubuntu 24.04 l'apporte |
 | **Stockage racine** | **200 Go**, type **gp3** (3 000 IOPS, 125 Mo/s par défaut) | AMI ≈ 60 Go + image vLLM ≈ 10 Go + modèle ≈ 10 Go + base et vecteurs + marge ; 100 Go ne suffisent pas (déjà constaté dans `aws-gpu-model.md`) |
 | **Modèle de génération** | `Qwen/Qwen2.5-14B-Instruct-AWQ` servi par vLLM, contexte **8 192** | c'est le modèle de référence prévu (`.env`) ; l'AWQ 4 bits tient sur 24 Go |
@@ -19,8 +21,57 @@ Je n'ai accès à aucun compte AWS depuis la machine de rédaction : **les types
 
 **Ce qui n'est pas mesuré** : la vitesse réelle (secondes par appel). Elle se mesure à l'étape 7 avec `scripts/llm_bench.py` ; ne promettez pas de durée avant.
 
+## 0 bis. Comptes d'accès et machine existante « AlerteVM » — à clarifier AVANT de créer quoi que ce soit
+**Situation** : un coéquipier a créé une machine `AlerteVM` avec le compte protégé par SON authentification à deux facteurs (MFA) ; les autres membres ont reçu des comptes des organisateurs. **Je ne sais pas** si ces comptes sont dans le **même compte AWS** que `AlerteVM` ou dans d'**autres** comptes : cela dépend de la façon dont les organisateurs ont configuré l'accès, et rien dans le dépôt ne le dit. Le MFA d'un utilisateur ne bloque **pas** les autres utilisateurs : il ne protège que **sa** connexion.
+
+**Test décisif (2 minutes, lecture seule)** — chaque personne, avec **son propre** accès :
+| Qui | Commande ou écran | Ce qu'on note |
+|---|---|---|
+| vous | console AWS, menu du profil en haut à droite : **ID de compte** (12 chiffres) ; ou `aws sts get-caller-identity` | les **4 derniers chiffres** de l'ID de compte, et le type d'identité (`user/…`, `assumed-role/…`) |
+| le coéquipier | idem avec le compte qui a créé `AlerteVM` | les 4 derniers chiffres |
+| les deux | région affichée en haut à droite de la console | la **région** de `AlerteVM` |
+
+| Résultat | Conclusion | Que faire |
+|---|---|---|
+| **Même ID de compte** | même compte AWS : `AlerteVM` existe pour vous aussi | ne **créez pas** de nouvelle machine ; passez à « Réutiliser AlerteVM » ci-dessous |
+| **ID différents** | comptes séparés : vous **ne verrez pas** `AlerteVM`, et les crédits sont peut-être séparés | demandez aux organisateurs **quel compte porte les crédits** et lequel doit servir pour la finale ; ne dupliquez rien tant qu'ils n'ont pas répondu |
+| Même ID mais `AlerteVM` invisible | mauvaise **région** (les instances sont propres à une région), ou **permissions** insuffisantes (`ec2:DescribeInstances` refusé) | changez de région dans la console ; sinon demandez aux organisateurs d'étendre vos droits EC2 |
+| Votre connexion est une connexion « SSO / portail d'accès » avec liste de comptes | normal pour les accès d'équipe d'un sandbox | le portail liste les comptes et rôles auxquels vous avez droit : relevez les ID |
+
+**Réutiliser `AlerteVM` (même compte)** — d'abord la **lire sans la modifier** (console → EC2 → Instances → `AlerteVM`, onglets Détails et Stockage) et noter : type d'instance, état, région, taille et type du disque, groupe de sécurité, paire de clés, système. Puis :
+| Constat sur `AlerteVM` | Décision |
+|---|---|
+| type **GPU** (`g5.*` ou équivalent) avec ≥ 24 Go de mémoire GPU et disque ≥ 150 Go | l'adopter : **ne rien recréer**, passer aux §3 et suivants |
+| type **sans GPU** (`t3`, `m5`, `c5`…) | elle peut héberger l'**application** mais **pas** un modèle de 14 B : soit on y ajoute plus tard un modèle distant (autre machine), soit son type est **changé** (arrêter l'instance, *Actions → Instance settings → Change instance type* ; possible seulement si le quota GPU le permet et que le disque est assez grand) — **à décider avec le coéquipier, jamais seul** (un arrêt coupe ce qui tourne dessus) |
+| disque trop petit | l'agrandir (*Modifier le volume*, puis `growpart` / `resize2fs` sur l'instance) |
+**Accès SSH à `AlerteVM`** : seul son créateur possède le fichier `.pem` de la paire de clés. Deux solutions sans rien refaire : (1) le coéquipier ajoute **votre clé publique** (`~/.ssh/id_ed25519.pub`) dans `~/.ssh/authorized_keys` de l'instance ; ou (2) *EC2 Instance Connect* depuis la console (bouton *Se connecter*) ou `aws ec2-instance-connect send-ssh-public-key --instance-id <id> --instance-os-user ubuntu --ssh-public-key file://~/.ssh/id_ed25519.pub --region <RÉGION>`, **si** vos permissions l'autorisent et si le port 22 est ouvert depuis votre IP. Ne partagez **jamais** le `.pem` par un canal de messagerie.
+
+**Si `AlerteVM` n'est pas utilisable** (autre compte, mauvais type) : seulement alors, créez la machine du §2 — dans le compte **désigné par les organisateurs** — et notez-le ici pour ne pas refaire la même chose deux fois.
+
+### Constat du 28/11/2026 (relevé dans la console par un membre de l'équipe, même compte AWS que le créateur de la machine)
+| Élément | Valeur relevée |
+|---|---|
+| Machine existante | `AlerteVM`, région `eu-central-1` |
+| Type | **`g5.xlarge`** (1 GPU A10G 24 Go, 4 vCPU, 16 Go de RAM — à confirmer dans la console) |
+| État | **arrêtée** depuis le 23/11/2026 (arrêt manuel) ; pas d'IP publique tant qu'elle est arrêtée ; pas d'IP élastique |
+| Système | Deep Learning Base OSS Nvidia Driver GPU AMI **Ubuntu 22.04** (Python 3.12 à ajouter : §3) |
+| Paire de clés | `alerteK` (le fichier doit s'appeler `alerteK.pem`) |
+| Protection contre la résiliation / l'arrêt | **désactivées** (à activer) ; aucun rôle IAM ; IMDSv2 « facultatif » |
+| Disque | **150 Gio** (`/dev/sda1`), non chiffré, attaché : suffisant (150 Gio = minimum du runbook) |
+| Groupe de sécurité | `launch-wizard-8` ; règle entrante **unique** : SSH (TCP 22) depuis **une seule adresse `/32`** (celle du créateur) ; sortant : tout autorisé (accès Internet pour télécharger modèle et paquets : OK côté groupe) |
+| **À faire** | **ajouter votre propre IP** (SSH, port 22, source « Mon IP ») sans retirer la règle existante — sinon la connexion expire ; **jamais** `0.0.0.0/0` |
+| Quota « Running On-Demand G and VT instances » en `eu-central-1` | **768 vCPU** appliqués (défaut AWS : 0 ; relevé par les organisateurs), utilisation 0 : `g5.2xlarge` (8 vCPU) est permis |
+| **État relevé après démarrage (28/11)** | `g5.2xlarge` confirmé (8 CPU, 30 Go de RAM, A10G 23 Go) ; **vLLM déjà installé** par le créateur : conteneur `alerte-vllm` (image `v0.8.5`, `Qwen/Qwen2.5-14B-Instruct-AWQ`, contexte 8 192, **92 % du GPU**, clé d'API dans `/etc/alerte-vllm.env`, port hôte **8000** sur 127.0.0.1) ; modèle déjà en cache dans `/opt/hf-cache` (19 Go) ; disque 85/146 Go utilisés ; Internet OK ; Python 3.10 (3.12 absent) ; Docker 28 + Compose 2.38 ; ni Ollama ni code ALERTE |
+| **Conséquence** | **ne pas réinstaller vLLM** : le relancer à **75 %** du GPU (même commande, `--gpu-memory-utilization 0.75`) pour laisser ≈ 5 Go à `bge-m3` ; l'application ALERTE utilise le port **8010** (le 8000 est pris par vLLM) ; `ALERTE_LLM_BASE_URL=http://127.0.0.1:8000/v1` et `ALERTE_LLM_API_KEY` lue depuis `/etc/alerte-vllm.env` sans jamais l'afficher |
+| **Non relevé** | prix, crédits disponibles |
+
+**Décision de machine** (ne rien recréer) :
+* **Option A — garder `g5.xlarge`** : aucun changement ; 16 Go de RAM **sans marge** : construire la base (OCR + embeddings) **avant** de démarrer vLLM, jamais en même temps ; **non mesuré**.
+* **Option B — passer en `g5.2xlarge`** (8 vCPU, 32 Go) : instance **arrêtée**, *Actions → Paramètres de l'instance → Modifier le type d'instance* ; réversible ; exige un quota « G and VT » ≥ 8 vCPU en `eu-central-1` ; **recommandée si le quota le permet**. Prix : à relever sur la page officielle EC2.
+**Démarrer l'instance fait facturer** : accord du responsable du projet d'abord. Activer ensuite la protection contre la résiliation (*Actions → Paramètres de l'instance → Modifier la protection contre la résiliation*).
+
 ## 1. Avant de créer quoi que ce soit — vérifications en lecture seule (aucun coût)
-Avec l'AWS CLI configurée (2FA comprise), dans la région du sandbox (celle que les organisateurs ont indiquée ; `me-central-1` n'a pas toujours de GPU) :
+Avec l'AWS CLI configurée (2FA comprise), dans la région **imposée par les organisateurs : Europe (Francfort), `eu-central-1`** (remplacez `<RÉGION>` ci-dessous par `eu-central-1` ; les quotas et les types d'instance sont propres à chaque région) :
 ```bash
 aws sts get-caller-identity                                       # compte (n'envoyez que les 4 derniers chiffres)
 aws ec2 describe-instance-type-offerings --location-type region \
@@ -49,14 +100,17 @@ aws ec2 describe-instances --region <RÉGION> --output table                    
 
 ## 3. Préparer la machine (SSH)
 ```bash
-ssh -o ServerAliveInterval=30 -i alerte-gpu.pem ubuntu@<IP-PUBLIQUE>
+ssh -o ServerAliveInterval=30 -i alerteK.pem ubuntu@<IP-PUBLIQUE>
 # --- sur l'instance ---
 nvidia-smi                                   # doit afficher « NVIDIA A10G » et ≈ 23 Go de mémoire
 docker --version && docker compose version   # si « compose » est absent : sudo apt-get install -y docker-compose-v2
 curl -sI https://huggingface.co | head -1    # sortie Internet : doit afficher « HTTP/2 200 » (ou 301/302) — sinon ARRÊT : voir §1 (d)
-sudo apt-get update && sudo apt-get install -y git tmux python3.12 python3.12-venv python3-pip \
+sudo apt-get update
+# Ubuntu 22.04 (cas d'AlerteVM) : Python 3.12 vient d'un dépôt supplémentaire. Sur Ubuntu 24.04 cette ligne est inutile.
+sudo add-apt-repository -y ppa:deadsnakes/ppa && sudo apt-get update
+sudo apt-get install -y git tmux python3.12 python3.12-venv python3-pip \
      tesseract-ocr tesseract-ocr-fra tesseract-ocr-eng tesseract-ocr-ara libpango-1.0-0 libpangoft2-1.0-0 rsync
-python3 --version                            # 3.12.x ; sur Ubuntu 22.04 : sudo add-apt-repository -y ppa:deadsnakes/ppa && sudo apt-get install -y python3.12 python3.12-venv
+python3.12 --version                          # 3.12.x   (attention : `python3 --version` affiche encore 3.10 sur 22.04 : c'est normal, utiliser python3.12)
 curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && . ~/.nvm/nvm.sh && nvm install 22     # Node 22 pour construire l'interface
 ```
 Vérification : `nvidia-smi`, `python3 --version`, `node --version` (v22.x), `tesseract --list-langs` (ara, eng, fra).
@@ -64,12 +118,12 @@ Vérification : `nvidia-smi`, `python3 --version`, `node --version` (v22.x), `te
 ## 4. Envoyer le code et les PDF (depuis VOTRE poste)
 ```bash
 # code : si le dépôt est accessible depuis l'instance
-ssh -i alerte-gpu.pem ubuntu@<IP> "git clone --branch Rudy https://github.com/RudyTchamba/ALERTE.git ~/ALERTE"
+ssh -i alerteK.pem ubuntu@<IP> "git clone --branch Rudy https://github.com/RudyTchamba/ALERTE.git ~/ALERTE"
 # sinon (dépôt privé) : copie directe, sans dépendances ni données
 rsync -avz --exclude node_modules --exclude .venv --exclude data --exclude data-kb-build --exclude '.env' \
-      -e "ssh -i alerte-gpu.pem" alerte-platform/ ubuntu@<IP>:~/ALERTE/alerte-platform/
+      -e "ssh -i alerteK.pem" alerte-platform/ ubuntu@<IP>:~/ALERTE/alerte-platform/
 # PDF sources (≈ 136 Mo, hors dépôt) :
-rsync -avz -e "ssh -i alerte-gpu.pem" <dossier local>/alerte/data/docs/ ubuntu@<IP>:~/pdf/
+rsync -avz -e "ssh -i alerteK.pem" <dossier local>/alerte/data/docs/ ubuntu@<IP>:~/pdf/
 ```
 (La branche et l'URL du dépôt sont celles de `git remote -v` au 27/11/2026 ; ajustez si elles changent.) Vérification sur l'instance : `ls ~/ALERTE/alerte-platform/scripts && ls ~/pdf/CM | wc -l` → `17`.
 
@@ -131,7 +185,7 @@ curl http://127.0.0.1:8000/api/v1/health
 
 ## 8. Se connecter depuis votre poste
 ```bash
-ssh -i alerte-gpu.pem -N -L 8000:127.0.0.1:8000 ubuntu@<IP-PUBLIQUE>      # à laisser ouvert
+ssh -i alerteK.pem -N -L 8000:127.0.0.1:8000 ubuntu@<IP-PUBLIQUE>      # à laisser ouvert
 ```
 Ouvrez http://localhost:8000/access → *Se connecter avec un jeton* → jeton noté à l'étape 7. Puis suivez le [parcours B](../runbooks/guide-parcours-A-et-B.md) (les agents utilisent `Qwen/Qwen2.5-14B-Instruct-AWQ`). Importer l'espace, les mandats et le scénario : commandes #18 à #22 du [catalogue](../runbooks/catalogue-commandes-et-fichiers.md), à lancer **sur l'instance** avec `--api http://127.0.0.1:8000`.
 

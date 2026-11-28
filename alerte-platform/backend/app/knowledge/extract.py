@@ -16,6 +16,10 @@ from pathlib import Path
 from typing import Any
 
 log = logging.getLogger("alerte.knowledge.extract")
+# pdfminer (sous pdfplumber) journalise, pour chaque police au descripteur incomplet, « Could not get FontBBox from font descriptor … » : c'est un
+# AVERTISSEMENT de métrique de police, pas un échec d'extraction (le texte est extrait ; une page douteuse est signalée « à relire » par nos propres
+# contrôles). On le ramène à ERROR pour ne pas noyer la console ; la qualité se lit dans `knowledge status --documents` et `check`.
+logging.getLogger("pdfminer").setLevel(logging.ERROR)
 
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".md", ".markdown", ".txt", ".csv"}
 MIN_PAGE_CHARS = 80

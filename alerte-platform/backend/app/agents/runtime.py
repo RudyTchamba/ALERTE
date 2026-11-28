@@ -259,6 +259,9 @@ class AgentRuntime:
         if r.reason in ("unknown_chunk", "not_in_retrieval_set", "out_of_scope"):
             ids = ", ".join(run.retrieved) or "(none: call search_kb first)"
             return f"chunk {r.chunk_id or '(empty)'}: not a retrieved chunk_id. Use one of: {ids}."
+        if r.reason == "quote_not_prose":
+            return (f"chunk {r.chunk_id}: the quote is figures or a table, not a sentence of legal text. Quote a sentence that states "
+                    "the rule your action relies on, or use outcome no_legal_basis_found with legal_basis [].")
         if r.reason in ("quote_not_in_chunk", "quote_too_short"):
             return (f'chunk {r.chunk_id}: "quote" must be 20+ consecutive characters copied exactly from the text of '
                     "that retrieved_document.")
@@ -273,6 +276,23 @@ class AgentRuntime:
                 return bool(mandates.action_exists(s, run.ctx.workspace_id, code))
         except Exception:  # noqa: BLE001 - service optionnel : ne bloque pas l'activation
             return True
+
+    def _guard_evidence(self, run: _Run, dec: env.Decision, res: list[Any]) -> env.Decision:
+        """Un niveau de preuve « documented » ne se déclare pas : il se mérite. Observé avec un modèle réel (14B) : `documented` + confiance
+        haute sur une décision SANS aucune citation vérifiée, ou sur une action d'un siège sans mandat validé. Le contrôle est fait par le
+        serveur (le modèle ne peut pas l'ignorer) et consigné dans la trace (outil `evidence_guard`) ; la décision n'est ni refusée ni réécrite,
+        seule l'étiquette est ramenée à ce que les preuves permettent."""
+        if dec.evidence_tag != "documented":
+            return dec
+        new, why = None, None
+        if not any(r.passed for r in res):
+            new, why = "assumed", "no_verified_citation"
+        elif dec.outcome == "act" and not run.ctx.mandates:
+            new, why = "inferred", "no_validated_mandate_for_seat"
+        if new is None:
+            return dec
+        run.tool_call("evidence_guard", {"evidence_tag": {"from": "documented", "to": new}, "reason": why}, "", True)
+        return dec.model_copy(update={"evidence_tag": new})
 
     def _handle_decide(self, run: _Run, act: env.DecideAction, base: list[LLMMessage], key: str) -> None:
         did, dec = new_id(), act.decision
@@ -303,6 +323,7 @@ class AgentRuntime:
                     res = self._check(run, did, dec)
                 else:
                     pl["valid"] = False
+        dec = self._guard_evidence(run, dec, res)
         status = "recorded" if all(r.passed for r in res) else "not_verified"
         run.decision = self._decision_payload(run, did, dec, rationale, status, "agent", [r.as_basis() for r in res])
         run.ev("DECISION", run.decision, "public")
@@ -342,7 +363,8 @@ class AgentRuntime:
         run.ev("RETRIEVAL", {"query": q, "scope_hash": ctx.scope.scope_hash(), "results": [
             {"chunk_id": h["chunk_id"], "score": h["score"], "rank": i + 1} for i, h in enumerate(hits)],
             "signals": sig}, "seat")
-        run.notes.append(f"search_kb({q!r}): {len(hits)} result(s): {', '.join(h['chunk_id'] for h in hits) or 'none'}.")
+        run.notes.append(f"search_kb({q!r}): {len(hits)} result(s): {', '.join(h['chunk_id'] for h in hits) or 'none'}. "
+                         "They are shown in the search results below; repeating this exact query returns the same results.")
         run.tool_call("search_kb", args, act.rationale, True)
 
     def _do_legal(self, run: _Run, act: env.AskLegalAction) -> None:
@@ -423,6 +445,8 @@ class AgentRuntime:
             err = "request_too_late"  # sa réponse tomberait au dernier tour, où l'on ne peut plus poster : demande orpheline assurée
         elif act.to not in ctx.seat_codes:
             err = "unknown_recipient"
+        elif act.msg_type == "REQUEST" and any(m.to == act.to and m.msg_type == "REQUEST" for m in run.messages):
+            err = "duplicate_request"  # observé : deux demandes quasi identiques à la même cible dans une activation ("never ask twice")
         elif act.to == ctx.seat_code:
             err = "self_recipient"
         elif act.reply_status is not None:
@@ -479,20 +503,46 @@ class AgentRuntime:
             run.error("budget", f"LLM call budget reached ({self.settings.max_llm_calls})", "pause")
             return self._result(run, "budget_exhausted")
 
+    @staticmethod
+    def pending_requests(ctx: SeatContext) -> list[str]:
+        """Identifiants des REQUEST reçues dans la boîte privée de ce siège et auxquelles il n'a pas encore répondu."""
+        answered = {b.get("in_reply_to") for b in ctx.board if b.get("from") == ctx.seat_code and b.get("in_reply_to")}
+        out: list[str] = []
+        for i in ctx.inbox:
+            mid = i.get("msg_id")
+            if i.get("kind") == "board" and i.get("msg_type") == "REQUEST" and mid and mid not in answered and mid not in out:
+                out.append(str(mid))
+        return out
+
     def _loop(self, run: _Run, tools: list[str], limits: dict[str, int]) -> ActivationResult:
         ctx = run.ctx
         max_steps = limits["max_steps"]
+        # Une demande reçue est traitée AVANT toute recherche : observé avec un modèle réel, le destinataire cherchait puis décidait sans jamais
+        # répondre (demande orpheline). Le modèle écrit sa réponse lui-même (le serveur n'en fabrique aucune) ; on lui réserve seulement le pas.
+        # Au plus 2 réponses, et toujours un pas de recherche et le pas final de décision.
+        to_answer = (self.pending_requests(ctx)[:max(0, min(2, max_steps - 2))]
+                     if "post" in tools and ctx.round < MAX_ROUNDS else [])
         for step in range(1, max_steps + 1):
             final = step == max_steps or run.force_final
             allowed = [t for t in tools if not final or t in FINAL_TOOLS]
             if ctx.round >= MAX_ROUNDS:  # dernier tour : un message ne serait livré à personne -> on ne peut que décider
                 allowed = [t for t in allowed if t != "post"]
+            answering = bool(to_answer) and not final and "post" in allowed
+            if answering:
+                allowed = ["post"]
+                run.notes.append(f"Answer now the REQUEST in your private inbox (msg_id {to_answer[0]}): post with "
+                                 f'"in_reply_to": "{to_answer[0]}" and "reply_status" accepted|refused|not_our_role, saying what your '
+                                 "institution will do, or why it cannot, within YOUR mandate. You will search and decide in the next steps.")
             if not allowed:
                 break
             base = build_messages(ctx, retrieved=list(run.retrieved.values()), notes=run.notes, allowed_now=allowed)
             key = f"{ctx.step_key}:s{step}"
             act, kind = self._ask(run, base, env.envelope_schema(allowed), key, allowed)
             if act is None:
+                if answering and kind == "cut":  # le modèle n'a pas répondu à la demande : on ne l'enferme pas, il passe à la suite
+                    to_answer.clear()
+                    run.notes.append("The REQUEST was not answered; continue with search_kb or decide.")
+                    continue
                 if kind == "invalid":
                     return self._not_recorded(run, getattr(run, "last_error", "invalid output"))
                 run.error("agent_loop", f"step limit reached without a valid final action (max_steps={max_steps})", "fallback decide")
@@ -507,6 +557,8 @@ class AgentRuntime:
                 self._do_legal(run, act)
             elif act.action == "post":
                 ok = self._do_post(run, act)
+                if answering:
+                    to_answer.pop(0)
                 if ok and final:
                     return self._result(run, "ok")
             elif act.action == "decide":

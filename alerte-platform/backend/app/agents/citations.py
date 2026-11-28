@@ -10,8 +10,12 @@ from typing import Any
 from ..contracts import SearchScope
 
 MIN_QUOTE_CHARS = 20
+MIN_PROSE_RATIO = 0.5  # part de lettres parmi les caractères non blancs : une ligne de chiffres d'un tableau n'est pas un texte juridique
 _TO_CONFIRM = re.compile(r"to\s*confirm|à\s*confirmer|a\s*confirmer|\btbc\b|\btbd\b", re.I)
 _ART_PREFIX = re.compile(r"^(articles?|art)\b\.?\s*", re.I)
+# Le prompt présente un passage sans numéro d'article comme « article: none » : un modèle qui recopie littéralement cette valeur écrit la
+# CHAÎNE "none" au lieu de null. C'est « pas d'article », pas un numéro d'article erroné : on ne refuse pas la citation pour cela.
+_NO_ARTICLE = frozenset({"", "none", "null", "nil", "n a", "na", "sans", "aucun", "aucune", "unknown", "inconnu"})  # forme normalisée (ponctuation retirée)
 
 
 @dataclass
@@ -83,6 +87,8 @@ def check_citations(knowledge: Any, session: Any, citations: Sequence[Mapping[st
             results.append(fail("not_in_retrieval_set"))
             continue
         cited = "" if article is None else str(article)
+        if normalize_text(cited) in _NO_ARTICLE:
+            cited = ""
         if cited and _TO_CONFIRM.search(cited):
             results.append(fail("article_to_confirm"))
             continue
@@ -96,6 +102,11 @@ def check_citations(knowledge: Any, session: Any, citations: Sequence[Mapping[st
         nq = normalize_text(quote)
         if len(nq) < MIN_QUOTE_CHARS:
             results.append(fail("quote_too_short"))
+            continue
+        visible = [ch for ch in nq if not ch.isspace()]
+        if visible and sum(ch.isalpha() for ch in visible) / len(visible) < MIN_PROSE_RATIO:
+            # observé avec un modèle réel : « 80,3 16,6 3,1 100,0 75,2 » cité comme base légale et déclaré « vérifié »
+            results.append(fail("quote_not_prose"))
             continue
         if nq not in normalize_text(_chunk_text(chunk)):
             results.append(fail("quote_not_in_chunk"))
